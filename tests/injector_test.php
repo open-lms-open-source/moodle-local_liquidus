@@ -39,7 +39,7 @@ class local_liquidus_injector_testcase extends advanced_testcase {
         $this->resetAfterTest();
     }
 
-    public function test_injector() {
+    private function run_injection_type($type) {
         global $PAGE;
 
         // Login as someone.
@@ -50,7 +50,7 @@ class local_liquidus_injector_testcase extends advanced_testcase {
 
         $pagereqs = $this->prophesize(get_class($PAGE->requires));
         $pagereqs->js_call_amd(Argument::type('string'), Argument::type('string'), Argument::type('array'))
-                 ->shouldBeCalledTimes(1);
+            ->shouldBeCalledTimes(1);
         $mockpage->requires = $pagereqs->reveal();
         $mockpage->context = $PAGE->context;
         $mockpage->pagetype = $PAGE->pagetype;
@@ -59,11 +59,23 @@ class local_liquidus_injector_testcase extends advanced_testcase {
         injector::get_instance()->set_test_page($mockpage);
 
         set_config('enabled', '1', 'local_liquidus');
-        set_config('segment', '1', 'local_liquidus');
+        set_config($type, '1', 'local_liquidus');
         set_config('segmentwritekey', 'abc', 'local_liquidus');
 
         injector::get_instance()->inject();
 
         $pagereqs->checkProphecyMethodsPredictions();
+    }
+
+    public function test_injector_segment() {
+        $this->run_injection_type('segment');
+    }
+
+    public function test_injector_keenio() {
+        $this->run_injection_type('keenio');
+    }
+
+    public function test_injector_kinesis() {
+        $this->run_injection_type('kinesis');
     }
 }

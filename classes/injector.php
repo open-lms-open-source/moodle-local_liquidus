@@ -72,7 +72,7 @@ class injector {
             return;
         }
 
-        $analyticstypes = ['segment', 'keenio', 'beacon'];
+        $analyticstypes = ['segment', 'keenio', 'kinesis'];
         $trackersinfo = [];
         $engine = null;
         foreach ($analyticstypes as $type) {

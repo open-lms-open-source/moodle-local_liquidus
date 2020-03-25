@@ -28,19 +28,17 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * @inheritdoc
  */
-class beacon extends analytics {
+class kinesis extends analytics {
     /**
      * @inheritdoc
      */
     public static function get_tracker_info() {
-        global $USER;
-
         $res = [];
-        $beaconurl = get_config('local_liquidus', 'beaconurl');
+        $kinesisurl = get_config('local_liquidus', 'kinesisurl');
 
         if (self::should_track()) {
-            $res['trackerId'] = 'beacon';
-            $res['beaconURL'] = $beaconurl;
+            $res['trackerId'] = 'kinesis';
+            $res['kinesisURL'] = $kinesisurl;
             $res['staticShares'] = self::get_static_shares();
         }
 

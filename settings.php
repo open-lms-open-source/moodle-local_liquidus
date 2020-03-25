@@ -87,16 +87,16 @@ if (is_siteadmin()) {
     $description = new lang_string('liquidusaws_help', $pluginname);
     $settings->add(new admin_setting_heading('liquidusaws', $name, $description));
 
-    $name = "{$pluginname}/beacon";
-    $title = get_string('beacon', $pluginname);
-    $description = get_string('beacon_desc', $pluginname);
+    $name = "{$pluginname}/kinesis";
+    $title = get_string('kinesis', $pluginname);
+    $description = get_string('kinesis_desc', $pluginname);
     $default = false;
     $setting = new admin_setting_configcheckbox($name, $title, $description, $default, true, false);
     $settings->add($setting);
 
-    $name = "{$pluginname}/beaconurl";
-    $title = get_string('beaconurl', $pluginname);
-    $description = get_string('beaconurl_desc', $pluginname);
+    $name = "{$pluginname}/kinesisurl";
+    $title = get_string('kinesisurl', $pluginname);
+    $description = get_string('kinesisurl_desc', $pluginname);
     $default = '';
     $setting = new admin_setting_configtext($name, $title, $description, $default);
     $settings->add($setting);

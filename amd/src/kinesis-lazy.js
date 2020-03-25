@@ -14,7 +14,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Loads AWS Beacon tracker.
+ * Loads AWS Kinesis tracker.
  *
  * @package   local_liquidus
  * @copyright Copyright (c) 2020 Blackboard Inc.
@@ -29,8 +29,8 @@ function($, Log) {
 
     self.addAnalyticsJS = function() {
         var dfd = $.Deferred();
-        if (!tracker.trackerInfo.beaconURL) {
-            Log.debug('Liquidus is misconfigured for the AWS Beacon, Beacon URL is missing.');
+        if (!tracker.trackerInfo.kinesisURL) {
+            Log.debug('Liquidus is misconfigured for AWS Kinesis, Kinesis URL is missing.');
             return null;
         }
 
@@ -46,17 +46,17 @@ function($, Log) {
 
     tracker.identify = function() {
         $.ajax({
-            url: tracker.trackerInfo.beaconURL,
+            url: tracker.trackerInfo.kinesisURL,
             method: 'POST',
             headers: tracker.trackerInfo.staticShares
         }).done(function() {
-            Log.debug('Liquidus identified with beacon.');
+            Log.debug('Liquidus identified with kinesis.');
         });
     };
 
     tracker.trackPage = function() {
         $.ajax({
-            url: tracker.trackerInfo.beaconURL,
+            url: tracker.trackerInfo.kinesisURL,
             method: 'POST',
             headers: {
                 userHash: tracker.trackerInfo.staticShares.userHash,
@@ -66,13 +66,13 @@ function($, Log) {
                 custom_metric_string_value: navigator.userAgent,
             }
         }).done(function() {
-            Log.debug('Liquidus sent page to beacon.');
+            Log.debug('Liquidus sent page to kinesis.');
         });
     };
 
     tracker.heartBeat = function() {
         $.ajax({
-            url: tracker.trackerInfo.beaconURL,
+            url: tracker.trackerInfo.kinesisURL,
             method: 'POST',
             headers: {
                 userHash: tracker.trackerInfo.staticShares.userHash,
@@ -80,13 +80,13 @@ function($, Log) {
                 custom_metric_string_value: 1,
             }
         }).done(function() {
-            Log.debug('Liquidus sent heart beat to beacon.');
+            Log.debug('Liquidus sent heart beat to kinesis.');
         });
     };
 
     tracker.processEvent = function(dfd, metricName, data) {
         $.ajax({
-            url: tracker.trackerInfo.beaconURL,
+            url: tracker.trackerInfo.kinesisURL,
             method: 'POST',
             headers: {
                 userHash: tracker.trackerInfo.staticShares.userHash,
@@ -95,7 +95,7 @@ function($, Log) {
             }
         }).done(function() {
             dfd.resolve(true);
-            Log.debug('AWS Beacon promise resolved.');
+            Log.debug('AWS Kinesis promise resolved.');
         });
     };
 
