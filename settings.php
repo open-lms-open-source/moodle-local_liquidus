@@ -101,6 +101,11 @@ if (is_siteadmin()) {
     $setting = new admin_setting_configtext($name, $title, $description, $default);
     $settings->add($setting);
 
+    // Kinesis conditional form show.
+    $dependency = "{$pluginname}/kinesis";
+    $tohide = "{$pluginname}/kinesisurl";
+    $settings->hide_if($tohide, $dependency, 'notchecked');
+
     $name = new lang_string('extanalytics', $pluginname);
     $description = new lang_string('extanalyticss_help', $pluginname);
     $settings->add(new admin_setting_heading('extanalytics', $name, $description));
@@ -118,6 +123,11 @@ if (is_siteadmin()) {
     $default = '';
     $setting = new admin_setting_configtext($name, $title, $description, $default);
     $settings->add($setting);
+
+    // Segment conditional form show.
+    $dependency = "{$pluginname}/segment";
+    $tohide = "{$pluginname}/segmentwritekey";
+    $settings->hide_if($tohide, $dependency, 'notchecked');
 
     $name = "{$pluginname}/keenio";
     $title = get_string('keenio', $pluginname);
@@ -139,5 +149,31 @@ if (is_siteadmin()) {
     $default = '';
     $setting = new admin_setting_configtext($name, $title, $description, $default);
     $settings->add($setting);
+
+    // KeenIO conditional form show.
+    $dependency = "{$pluginname}/keenio";
+    $tohide = "{$pluginname}/keeniowritekey";
+    $settings->hide_if($tohide, $dependency, 'notchecked');
+    $tohide = "{$pluginname}/keenioprojectid";
+    $settings->hide_if($tohide, $dependency, 'notchecked');
+
+    $name = "{$pluginname}/google";
+    $title = get_string('google', $pluginname);
+    $description = get_string('google_desc', $pluginname);
+    $default = false;
+    $setting = new admin_setting_configcheckbox($name, $title, $description, $default, true, false);
+    $settings->add($setting);
+
+    $name = "{$pluginname}/googlesiteid";
+    $title = get_string('googlesiteid', $pluginname);
+    $description = get_string('googlesiteid_desc', $pluginname);
+    $default = '';
+    $setting = new admin_setting_configtext($name, $title, $description, $default);
+    $settings->add($setting);
+
+    // Google conditional form show.
+    $dependency = "{$pluginname}/google";
+    $tohide = "{$pluginname}/googlesiteid";
+    $settings->hide_if($tohide, $dependency, 'notchecked');
 
 }

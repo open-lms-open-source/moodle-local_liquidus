@@ -60,7 +60,6 @@ class local_liquidus_injector_testcase extends advanced_testcase {
 
         set_config('enabled', '1', 'local_liquidus');
         set_config($type, '1', 'local_liquidus');
-        set_config('segmentwritekey', 'abc', 'local_liquidus');
 
         injector::get_instance()->inject();
 
@@ -77,5 +76,9 @@ class local_liquidus_injector_testcase extends advanced_testcase {
 
     public function test_injector_kinesis() {
         $this->run_injection_type('kinesis');
+    }
+
+    public function test_injector_google() {
+        $this->run_injection_type('google');
     }
 }

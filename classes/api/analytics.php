@@ -174,6 +174,8 @@ abstract class analytics {
         $staticshares = get_config('local_liquidus', 'staticshares');
         if (!empty($staticshares)) {
             $staticshares = explode(',', $staticshares);
+        } else {
+            $staticshares = [];
         }
 
         // Add static shares which must always be used to the static shares array.

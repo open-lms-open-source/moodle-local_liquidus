@@ -13,20 +13,35 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * Version file for Liquidus plugin.
+ * Liquidus Google tracker.
  *
  * @package   local_liquidus
  * @copyright Copyright (c) 2020 Blackboard Inc.
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+namespace local_liquidus\api;
+
 defined('MOODLE_INTERNAL') || die();
-/** @var object $plugin */
-$plugin->version   = 2018052817; // The current plugin version (Date: YYYYMMDDXX).
-$plugin->requires  = 2016052300; // Requires this Moodle version.
-$plugin->component = 'local_liquidus'; // Full name of the plugin (used for diagnostics).
-$plugin->maturity  = MATURITY_ALPHA;
-$plugin->release   = '3.7.2';
-$plugin->dependencies = [
-    'local_aws_sdk' => 2017101100,   // Need to have the AWS SDK.
-];
+
+/**
+ * @inheritdoc
+ */
+class google extends analytics {
+    /**
+     * @inheritdoc
+     */
+    public static function get_tracker_info() {
+        $res = [];
+        $siteid = get_config('local_liquidus', 'googlesiteid');
+
+        if (!empty($siteid) && self::should_track()) {
+            $res['trackerId'] = 'google';
+            $res['siteid'] = $siteid;
+            $res['staticShares'] = self::get_static_shares();
+        }
+
+        return $res;
+    }
+}
