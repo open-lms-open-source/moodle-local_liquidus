@@ -32,18 +32,27 @@ class keenio extends analytics {
     /**
      * @inheritdoc
      */
-    public static function get_tracker_info() {
-        global $USER;
-
+    public static function get_tracker_info($config) {
         $res = [];
-        $writekey = get_config('local_liquidus', 'keeniowritekey');
-        $projectid = get_config('local_liquidus', 'keenioprojectid');
+        if (empty($config->keeniowritekey) || empty($config->keenioprojectid)) {
+            debugging(get_string('trackernotconfigured', 'local_liquidus', 'keenio'));
+            if (empty($config->keeniowritekey)) {
+                debugging(get_string('trackermissingfield', 'local_liquidus', 'keeniowritekey'));
+            }
+            if (empty($config->keenioprojectid)) {
+                debugging(get_string('trackermissingfield', 'local_liquidus', 'keenioprojectid'));
+            }
+            return $res;
+        }
 
-        if (!empty($writekey) && self::should_track()) {
+        $writekey = $config->keeniowritekey;
+        $projectid = $config->keenioprojectid;
+
+        if (!empty($writekey) && self::should_track($config)) {
             $res['trackerId'] = 'keenio';
             $res['projectId'] = $projectid;
             $res['writeKey'] = $writekey;
-            $res['staticShares'] = self::get_static_shares();
+            $res['staticShares'] = self::get_static_shares($config);
         }
 
         return $res;

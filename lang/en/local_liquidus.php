@@ -70,3 +70,5 @@ $string['google'] = 'Google';
 $string['google_desc'] = 'Google tracking using gtag (Google Analytics, Google Ads, and Google Marketing Platform)';
 $string['googlesiteid'] = 'Google Analytics property ID';
 $string['googlesiteid_desc'] = 'You can get your Google Analytics property ID yout Google Analytics account administration.';
+$string['trackernotconfigured'] = 'Liquidus tracker {$a} not properly configured.';
+$string['trackermissingfield'] = 'Liquidus tracker missing field: {$a}';

@@ -66,9 +66,8 @@ class injector {
         }
         $this->injected = true;
 
-        $pluginenabled = get_config('local_liquidus', 'enabled');
-        $shouldtrack = analytics::should_track();
-        if (empty($pluginenabled) || !$shouldtrack) {
+        $configs = $this->getAvailableConfigs();
+        if (empty($configs)) {
             return;
         }
 
@@ -76,17 +75,7 @@ class injector {
         $trackersinfo = [];
         $engine = null;
         foreach ($analyticstypes as $type) {
-            $enabled = get_config('local_liquidus', $type);
-            if ($enabled) {
-                $classname = "\\local_liquidus\\api\\{$type}";
-                if (!class_exists($classname, true)) {
-                    debugging("Local Liquidus Module: Analytics setting '{$type}' doesn't map to a class name.");
-                    return;
-                }
-
-                $engine = new $classname;
-                $trackersinfo[] = $engine::get_tracker_info();
-            }
+            $trackersinfo = array_merge($trackersinfo, $this->retrieveTrackerInfoAllConfigs($type, $configs));
         }
 
         if (empty($trackersinfo)) {
@@ -103,7 +92,7 @@ class injector {
     }
 
     /**
-     *
+     * Resets injection status.
      */
     public function reset() {
         $this->injected = false;
@@ -119,5 +108,72 @@ class injector {
             throw new \coding_exception('Test page can only be set when running tests.');
         }
         $this->testpage = $testpage;
+    }
+
+    /**
+     * Retrieve tracker information from all configurations, plugin and shadow.
+     * @param string $type
+     * @param array $configs
+     * @return array
+     * @throws \dml_exception
+     */
+    private function retrieveTrackerInfoAllConfigs($type, $configs): array {
+        $result = [];
+        foreach ($configs as $config) {
+            $trackerinfo = $this->retrieveTrackerInfo($type, $config);
+            if (!is_null($trackerinfo)) {
+                $result[] = $trackerinfo;
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * Build injection class and get the relevant tracker information.
+     * @param $type
+     * @param $config
+     * @return array|null
+     */
+    private function retrieveTrackerInfo($type, $config): ?array {
+        if (!empty($config->$type)) {
+            $classname = "\\local_liquidus\\api\\{$type}";
+            if (!class_exists($classname, true)) {
+                debugging("Local Liquidus Module: Analytics setting '{$type}' doesn't map to a class name.");
+                return null;
+            }
+
+            /** @var analytics $engine */
+            $engine = new $classname;
+            $trackerinfo = $engine::get_tracker_info($config);
+            if (empty($trackerinfo)) {
+                // Misconfigured tracker, it is enabled but missing fields.
+                // Returning null ensures that the tracker is not included.
+                return null;
+            }
+            return $trackerinfo;
+        }
+        return null;
+    }
+
+    /**
+     * Gets the available configurations to be used.
+     * @return array
+     * @throws \dml_exception
+     */
+    private function getAvailableConfigs() {
+        global $CFG;
+        $configs = [];
+        // Normal Moodle config for client use.
+        $configs[] = get_config('local_liquidus');
+        // Shadow config for internal Open LMS use.
+        if (!empty($CFG->local_liquidus_olms_cfg) && is_object($CFG->local_liquidus_olms_cfg)) {
+            $configs[] = $CFG->local_liquidus_olms_cfg;
+        }
+
+        return array_filter($configs, function($config) {
+            $pluginenabled = $config->enabled;
+            $shouldtrack = analytics::should_track($config);
+            return !empty($pluginenabled) && $shouldtrack;
+        });
     }
 }

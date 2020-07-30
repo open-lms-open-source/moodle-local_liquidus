@@ -40,7 +40,7 @@ class local_liquidus_analytics_testcase extends advanced_testcase {
         $user = $this->getDataGenerator()->create_user();
         $this->setUser($user);
 
-        $shares = analytics::get_static_shares();
+        $shares = analytics::get_static_shares(get_config('local_liquidus'));
 
         // All shares are enabled as default.
         $sharekeys = array_merge(analytics::STATIC_SHARES_ALWAYS, analytics::STATIC_SHARES);

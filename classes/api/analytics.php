@@ -131,29 +131,32 @@ abstract class analytics {
     /**
      * Whether to track this request.
      *
+     * @param \stdClass $config
      * @return boolean
      *   The outcome of our deliberations.
      */
-    public static function should_track() {
+    public static function should_track($config) {
         if (!is_siteadmin()) {
             return true;
         }
 
-        $trackadmin = get_config('local_liquidus', 'trackadmin');
+        $trackadmin = $config->trackadmin;
         return ($trackadmin == 1);
     }
 
     /**
      * Gets an array with all the tracker info.
+     * @param \stdClass $config Config object.
      * @return array
      */
-    public static abstract function get_tracker_info();
+    public static abstract function get_tracker_info($config);
 
     /**
      * Gets an array with all the static info.
+     * @param \stdClass $config
      * @return array
      */
-    public static function get_static_shares() {
+    public static function get_static_shares($config) {
         global $USER, $PAGE;
 
         $res = [];
@@ -165,13 +168,13 @@ abstract class analytics {
         $ismasquerading = manager::is_loggedinas();
 
         if ($ismasquerading) {
-            $usereal = get_config('local_liquidus', 'masquerade_handling');
+            $usereal = $config->masquerade_handling;
             if ($usereal) {
                 $user = manager::get_realuser();
             }
         }
 
-        $staticshares = get_config('local_liquidus', 'staticshares');
+        $staticshares = $config->staticshares;
         if (!empty($staticshares)) {
             $staticshares = explode(',', $staticshares);
         } else {

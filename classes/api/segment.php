@@ -32,16 +32,20 @@ class segment extends analytics {
     /**
      * @inheritdoc
      */
-    public static function get_tracker_info() {
-        global $USER;
-
+    public static function get_tracker_info($config) {
         $res = [];
-        $writekey = get_config('local_liquidus', 'segmentwritekey');
+        if (empty($config->segmentwritekey)) {
+            debugging(get_string('trackernotconfigured', 'local_liquidus', 'segment'));
+            debugging(get_string('trackermissingfield', 'local_liquidus', 'segmentwritekey'));
+            return $res;
+        }
 
-        if (!empty($writekey) && self::should_track()) {
+        $writekey = $config->segmentwritekey;
+
+        if (!empty($writekey) && self::should_track($config)) {
             $res['trackerId'] = 'segment';
             $res['writeKey'] = $writekey;
-            $res['staticShares'] = self::get_static_shares();
+            $res['staticShares'] = self::get_static_shares($config);
         }
 
         return $res;

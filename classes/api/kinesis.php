@@ -32,14 +32,20 @@ class kinesis extends analytics {
     /**
      * @inheritdoc
      */
-    public static function get_tracker_info() {
+    public static function get_tracker_info($config) {
         $res = [];
-        $kinesisurl = get_config('local_liquidus', 'kinesisurl');
+        if (empty($config->kinesisurl)) {
+            debugging(get_string('trackernotconfigured', 'local_liquidus', 'kinesis'));
+            debugging(get_string('trackermissingfield', 'local_liquidus', 'kinesisurl'));
+            return $res;
+        }
 
-        if (self::should_track()) {
+        $kinesisurl = $config->kinesisurl;
+
+        if (self::should_track($config)) {
             $res['trackerId'] = 'kinesis';
             $res['kinesisURL'] = $kinesisurl;
-            $res['staticShares'] = self::get_static_shares();
+            $res['staticShares'] = self::get_static_shares($config);
         }
 
         return $res;

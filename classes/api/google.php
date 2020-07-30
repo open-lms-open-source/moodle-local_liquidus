@@ -32,14 +32,20 @@ class google extends analytics {
     /**
      * @inheritdoc
      */
-    public static function get_tracker_info() {
+    public static function get_tracker_info($config) {
         $res = [];
-        $siteid = get_config('local_liquidus', 'googlesiteid');
+        if (empty($config->googlesiteid)) {
+            debugging(get_string('trackernotconfigured', 'local_liquidus', 'google'));
+            debugging(get_string('trackermissingfield', 'local_liquidus', 'googlesiteid'));
+            return $res;
+        }
 
-        if (!empty($siteid) && self::should_track()) {
+        $siteid = $config->googlesiteid;
+
+        if (!empty($siteid) && self::should_track($config)) {
             $res['trackerId'] = 'google';
             $res['siteid'] = $siteid;
-            $res['staticShares'] = self::get_static_shares();
+            $res['staticShares'] = self::get_static_shares($config);
         }
 
         return $res;
