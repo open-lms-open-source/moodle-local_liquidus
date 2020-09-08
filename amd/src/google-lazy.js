@@ -63,7 +63,25 @@ define(['jquery','core/log', 'core/templates'],
         };
 
         tracker.trackPage = function() {
-            self.gtag('event', 'page', tracker.trackerInfo.staticShares);
+            var plugins = tracker.trackerInfo.staticShares.plugins;
+            delete tracker.trackerInfo.staticShares.plugins;
+            Object.entries(tracker.trackerInfo.staticShares).forEach(
+                ([key, value]) => {
+                    self.gtag('event', key + '_' + value);
+                }
+            );
+            if (plugins && plugins.length) {
+                Object.entries(plugins).forEach(
+                    ([type, value]) => {
+                        value.forEach(mod => {
+                            self.gtag('event', 'plugin_used_'
+                                + type + '_' + mod, {
+                                event_category: type
+                            });
+                        });
+                    });
+            }
+
         };
 
         tracker.processEvent = function(dfd, metricName, data) {
