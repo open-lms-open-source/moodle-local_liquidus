@@ -55,33 +55,39 @@ define(['jquery','core/log', 'core/templates'],
             return self.addAnalyticsJS();
         };
 
-        tracker.identify = function() {
-            Log.debug('Identifying with Google');
-            self.gtag('event', 'identify', {
-                userHash: tracker.trackerInfo.staticShares.userHash
-            });
-        };
+        tracker.identify = function() {}; // User hash is already sent in trackPage.
 
         tracker.trackPage = function() {
-            var plugins = tracker.trackerInfo.staticShares.plugins;
-            delete tracker.trackerInfo.staticShares.plugins;
-            Object.entries(tracker.trackerInfo.staticShares).forEach(
-                ([key, value]) => {
-                    self.gtag('event', key + '_' + value);
-                }
-            );
-            if (plugins && plugins.length) {
+            if (tracker.trackerInfo.staticShares.plugins) {
+                const plugins = tracker.trackerInfo.staticShares.plugins;
                 Object.entries(plugins).forEach(
                     ([type, value]) => {
-                        value.forEach(mod => {
-                            self.gtag('event', 'plugin_used_'
-                                + type + '_' + mod, {
-                                event_category: type
+                        value.forEach(pluginId => {
+                            const eventId = type + '_' + pluginId;
+                            const eventCategory = 'pluginUsed';
+                            self.gtag('event', eventId, {
+                                event_category: eventCategory
                             });
                         });
                     });
+                delete tracker.trackerInfo.staticShares.plugins;
             }
 
+            if (tracker.trackerInfo.staticShares.userRole) {
+                const userRole = tracker.trackerInfo.staticShares.userRole;
+                self.gtag('event', userRole.join(','), {
+                    event_category: 'userRole'
+                });
+                delete tracker.trackerInfo.staticShares.userRole;
+            }
+
+            Object.entries(tracker.trackerInfo.staticShares).forEach(
+                ([eventCategory, eventId]) => {
+                    self.gtag('event', eventId, {
+                        event_category: eventCategory
+                    });
+                }
+            );
         };
 
         tracker.processEvent = function(dfd, metricName, data) {

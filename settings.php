@@ -60,16 +60,18 @@ if (is_siteadmin()) {
     $setting = new admin_setting_configcheckbox($name, $title, $description, $default, true, false);
     $settings->add($setting);
 
-    $name = new lang_string('eventhandling', $pluginname);
-    $description = new lang_string('eventhandling_help', $pluginname);
-    $settings->add(new admin_setting_heading('eventhandling', $name, $description));
+    if (!empty($CFG->local_liquidus_enable_eventdef)) {
+        $name = new lang_string('eventhandling', $pluginname);
+        $description = new lang_string('eventhandling_help', $pluginname);
+        $settings->add(new admin_setting_heading('eventhandling', $name, $description));
 
-    $name = "{$pluginname}/eventdef";
-    $title = get_string('eventdef', $pluginname);
-    $description = get_string('eventdef_desc', $pluginname);
-    $default = '';
-    $setting = new admin_setting_configtextarea($name, $title, $description, $default);
-    $settings->add($setting);
+        $name = "{$pluginname}/eventdef";
+        $title = get_string('eventdef', $pluginname);
+        $description = get_string('eventdef_desc', $pluginname);
+        $default = '';
+        $setting = new admin_setting_configtextarea($name, $title, $description, $default);
+        $settings->add($setting);
+    }
 
     $name = "{$pluginname}/staticshares";
     $title = get_string('staticshares', $pluginname);

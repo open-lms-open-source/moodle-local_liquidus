@@ -55,6 +55,10 @@ function($, Log, ajax, notification) {
     };
 
     self.addEventTracking = function(eventDefArray) {
+        if (!eventDefArray || eventDefArray.length === 0) {
+            return;
+        }
+
         Log.debug('Adding event tracking for:');
         Log.debug(eventDefArray);
         for (var e in eventDefArray) {
