@@ -36,7 +36,7 @@ class local_liquidus_injector_testcase extends advanced_testcase {
     const CONFIG_TYPE_SETTING = 0;
     const CONFIG_TYPE_SHADOW = 1;
 
-    public function setUp() {
+    public function setUp(): void {
         parent::setUp();
         injector::get_instance()->reset();
         $this->resetAfterTest();

@@ -31,7 +31,7 @@ defined('MOODLE_INTERNAL') || die();
  */
 class local_liquidus_analytics_testcase extends advanced_testcase {
 
-    public function setUp() {
+    public function setUp(): void {
         $this->resetAfterTest(true);
     }
 
