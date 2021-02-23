@@ -17,7 +17,7 @@
  * Loads AWS Kinesis tracker.
  *
  * @package   local_liquidus
- * @copyright Copyright (c) 2020 Blackboard Inc.
+ * @copyright Copyright (c) 2020 Open LMS
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 define(['jquery', 'core/log'],

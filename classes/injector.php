@@ -16,7 +16,7 @@
 
 /**
  * @package   local_liquidus
- * @copyright Copyright (c) 2020 Blackboard Inc.
+ * @copyright Copyright (c) 2020 Open LMS
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -30,7 +30,7 @@ defined('MOODLE_INTERNAL') || die();
  * Class injector
  *
  * @package   local_liquidus
- * @copyright Copyright (c) 2020 Blackboard Inc.
+ * @copyright Copyright (c) 2020 Open LMS
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class injector {
