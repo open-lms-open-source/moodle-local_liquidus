@@ -18,7 +18,7 @@
  * Event definition.
  *
  * @package   local_liquidus
- * @copyright Copyright (c) 2020 Blackboard Inc.
+ * @copyright Copyright (c) 2020 Open LMS
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -32,7 +32,7 @@ require_once(__DIR__ . '/../../../../lib/externallib.php');
  * Event definition web service.
  *
  * @package   local_liquidus
- * @copyright Copyright (c) 2020 Blackboard Inc.
+ * @copyright Copyright (c) 2020 Open LMS
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class event_definition extends \external_api {
