@@ -22,7 +22,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use local_liquidus\api\analytics;
 use local_liquidus\injector;
 use Prophecy\Argument;
 
@@ -46,9 +45,10 @@ class local_liquidus_injector_testcase extends advanced_testcase {
      * Runs an injection type on a config type.
      * @param string $type tracker type
      * @param int $configtype config type: self::CONFIG_TYPE_SETTING || self::CONFIG_TYPE_SHADOW
+     * @param int $requirecallcount Amount of expected JS require calls
      * @throws coding_exception
      */
-    private function run_injection_type($type, $configtype = self::CONFIG_TYPE_SETTING) {
+    private function run_injection_type($type, $configtype = self::CONFIG_TYPE_SETTING, $requirecallcount = 1) {
         global $PAGE;
 
         // Login as someone.
@@ -59,7 +59,7 @@ class local_liquidus_injector_testcase extends advanced_testcase {
 
         $pagereqs = $this->prophesize(get_class($PAGE->requires));
         $pagereqs->js_call_amd(Argument::type('string'), Argument::type('string'), Argument::type('array'))
-            ->shouldBeCalledTimes(1);
+            ->shouldBeCalledTimes($requirecallcount);
         $mockpage->requires = $pagereqs->reveal();
         $mockpage->context = $PAGE->context;
         $mockpage->pagetype = $PAGE->pagetype;
@@ -100,10 +100,15 @@ class local_liquidus_injector_testcase extends advanced_testcase {
                         set_config('keeniowritekey', 'somekeeniowritekey', 'local_liquidus');
                         set_config('keenioprojectid', 'somekeenioprojectid', 'local_liquidus');
                         break;
+                    case 'mixpanel':
+                        set_config('mixpaneltoken', 'somemixpaneltoken', 'local_liquidus');
+                        break;
                 }
                 break;
             case self::CONFIG_TYPE_SHADOW:
-                $CFG->local_liquidus_olms_cfg = new \stdClass();
+                if (!isset($CFG->local_liquidus_olms_cfg)) {
+                    $CFG->local_liquidus_olms_cfg = new \stdClass();
+                }
                 $CFG->local_liquidus_olms_cfg->enabled = true;
                 $CFG->local_liquidus_olms_cfg->$type = true;
                 $CFG->local_liquidus_olms_cfg->staticshares = implode(',', [
@@ -126,6 +131,9 @@ class local_liquidus_injector_testcase extends advanced_testcase {
                         $CFG->local_liquidus_olms_cfg->keeniowritekey = 'somekeeniowritekey';
                         $CFG->local_liquidus_olms_cfg->keenioprojectid = 'somekeenioprojectid';
                         break;
+                    case 'mixpanel':
+                        $CFG->local_liquidus_olms_cfg->mixpaneltoken = 'somemixpaneltoken';
+                        break;
                 }
                 break;
         }
@@ -147,19 +155,57 @@ class local_liquidus_injector_testcase extends advanced_testcase {
         $this->run_injection_type('google');
     }
 
+    public function test_injector_mixpanel() {
+        $this->run_injection_type('mixpanel');
+    }
+
     public function test_injector_segment_shadow() {
+        global $CFG;
+        $CFG->local_liquidus_olms_cfg = new \stdClass();
+        $CFG->local_liquidus_olms_cfg->tracknonadmin = 1;
         $this->run_injection_type('segment', self::CONFIG_TYPE_SHADOW);
     }
 
     public function test_injector_keenio_shadow() {
+        global $CFG;
+        $CFG->local_liquidus_olms_cfg = new \stdClass();
+        $CFG->local_liquidus_olms_cfg->tracknonadmin = 1;
         $this->run_injection_type('keenio', self::CONFIG_TYPE_SHADOW);
     }
 
     public function test_injector_kinesis_shadow() {
+        global $CFG;
+        $CFG->local_liquidus_olms_cfg = new \stdClass();
+        $CFG->local_liquidus_olms_cfg->tracknonadmin = 1;
         $this->run_injection_type('kinesis', self::CONFIG_TYPE_SHADOW);
     }
 
     public function test_injector_google_shadow() {
+        global $CFG;
+        $CFG->local_liquidus_olms_cfg = new \stdClass();
+        $CFG->local_liquidus_olms_cfg->tracknonadmin = 1;
         $this->run_injection_type('google', self::CONFIG_TYPE_SHADOW);
+    }
+
+    public function test_injector_mixpanel_shadow() {
+        global $CFG;
+        $CFG->local_liquidus_olms_cfg = new \stdClass();
+        $CFG->local_liquidus_olms_cfg->tracknonadmin = 1;
+        $this->run_injection_type('mixpanel', self::CONFIG_TYPE_SHADOW);
+    }
+
+    /**
+     * Test that users are not tracked when setting is turned off.
+     * @throws coding_exception
+     */
+    public function test_injector_no_track() {
+        global $CFG;
+
+        set_config('tracknonadmin', '0', 'local_liquidus');
+        $this->run_injection_type('segment', self::CONFIG_TYPE_SETTING, 0);
+
+        $CFG->local_liquidus_olms_cfg = new \stdClass();
+        $CFG->local_liquidus_olms_cfg->tracknonadmin = 0;
+        $this->run_injection_type('segment', self::CONFIG_TYPE_SHADOW, 0);
     }
 }

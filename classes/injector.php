@@ -71,7 +71,7 @@ class injector {
             return;
         }
 
-        $analyticstypes = ['segment', 'keenio', 'kinesis', 'google'];
+        $analyticstypes = ['segment', 'keenio', 'kinesis', 'google', 'mixpanel'];
         $trackersinfo = [];
         $engine = null;
         foreach ($analyticstypes as $type) {
