@@ -136,11 +136,13 @@ abstract class analytics {
      *   The outcome of our deliberations.
      */
     public static function should_track($config) {
-        if (!is_siteadmin()) {
+        $tracknonadmin = !empty($config->tracknonadmin);
+
+        if ($tracknonadmin == 1 && !is_siteadmin()) {
             return true;
         }
 
-        $trackadmin = $config->trackadmin;
+        $trackadmin = !empty($config->trackadmin);
         return ($trackadmin == 1);
     }
 

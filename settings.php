@@ -53,6 +53,13 @@ if (is_siteadmin()) {
     $setting = new admin_setting_configcheckbox($name, $title, $description, $default, true, false);
     $settings->add($setting);
 
+    $name = "{$pluginname}/tracknonadmin";
+    $title = get_string('tracknonadmin', $pluginname);
+    $description = get_string('tracknonadmin_desc', $pluginname);
+    $default = true;
+    $setting = new admin_setting_configcheckbox($name, $title, $description, $default, true, false);
+    $settings->add($setting);
+
     $name = "{$pluginname}/cleanurl";
     $title = get_string('cleanurl', $pluginname);
     $description = get_string('cleanurl_desc', $pluginname);
@@ -176,6 +183,25 @@ if (is_siteadmin()) {
     // Google conditional form show.
     $dependency = "{$pluginname}/google";
     $tohide = "{$pluginname}/googlesiteid";
+    $settings->hide_if($tohide, $dependency, 'notchecked');
+
+    $name = "{$pluginname}/mixpanel";
+    $title = get_string('mixpanel', $pluginname);
+    $description = get_string('mixpanel_desc', $pluginname);
+    $default = false;
+    $setting = new admin_setting_configcheckbox($name, $title, $description, $default, true, false);
+    $settings->add($setting);
+
+    $name = "{$pluginname}/mixpaneltoken";
+    $title = get_string('mixpaneltoken', $pluginname);
+    $description = get_string('mixpaneltoken_desc', $pluginname);
+    $default = '';
+    $setting = new admin_setting_configtext($name, $title, $description, $default);
+    $settings->add($setting);
+
+    // Segment conditional form show.
+    $dependency = "{$pluginname}/mixpanel";
+    $tohide = "{$pluginname}/mixpaneltoken";
     $settings->hide_if($tohide, $dependency, 'notchecked');
 
 }
