@@ -23,6 +23,7 @@
 namespace local_liquidus;
 
 use local_liquidus\api\analytics;
+use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -43,6 +44,9 @@ class injector {
     /** @var null|\stdClass  */
     private $testpage;
 
+    /** @var string[] */
+    private $analyticstypes;
+
     private function __construct() {
         $this->reset();
     }
@@ -55,7 +59,7 @@ class injector {
     }
 
     public function inject() {
-        global $PAGE;
+        global $PAGE, $CFG;
 
         if (!isloggedin()) {
             return;
@@ -71,10 +75,17 @@ class injector {
             return;
         }
 
-        $analyticstypes = ['segment', 'keenio', 'kinesis', 'google', 'mixpanel'];
+        if (empty($this->analyticstypes)) {
+            $this->analyticstypes = array_diff(
+                scandir($CFG->dirroot . '/local/liquidus/classes/api'),
+                ['..', '.', 'analytics']);
+            array_walk($this->analyticstypes, function(&$item) {
+                $item = basename($item, '.php');
+            });
+        }
+
         $trackersinfo = [];
-        $engine = null;
-        foreach ($analyticstypes as $type) {
+        foreach ($this->analyticstypes as $type) {
             $trackersinfo = array_merge($trackersinfo, $this->retrieveTrackerInfoAllConfigs($type, $configs));
         }
 
@@ -88,6 +99,17 @@ class injector {
             $page = $this->testpage;
         }
 
+        // Add script tags for trackers which require it.
+        $inhead = true;
+        foreach ($trackersinfo as $info) {
+            if (!empty($url = $info['scripturl'])) {
+                if (strpos($url, 'http') === false) {
+                    $url = (is_https() ? 'https' : 'http') . "://{$url}";
+                }
+                $page->requires->js(new moodle_url($url), $inhead);
+            }
+        }
+
         $page->requires->js_call_amd('local_liquidus/main', 'init', [$trackersinfo]);
     }
 
@@ -97,6 +119,7 @@ class injector {
     public function reset() {
         $this->injected = false;
         $this->testpage = null;
+        $this->analyticstypes = [];
     }
 
     /**
@@ -150,6 +173,10 @@ class injector {
                 // Returning null ensures that the tracker is not included.
                 return null;
             }
+
+            if (!empty($scripturl = $engine::get_script_url($config))) {
+                $trackerinfo['scripturl'] = $scripturl;
+            }
             return $trackerinfo;
         }
         return null;
@@ -175,5 +202,22 @@ class injector {
             $shouldtrack = analytics::should_track($config);
             return !empty($pluginenabled) && $shouldtrack;
         });
+    }
+
+    /**
+     * Retrieves the analytics types.
+     * @return array|false
+     */
+    public function get_analytics_types() {
+        global $CFG;
+
+        if (empty($this->analyticstypes)) {
+            $this->analyticstypes = array_diff(scandir($CFG->dirroot . '/local/liquidus/classes/api'), ['..', '.', 'analytics.php']);
+            array_walk($this->analyticstypes, function(&$item) {
+                $item = basename($item, '.php');
+            });
+        }
+
+        return $this->analyticstypes;
     }
 }

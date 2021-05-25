@@ -44,9 +44,9 @@ function($, Log, Router) {
 
         require(['local_liquidus/' + trackerInfo.trackerId + '-lazy'], function(tracker) {
             Log.debug('Loaded ' + trackerInfo.trackerId + ' tracker. Initializing.');
-            tracker.loadTracker(trackerInfo).done(function() {
-                Router.registerTracker(tracker);
-            });
+            tracker.loadTracker(trackerInfo)
+                .done(() => Router.registerTracker(tracker))
+            ;
         });
     };
 
@@ -57,8 +57,8 @@ function($, Log, Router) {
 
         Log.debug(trackersInfo);
         // Load a new dependency.
-        for (var t in trackersInfo) {
-            requireTracker(trackersInfo[t]);
+        for (let info of trackersInfo) {
+            requireTracker(info);
         }
     };
 

@@ -299,4 +299,12 @@ HTML;
         // argument. If you pass large amounts of data into the amd arguments then it throws a debug error.
         $CFG->additionalhtmlfooter .= $script;
     }
+
+    /**
+     * If this should be embedded
+     * @return string
+     */
+    public static function get_script_url($config) {
+        return '';
+    }
 }

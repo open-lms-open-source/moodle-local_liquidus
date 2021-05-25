@@ -103,6 +103,9 @@ class local_liquidus_injector_testcase extends advanced_testcase {
                     case 'mixpanel':
                         set_config('mixpaneltoken', 'somemixpaneltoken', 'local_liquidus');
                         break;
+                    case 'appcues':
+                        set_config('appcuesaccountid', 'SOMEACCOUNTID', 'local_liquidus');
+                        break;
                 }
                 break;
             case self::CONFIG_TYPE_SHADOW:
@@ -134,78 +137,76 @@ class local_liquidus_injector_testcase extends advanced_testcase {
                     case 'mixpanel':
                         $CFG->local_liquidus_olms_cfg->mixpaneltoken = 'somemixpaneltoken';
                         break;
+                    case 'appcues':
+                        $CFG->local_liquidus_olms_cfg->appcuesaccountid = 'SOMEACCOUNTID';
+                        break;
                 }
                 break;
         }
     }
 
-    public function test_injector_segment() {
-        $this->run_injection_type('segment');
+    /**
+     * Tests the injector using site settings.
+     * @dataProvider get_analytics_types
+     *
+     * @param string $analyticstype
+     * @throws coding_exception
+     */
+    public function test_injector_with_settings($analyticstype) {
+        $this->run_injection_type($analyticstype);
     }
 
-    public function test_injector_keenio() {
-        $this->run_injection_type('keenio');
-    }
-
-    public function test_injector_kinesis() {
-        $this->run_injection_type('kinesis');
-    }
-
-    public function test_injector_google() {
-        $this->run_injection_type('google');
-    }
-
-    public function test_injector_mixpanel() {
-        $this->run_injection_type('mixpanel');
-    }
-
-    public function test_injector_segment_shadow() {
+    /**
+     * Tests the injector using config flags, A.K.A. shadow config.
+     * @dataProvider get_analytics_types
+     *
+     * @param string $analyticstype
+     * @throws coding_exception
+     */
+    public function test_injector_shadow($analyticstype) {
         global $CFG;
         $CFG->local_liquidus_olms_cfg = new \stdClass();
         $CFG->local_liquidus_olms_cfg->tracknonadmin = 1;
-        $this->run_injection_type('segment', self::CONFIG_TYPE_SHADOW);
-    }
-
-    public function test_injector_keenio_shadow() {
-        global $CFG;
-        $CFG->local_liquidus_olms_cfg = new \stdClass();
-        $CFG->local_liquidus_olms_cfg->tracknonadmin = 1;
-        $this->run_injection_type('keenio', self::CONFIG_TYPE_SHADOW);
-    }
-
-    public function test_injector_kinesis_shadow() {
-        global $CFG;
-        $CFG->local_liquidus_olms_cfg = new \stdClass();
-        $CFG->local_liquidus_olms_cfg->tracknonadmin = 1;
-        $this->run_injection_type('kinesis', self::CONFIG_TYPE_SHADOW);
-    }
-
-    public function test_injector_google_shadow() {
-        global $CFG;
-        $CFG->local_liquidus_olms_cfg = new \stdClass();
-        $CFG->local_liquidus_olms_cfg->tracknonadmin = 1;
-        $this->run_injection_type('google', self::CONFIG_TYPE_SHADOW);
-    }
-
-    public function test_injector_mixpanel_shadow() {
-        global $CFG;
-        $CFG->local_liquidus_olms_cfg = new \stdClass();
-        $CFG->local_liquidus_olms_cfg->tracknonadmin = 1;
-        $this->run_injection_type('mixpanel', self::CONFIG_TYPE_SHADOW);
+        $this->run_injection_type($analyticstype, self::CONFIG_TYPE_SHADOW);
     }
 
     /**
      * Test that users are not tracked when setting is turned off.
+     * @dataProvider get_analytics_types
+     *
+     * @param string $analyticstype
      * @throws coding_exception
      */
-    public function test_injector_no_track() {
+    public function test_injector_no_track($analyticstype) {
         global $CFG;
 
         set_config('tracknonadmin', '0', 'local_liquidus');
-        $this->run_injection_type('segment', self::CONFIG_TYPE_SETTING, 0);
+        $this->run_injection_type($analyticstype, self::CONFIG_TYPE_SETTING, 0);
 
         $CFG->local_liquidus_olms_cfg = new \stdClass();
         $CFG->local_liquidus_olms_cfg->tracknonadmin = 0;
-        $this->run_injection_type('segment', self::CONFIG_TYPE_SHADOW, 0);
+        $this->run_injection_type($analyticstype, self::CONFIG_TYPE_SHADOW, 0);
+    }
+
+    /**
+     * @return array|false|string[]
+     */
+    public function get_analytics_types() {
+        return injector::get_instance()->get_analytics_types();
+    }
+
+    /**
+     * Test that the analytics types we support are actually being listed.
+     */
+    public function test_analytics_types() {
+        $supported = [
+            'segment',
+            'keenio',
+            'kinesis',
+            'google',
+            'mixpanel',
+            'appcues',
+        ];
+        $this->assertEmpty(array_diff($this->get_analytics_types(), $supported));
     }
 }

@@ -199,9 +199,28 @@ if (is_siteadmin()) {
     $setting = new admin_setting_configtext($name, $title, $description, $default);
     $settings->add($setting);
 
-    // Segment conditional form show.
+    // Mixpanel conditional form show.
     $dependency = "{$pluginname}/mixpanel";
     $tohide = "{$pluginname}/mixpaneltoken";
+    $settings->hide_if($tohide, $dependency, 'notchecked');
+
+    $name = "{$pluginname}/appcues";
+    $title = get_string('appcues', $pluginname);
+    $description = get_string('appcues_desc', $pluginname);
+    $default = false;
+    $setting = new admin_setting_configcheckbox($name, $title, $description, $default, true, false);
+    $settings->add($setting);
+
+    $name = "{$pluginname}/appcuesaccountid";
+    $title = get_string('appcuesaccountid', $pluginname);
+    $description = get_string('appcuesaccountid_desc', $pluginname);
+    $default = '';
+    $setting = new admin_setting_configtext($name, $title, $description, $default);
+    $settings->add($setting);
+
+    // Appcues conditional form show.
+    $dependency = "{$pluginname}/appcues";
+    $tohide = "{$pluginname}/appcuesaccountid";
     $settings->hide_if($tohide, $dependency, 'notchecked');
 
 }
