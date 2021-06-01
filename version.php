@@ -22,11 +22,11 @@
  */
 defined('MOODLE_INTERNAL') || die();
 /** @var object $plugin */
-$plugin->version   = 2018052818; // The current plugin version (Date: YYYYMMDDXX).
-$plugin->requires  = 2016052300; // Requires this Moodle version.
+$plugin->version   = 2021060100; // The current plugin version (Date: YYYYMMDDXX).
+$plugin->requires  = 2020110900; // Requires this Moodle version.
 $plugin->component = 'local_liquidus'; // Full name of the plugin (used for diagnostics).
 $plugin->maturity  = MATURITY_ALPHA;
-$plugin->release   = '3.7.2';
+$plugin->release   = '3.10.3';
 $plugin->dependencies = [
     'local_aws_sdk' => 2017101100,   // Need to have the AWS SDK.
 ];
