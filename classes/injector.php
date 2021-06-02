@@ -102,7 +102,7 @@ class injector {
         // Add script tags for trackers which require it.
         $inhead = true;
         foreach ($trackersinfo as $info) {
-            if (!empty($url = $info['scripturl'])) {
+            if (isset($info['scripturl']) && !empty($url = $info['scripturl'])) {
                 if (strpos($url, 'http') === false) {
                     $url = (is_https() ? 'https' : 'http') . "://{$url}";
                 }

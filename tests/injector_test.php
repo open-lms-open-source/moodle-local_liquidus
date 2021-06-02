@@ -22,6 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use local_liquidus\api\analytics;
 use local_liquidus\injector;
 use Prophecy\Argument;
 
@@ -55,7 +56,7 @@ class local_liquidus_injector_testcase extends advanced_testcase {
         $user = $this->getDataGenerator()->create_user();
         $this->setUser($user);
 
-        $mockpage = new \stdClass;
+        $mockpage = new stdClass;
 
         $pagereqs = $this->prophesize(get_class($PAGE->requires));
         $pagereqs->js_call_amd(Argument::type('string'), Argument::type('string'), Argument::type('array'))
@@ -65,7 +66,16 @@ class local_liquidus_injector_testcase extends advanced_testcase {
         $mockpage->pagetype = $PAGE->pagetype;
 
         // Enable plugin and tracker type.
-        $this->enable_plugin_and_tracker($type, $configtype);
+        $config = $this->enable_plugin_and_tracker($type, $configtype);
+
+        // Check for track url. If it is used by the provider, the js method should be called.
+        $classname = "\\local_liquidus\\api\\{$type}";
+        /** @var analytics $engine */
+        $engine = new $classname;
+        if (!empty($engine::get_script_url($config))) {
+            $pagereqs->js(Argument::type('moodle_url'), Argument::type('string'))
+                ->shouldBeCalledTimes($requirecallcount);
+        }
 
         // Let's tell te injector class to use our mock page so our prophecy becomes true.
         injector::get_instance()->set_test_page($mockpage);
@@ -79,9 +89,11 @@ class local_liquidus_injector_testcase extends advanced_testcase {
      * Enables the plugin and specified tracker configuring it with dummy data.
      * @param string $type tracker type
      * @param int $configtype config type: self::CONFIG_TYPE_SETTING || self::CONFIG_TYPE_SHADOW
+     * @return stdClass Config object
      */
     private function enable_plugin_and_tracker($type, $configtype = self::CONFIG_TYPE_SETTING) {
         global $CFG;
+        $returncfg = null;
         switch ($configtype) {
             case self::CONFIG_TYPE_SETTING:
                 set_config('enabled', '1', 'local_liquidus');
@@ -107,10 +119,11 @@ class local_liquidus_injector_testcase extends advanced_testcase {
                         set_config('appcuesaccountid', 'SOMEACCOUNTID', 'local_liquidus');
                         break;
                 }
+                $returncfg = get_config('local_liquidus');
                 break;
             case self::CONFIG_TYPE_SHADOW:
                 if (!isset($CFG->local_liquidus_olms_cfg)) {
-                    $CFG->local_liquidus_olms_cfg = new \stdClass();
+                    $CFG->local_liquidus_olms_cfg = new stdClass();
                 }
                 $CFG->local_liquidus_olms_cfg->enabled = true;
                 $CFG->local_liquidus_olms_cfg->$type = true;
@@ -141,8 +154,10 @@ class local_liquidus_injector_testcase extends advanced_testcase {
                         $CFG->local_liquidus_olms_cfg->appcuesaccountid = 'SOMEACCOUNTID';
                         break;
                 }
+                $returncfg = $CFG;
                 break;
         }
+        return $returncfg;
     }
 
     /**
@@ -165,7 +180,7 @@ class local_liquidus_injector_testcase extends advanced_testcase {
      */
     public function test_injector_shadow($analyticstype) {
         global $CFG;
-        $CFG->local_liquidus_olms_cfg = new \stdClass();
+        $CFG->local_liquidus_olms_cfg = new stdClass();
         $CFG->local_liquidus_olms_cfg->tracknonadmin = 1;
         $this->run_injection_type($analyticstype, self::CONFIG_TYPE_SHADOW);
     }
@@ -183,7 +198,7 @@ class local_liquidus_injector_testcase extends advanced_testcase {
         set_config('tracknonadmin', '0', 'local_liquidus');
         $this->run_injection_type($analyticstype, self::CONFIG_TYPE_SETTING, 0);
 
-        $CFG->local_liquidus_olms_cfg = new \stdClass();
+        $CFG->local_liquidus_olms_cfg = new stdClass();
         $CFG->local_liquidus_olms_cfg->tracknonadmin = 0;
         $this->run_injection_type($analyticstype, self::CONFIG_TYPE_SHADOW, 0);
     }
