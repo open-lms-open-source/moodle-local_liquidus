@@ -59,7 +59,7 @@ class injector {
     }
 
     public function inject() {
-        global $PAGE, $CFG;
+        global $PAGE;
 
         if (!isloggedin()) {
             return;
@@ -76,12 +76,7 @@ class injector {
         }
 
         if (empty($this->analyticstypes)) {
-            $this->analyticstypes = array_diff(
-                scandir($CFG->dirroot . '/local/liquidus/classes/api'),
-                ['..', '.', 'analytics']);
-            array_walk($this->analyticstypes, function(&$item) {
-                $item = basename($item, '.php');
-            });
+            $this->get_analytics_types();
         }
 
         $trackersinfo = [];
@@ -108,9 +103,8 @@ class injector {
                 }
                 $page->requires->js(new moodle_url($url), $inhead);
             }
+            $page->requires->js_call_amd('local_liquidus/main', 'init', [$info]);
         }
-
-        $page->requires->js_call_amd('local_liquidus/main', 'init', [$trackersinfo]);
     }
 
     /**

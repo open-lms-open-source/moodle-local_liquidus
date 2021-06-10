@@ -50,4 +50,11 @@ class segment extends analytics {
 
         return $res;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public static function get_config_settings() {
+        return ['segmentwritekey'];
+    }
 }

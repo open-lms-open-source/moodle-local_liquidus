@@ -82,3 +82,5 @@ $string['appcues'] = 'Appcues';
 $string['appcues_desc'] = 'Appcues tracking';
 $string['appcuesaccountid'] = 'Appcues Account ID';
 $string['appcuesaccountid_desc'] = 'You can get your Appcues Analytics Account ID in your Appcues Analytics account administration.';
+$string['general'] = 'General';
+$string['general_help'] = 'Settings that apply to all analytics providers';

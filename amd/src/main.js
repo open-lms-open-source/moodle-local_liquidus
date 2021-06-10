@@ -31,40 +31,42 @@ function($, Log, Router) {
         /* global localLiquidusCurrentPlugins */
         if (trackerInfo.staticShares
             && trackerInfo.staticShares.plugins
-            && typeof localLiquidusCurrentPlugins !== 'undefined') {
-            trackerInfo.staticShares.plugins = localLiquidusCurrentPlugins;
+            && typeof localLiquidusCurrentPlugins[trackerInfo.trackerId] !== 'undefined') {
+            trackerInfo.staticShares.plugins = localLiquidusCurrentPlugins[trackerInfo.trackerId];
         }
 
         /* global localLiquidusUserRole */
         if (trackerInfo.staticShares
             && trackerInfo.staticShares.userRole
-            && typeof localLiquidusUserRole !== 'undefined') {
-            trackerInfo.staticShares.userRole = localLiquidusUserRole;
+            && typeof localLiquidusUserRole[trackerInfo.trackerId] !== 'undefined') {
+            trackerInfo.staticShares.userRole = localLiquidusUserRole[trackerInfo.trackerId];
         }
 
         require(['local_liquidus/' + trackerInfo.trackerId + '-lazy'], function(tracker) {
             Log.debug('Loaded ' + trackerInfo.trackerId + ' tracker. Initializing.');
+            Log.debug(trackerInfo);
             tracker.loadTracker(trackerInfo)
                 .done(() => Router.registerTracker(tracker))
             ;
         });
     };
 
-    var Liquidus = function(trackersInfo, eventDef) {
+    /**
+     * Create a single instance for Liquidus to configure a single tracker.
+     * @param trackerInfo
+     * @param eventDef
+     * @constructor
+     */
+    var Liquidus = function(trackerInfo, eventDef) {
         Log.debug('Loading Liquidus.');
 
         Router.init(eventDef);
-
-        Log.debug(trackersInfo);
-        // Load a new dependency.
-        for (let info of trackersInfo) {
-            requireTracker(info);
-        }
+        requireTracker(trackerInfo);
     };
 
     return {
-        'init': function(trackersInfo, eventDef) {
-            return new Liquidus(trackersInfo, eventDef);
+        'init': function(trackerInfo, eventDef) {
+            return new Liquidus(trackerInfo, eventDef);
         }
     };
 });

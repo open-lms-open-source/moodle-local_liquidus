@@ -73,7 +73,7 @@ class local_liquidus_injector_testcase extends advanced_testcase {
         /** @var analytics $engine */
         $engine = new $classname;
         if (!empty($engine::get_script_url($config))) {
-            $pagereqs->js(Argument::type('moodle_url'), Argument::type('string'))
+            $pagereqs->js(Argument::type('moodle_url'), Argument::type('bool'))
                 ->shouldBeCalledTimes($requirecallcount);
         }
 
@@ -126,8 +126,8 @@ class local_liquidus_injector_testcase extends advanced_testcase {
                     $CFG->local_liquidus_olms_cfg = new stdClass();
                 }
                 $CFG->local_liquidus_olms_cfg->enabled = true;
-                $CFG->local_liquidus_olms_cfg->$type = true;
-                $CFG->local_liquidus_olms_cfg->staticshares = implode(',', [
+                $CFG->local_liquidus_olms_cfg->{$type} = true;
+                $CFG->local_liquidus_olms_cfg->{"{$type}_staticshares"} = implode(',', [
                     'userrole',
                     'contextlevel',
                     'pagetype',
@@ -154,7 +154,7 @@ class local_liquidus_injector_testcase extends advanced_testcase {
                         $CFG->local_liquidus_olms_cfg->appcuesaccountid = 'SOMEACCOUNTID';
                         break;
                 }
-                $returncfg = $CFG;
+                $returncfg = $CFG->local_liquidus_olms_cfg;
                 break;
         }
         return $returncfg;
@@ -207,7 +207,11 @@ class local_liquidus_injector_testcase extends advanced_testcase {
      * @return array|false|string[]
      */
     public function get_analytics_types() {
-        return injector::get_instance()->get_analytics_types();
+        $types = [];
+        foreach (injector::get_instance()->get_analytics_types() as $type) {
+            $types[$type] = [$type];
+        }
+        return $types;
     }
 
     /**
@@ -222,6 +226,6 @@ class local_liquidus_injector_testcase extends advanced_testcase {
             'mixpanel',
             'appcues',
         ];
-        $this->assertEmpty(array_diff($this->get_analytics_types(), $supported));
+        $this->assertEmpty(array_diff(injector::get_instance()->get_analytics_types(), $supported));
     }
 }

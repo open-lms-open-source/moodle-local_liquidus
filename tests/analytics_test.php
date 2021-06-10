@@ -23,6 +23,7 @@
  */
 
 use local_liquidus\api\analytics;
+use local_liquidus\injector;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -34,13 +35,20 @@ class local_liquidus_analytics_testcase extends advanced_testcase {
     public function setUp(): void {
         $this->resetAfterTest(true);
     }
-
-    public function test_get_static_shares_default() {
+    /**
+     * Test that static shares are what's expected.
+     * @dataProvider get_analytics_types
+     *
+     * @param string $analyticstype
+     * @throws coding_exception
+     */
+    public function test_get_static_shares_default($analyticstype) {
         // Login as someone.
         $user = $this->getDataGenerator()->create_user();
         $this->setUser($user);
 
-        $shares = analytics::get_static_shares(get_config('local_liquidus'));
+        $classname = "\\local_liquidus\\api\\{$analyticstype}";
+        $shares = $classname::get_static_shares(get_config('local_liquidus'));
 
         // All shares are enabled as default.
         $sharekeys = array_merge(analytics::STATIC_SHARES_ALWAYS, analytics::STATIC_SHARES);
@@ -53,5 +61,16 @@ class local_liquidus_analytics_testcase extends advanced_testcase {
         foreach ($sharekeys as $sharekey) {
             $this->assertArrayHasKey($sharekey, $shares);
         }
+    }
+
+    /**
+     * @return array|false|string[]
+     */
+    public function get_analytics_types() {
+        $types = [];
+        foreach (injector::get_instance()->get_analytics_types() as $type) {
+            $types[$type] = [$type];
+        }
+        return $types;
     }
 }

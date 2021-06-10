@@ -176,11 +176,16 @@ abstract class analytics {
             }
         }
 
-        $staticshares = $config->staticshares;
-        if (!empty($staticshares)) {
-            $staticshares = explode(',', $staticshares);
-        } else {
-            $staticshares = [];
+        $provider = static::get_my_provider_name();
+        $staticsharesettingkey = "{$provider}_staticshares";
+        $staticshares = [];
+        if (property_exists($config, $staticsharesettingkey)) {
+            $staticshares = $config->{$staticsharesettingkey};
+            if (!empty($staticshares)) {
+                $staticshares = explode(',', $staticshares);
+            } else {
+                $staticshares = [];
+            }
         }
 
         // Add static shares which must always be used to the static shares array.
@@ -256,7 +261,7 @@ abstract class analytics {
 
         // Adding plugin list straight to footer, explanation: @see \local_liquidus\api\analytics::add_json_to_footer.
         $json = json_encode($plugins);
-        self::add_json_to_footer('localLiquidusCurrentPlugins', $json);
+        self::add_json_to_footer("localLiquidusCurrentPlugins", $json);
 
         return true;
     }
@@ -286,9 +291,14 @@ abstract class analytics {
     private static function add_json_to_footer($varname, $json) {
         global $CFG;
 
+        $provider = static::get_my_provider_name();
+
         $script = <<<HTML
             <script>
-                var $varname = $json;
+                if (undefined === {$varname}) {
+                    var {$varname} = [];
+                }
+                {$varname}["{$provider}"] = {$json};
             </script>
 HTML;
 
@@ -306,5 +316,18 @@ HTML;
      */
     public static function get_script_url($config) {
         return '';
+    }
+
+    /**
+     * @return string[]
+     */
+    public abstract static function get_config_settings();
+
+    /**
+     * Get this classname, it should be the same as the provider.
+     * @return string
+     */
+    private static function get_my_provider_name() {
+        return explode('\\', static::class)[2];
     }
 }

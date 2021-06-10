@@ -57,4 +57,11 @@ class keenio extends analytics {
 
         return $res;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public static function get_config_settings() {
+        return ['keeniowritekey', 'keenioprojectid'];
+    }
 }

@@ -29,7 +29,7 @@ function($, Log, ajax, notification) {
 
     self.registerTracker = function(tracker) {
         Log.debug('Registering tracker ' + tracker.trackerInfo.trackerId);
-        self.trackers.push(tracker);
+        self.trackers[tracker.trackerInfo.trackerId] = tracker;
 
         // Send initial tracker events.
         tracker.identify();
@@ -51,7 +51,6 @@ function($, Log, ajax, notification) {
         }).fail(function(ex) {
             notification.exception(ex);
         });
-
     };
 
     self.addEventTracking = function(eventDefArray) {
@@ -61,16 +60,18 @@ function($, Log, ajax, notification) {
 
         Log.debug('Adding event tracking for:');
         Log.debug(eventDefArray);
-        for (var e in eventDefArray) {
-            var edef = eventDefArray[e];
-            Log.debug('Looking for selector: ' + edef.testselector);
-            if ($(edef.testselector).length) {
-                self.processDefinition(edef);
-            }
-        }
+        eventDefArray.forEach((trackerDef) => {
+            const trackerType = trackerDef.provider;
+            trackerDef.definition.forEach((eDef) => {
+                Log.debug('Looking for selector: ' + eDef.testselector);
+                if ($(eDef.testselector).length) {
+                    self.processDefinition(trackerType, eDef);
+                }
+            });
+        });
     };
 
-    self.processDefinition = function(edef) {
+    self.processDefinition = function(trackerType, edef) {
         Log.debug('Adding event handling for custom event: ' + edef.selector + ' -> ' + edef.event);
         $(edef.selector).on(edef.event, function(evt) {
             evt.preventDefault();
@@ -79,8 +80,7 @@ function($, Log, ajax, notification) {
 
             var data = {};
 
-            for (var d in edef.data) {
-                var ddef = edef.data[d];
+            for (let ddef of edef.data) {
                 Log.debug('Looking for ' + ddef.selector + 'value.');
                 if (ddef.type === 'input') {
                     data[ddef.name] = $(ddef.selector).val();
@@ -90,10 +90,13 @@ function($, Log, ajax, notification) {
             Log.debug(data);
 
             var trackerPromises = [];
-            for (var t in self.trackers) {
+            for (let trackerId in self.trackers) {
+                if (trackerId !== trackerType) {
+                    continue;
+                }
                 var dfd = $.Deferred();
                 trackerPromises.push(dfd);
-                self.trackers[t].processEvent(dfd, edef.name, data);
+                self.trackers[trackerId].processEvent(dfd, edef.name, data);
             }
 
             $.when.apply($, trackerPromises).then(function() {

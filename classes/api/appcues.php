@@ -63,4 +63,11 @@ class appcues extends analytics {
 
         return "fast.appcues.com/{$config->appcuesaccountid}.js";
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public static function get_config_settings() {
+        return ['appcuesaccountid'];
+    }
 }

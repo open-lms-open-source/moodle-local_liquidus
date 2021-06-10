@@ -24,6 +24,8 @@
 
 namespace local_liquidus\webservice;
 
+use local_liquidus\injector;
+
 defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__ . '/../../../../lib/externallib.php');
@@ -45,31 +47,47 @@ class event_definition extends \external_api {
 
     public static function service_returns() {
         return new \external_multiple_structure(
-            new \external_single_structure(
-                [
-                    'name' => new \external_value(PARAM_TEXT, 'definition name'),
-                    'testselector' => new \external_value(PARAM_TEXT, 'definition test selector'),
-                    'selector' => new \external_value(PARAM_TEXT, 'definition selector'),
-                    'event' => new \external_value(PARAM_TEXT, 'definition event type'),
-                    'data' => new \external_multiple_structure(
-                        new \external_single_structure(
-                            [
-                                'name' => new \external_value(PARAM_TEXT, 'data metric name'),
-                                'selector' => new \external_value(PARAM_TEXT, 'data value selector'),
-                                'type' => new \external_value(PARAM_TEXT, 'data html element selector'),
-                            ]
-                        )
-                    ),
-                ]
-            )
+            new \external_single_structure([
+                'provider' => new \external_value(PARAM_TEXT, 'provider name'),
+                'definition' => new \external_multiple_structure(
+                    new \external_single_structure([
+                        'name' => new \external_value(PARAM_TEXT, 'definition name'),
+                        'testselector' => new \external_value(PARAM_TEXT, 'definition test selector'),
+                        'selector' => new \external_value(PARAM_TEXT, 'definition selector'),
+                        'event' => new \external_value(PARAM_TEXT, 'definition event type'),
+                        'data' => new \external_multiple_structure(
+                            new \external_single_structure(
+                                [
+                                    'name' => new \external_value(PARAM_TEXT, 'data metric name'),
+                                    'selector' => new \external_value(PARAM_TEXT, 'data value selector'),
+                                    'type' => new \external_value(PARAM_TEXT, 'data html element selector'),
+                                ]
+                            )
+                        ),
+                    ])
+                )
+            ])
         );
     }
 
+    /**
+     * @TODO Add support for shadow config.
+     * @return mixed
+     * @throws \dml_exception
+     */
     public static function service() {
-        $eventdef = get_config('local_liquidus', 'eventdef');
-        if (empty($eventdef)) {
-            return [];
+        $providers = injector::get_instance()->get_analytics_types();
+
+        $res = [];
+        foreach ($providers as $provider) {
+            $providerres = ['provider' => $provider, 'definition' => []];
+            $eventdef = get_config('local_liquidus', "{$provider}_eventdef");
+            if (!empty($eventdef)) {
+                $providerres['definition'] = json_decode($eventdef, true);
+            }
+            $res[] = $providerres;
         }
-        return json_decode($eventdef, true);
+
+        return $res;
     }
 }
