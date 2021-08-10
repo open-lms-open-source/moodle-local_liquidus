@@ -159,7 +159,7 @@ abstract class analytics {
      * @return array
      */
     public static function get_static_shares($config) {
-        global $USER, $PAGE;
+        global $USER, $PAGE, $SITE;
 
         $res = [];
         if (!isloggedin()) {
@@ -196,7 +196,7 @@ abstract class analytics {
             $value = '';
             switch ($staticshare) {
                 case self::STATIC_USER_HASH:
-                    $value = sha1($user->id . '-' . $user->username);
+                    $value = sha1($SITE->shortname . '-' . $user->id . '-' . $user->username);
                     break;
                 case self::STATIC_USER_ROLE:
                     $value = self::add_user_roles_to_footer($PAGE->context, $user->id);
