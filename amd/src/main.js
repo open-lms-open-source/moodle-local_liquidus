@@ -28,18 +28,17 @@ function($, Log, Router) {
             return;
         }
 
-        /* global localLiquidusCurrentPlugins */
-        if (trackerInfo.staticShares
-            && trackerInfo.staticShares.plugins
-            && typeof localLiquidusCurrentPlugins[trackerInfo.trackerId] !== 'undefined') {
-            trackerInfo.staticShares.plugins = localLiquidusCurrentPlugins[trackerInfo.trackerId];
-        }
+        // Initialize tracker's static shares.
+        trackerInfo.staticShares = {};
 
-        /* global localLiquidusUserRole */
-        if (trackerInfo.staticShares
-            && trackerInfo.staticShares.userRole
-            && typeof localLiquidusUserRole[trackerInfo.trackerId] !== 'undefined') {
-            trackerInfo.staticShares.userRole = localLiquidusUserRole[trackerInfo.trackerId];
+        /* global localLiquidusShares */
+        Log.debug('Liquidus shares:');
+        Log.debug(localLiquidusShares);
+
+        if (typeof localLiquidusShares !== 'undefined'
+            && typeof localLiquidusShares[trackerInfo.trackerId] !== 'undefined'
+        ) {
+            trackerInfo.staticShares = localLiquidusShares[trackerInfo.trackerId];
         }
 
         require(['local_liquidus/' + trackerInfo.trackerId + '-lazy'], function(tracker) {

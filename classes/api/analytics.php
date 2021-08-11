@@ -39,6 +39,9 @@ abstract class analytics {
     const STATIC_CONTEXT_LEVEL = 'contextlevel';
     const STATIC_PAGE_TYPE = 'pagetype';
     const STATIC_PLUGINS = 'plugins';
+    const STATIC_PAGE_TITLE = 'pagetitle';
+    const STATIC_PAGE_URL = 'pageurl';
+    const STATIC_PAGE_PATH = 'pagepath';
 
     const STATIC_SHARES_ALWAYS = [
         self::STATIC_USER_HASH,
@@ -49,6 +52,9 @@ abstract class analytics {
         self::STATIC_CONTEXT_LEVEL,
         self::STATIC_PAGE_TYPE,
         self::STATIC_PLUGINS,
+        self::STATIC_PAGE_TITLE,
+        self::STATIC_PAGE_URL,
+        self::STATIC_PAGE_PATH,
     ];
 
     const STATIC_SHARES_CAMEL_CASE = [
@@ -57,6 +63,9 @@ abstract class analytics {
         self::STATIC_CONTEXT_LEVEL => 'contextLevel',
         self::STATIC_PAGE_TYPE => 'pageType',
         self::STATIC_PLUGINS => 'plugins',
+        self::STATIC_PAGE_TITLE => 'pageTitle',
+        self::STATIC_PAGE_URL => 'pageUrl',
+        self::STATIC_PAGE_PATH => 'pagePath',
     ];
 
     /**
@@ -81,7 +90,7 @@ abstract class analytics {
      * @param bool|int $leadingslash Whether to add a leading slash to the URL.
      * @return string A URL to use for tracking.
      */
-    public static function trackurl($urlencode = false, $leadingslash = false) {
+    public static function track_path($urlencode = false, $leadingslash = false) {
         global $DB, $PAGE;
         $pageinfo = get_context_info_array($PAGE->context->id);
         $trackurl = "";
@@ -156,14 +165,12 @@ abstract class analytics {
     /**
      * Gets an array with all the static info.
      * @param \stdClass $config
-     * @return array
      */
-    public static function get_static_shares($config) {
+    public static function build_static_shares($config) {
         global $USER, $PAGE, $SITE;
 
-        $res = [];
         if (!isloggedin()) {
-            return $res;
+            return;
         }
 
         $user = $USER;
@@ -191,7 +198,6 @@ abstract class analytics {
         // Add static shares which must always be used to the static shares array.
         $staticshares = array_merge(self::STATIC_SHARES_ALWAYS, $staticshares);
 
-        $shares = [];
         foreach ($staticshares as $staticshare) {
             $value = '';
             switch ($staticshare) {
@@ -199,7 +205,7 @@ abstract class analytics {
                     $value = sha1($SITE->shortname . '-' . $user->id . '-' . $user->username);
                     break;
                 case self::STATIC_USER_ROLE:
-                    $value = self::add_user_roles_to_footer($PAGE->context, $user->id);
+                    self::add_user_roles_to_footer($PAGE->context, $user->id);
                     break;
                 case self::STATIC_CONTEXT_LEVEL:
                     $value = $PAGE->context->contextlevel;
@@ -208,21 +214,26 @@ abstract class analytics {
                     $value = $PAGE->pagetype;
                     break;
                 case self::STATIC_PLUGINS:
-                    $value = self::add_current_plugins_called_to_footer();
+                    self::add_current_plugins_called_to_footer();
                     break;
+                case self::STATIC_PAGE_TITLE:
+                    $value = $PAGE->title;
+                    break;
+                case self::STATIC_PAGE_URL:
+                    $value = $PAGE->url->out(false);
+                    break;
+                case self::STATIC_PAGE_PATH:
+                    $value = self::track_path();
+                    break;
+
             }
 
             if (!empty($value)) {
-                $shares[self::STATIC_SHARES_CAMEL_CASE[$staticshare]] = $value;
+                self::encode_and_add_json_to_footer($staticshare, $value);
             }
         }
-
-        return $shares;
     }
 
-    /**
-     * @return boolean
-     */
     private static function add_current_plugins_called_to_footer() {
         $currfile = __FILE__;
         $files = get_included_files();
@@ -259,16 +270,10 @@ abstract class analytics {
             }
         });
 
-        // Adding plugin list straight to footer, explanation: @see \local_liquidus\api\analytics::add_json_to_footer.
-        $json = json_encode($plugins);
-        self::add_json_to_footer("localLiquidusCurrentPlugins", $json);
-
-        return true;
+        // Adding plugin list straight to footer.
+        self::encode_and_add_json_to_footer(self::STATIC_PLUGINS, $plugins);
     }
 
-    /**
-     * @return boolean
-     */
     private static function add_user_roles_to_footer(context $context, int $userid) {
         $roles = get_user_roles($context, $userid);
 
@@ -277,29 +282,34 @@ abstract class analytics {
             $rolenames[] = $role->shortname;
         }
 
-        // Adding user roles straight to footer, explanation: @see \local_liquidus\api\analytics::add_json_to_footer.
-        $json = json_encode($rolenames);
-        self::add_json_to_footer('localLiquidusUserRole', $json);
-
-        return true;
+        // Adding user roles straight to footer.
+        self::encode_and_add_json_to_footer(self::STATIC_USER_ROLE, $rolenames);
     }
 
     /**
-     * @param $varname
-     * @param $json
+     * @param string $share Share identifier.
+     * @param array|string $value This will encoded as json.
      */
-    private static function add_json_to_footer($varname, $json) {
+    private static function encode_and_add_json_to_footer($share, $value) {
         global $CFG;
 
+        $json = json_encode($value);
         $provider = static::get_my_provider_name();
+        $sharecamelcase = self::STATIC_SHARES_CAMEL_CASE[$share];
 
         $script = <<<HTML
+
             <script>
-                if (undefined === {$varname}) {
-                    var {$varname} = [];
+                if (typeof localLiquidusShares === 'undefined') {
+                    var localLiquidusShares = {};
                 }
-                {$varname}["{$provider}"] = {$json};
+
+                if (typeof localLiquidusShares.{$provider} === 'undefined') {
+                    localLiquidusShares.{$provider} = {};
+                }
+                localLiquidusShares.{$provider}.{$sharecamelcase} = {$json};
             </script>
+
 HTML;
 
         if (!isset($CFG->additionalhtmlfooter)) {
@@ -327,7 +337,9 @@ HTML;
      * Get this classname, it should be the same as the provider.
      * @return string
      */
-    private static function get_my_provider_name() {
-        return explode('\\', static::class)[2];
+    public static function get_my_provider_name() {
+        $classname = static::class;
+        $classparts = explode('\\', $classname);
+        return end($classparts);
     }
 }

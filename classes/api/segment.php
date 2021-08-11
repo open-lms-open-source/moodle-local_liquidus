@@ -45,7 +45,6 @@ class segment extends analytics {
         if (!empty($writekey) && self::should_track($config)) {
             $res['trackerId'] = 'segment';
             $res['writeKey'] = $writekey;
-            $res['staticShares'] = self::get_static_shares($config);
         }
 
         return $res;

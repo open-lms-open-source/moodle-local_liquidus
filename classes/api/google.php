@@ -45,7 +45,6 @@ class google extends analytics {
         if (!empty($siteid) && self::should_track($config)) {
             $res['trackerId'] = 'google';
             $res['siteid'] = $siteid;
-            $res['staticShares'] = self::get_static_shares($config);
         }
 
         return $res;

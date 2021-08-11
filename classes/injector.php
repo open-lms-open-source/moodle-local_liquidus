@@ -35,6 +35,21 @@ defined('MOODLE_INTERNAL') || die();
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class injector {
+
+    /*
+     * Constants related to provider specific settings.
+     */
+    const SETTING_PAGE_TYPE_EVENT = 'pagetypeevent';
+
+    /*
+     * Constant that specifies which setting is allowed on which provider.
+     */
+    const SETTING_PROVIDER_MAPPING = [
+        self::SETTING_PAGE_TYPE_EVENT => [
+            'mixpanel' => true
+        ]
+    ];
+
     /** @var injector */
     private static $instance;
 
@@ -70,7 +85,7 @@ class injector {
         }
         $this->injected = true;
 
-        $configs = $this->getAvailableConfigs();
+        $configs = $this->get_available_configs();
         if (empty($configs)) {
             return;
         }
@@ -81,7 +96,7 @@ class injector {
 
         $trackersinfo = [];
         foreach ($this->analyticstypes as $type) {
-            $trackersinfo = array_merge($trackersinfo, $this->retrieveTrackerInfoAllConfigs($type, $configs));
+            $trackersinfo = array_merge($trackersinfo, $this->retrieve_tracker_info_all_configs($type, $configs));
         }
 
         if (empty($trackersinfo)) {
@@ -98,8 +113,10 @@ class injector {
         $inhead = true;
         foreach ($trackersinfo as $info) {
             if (isset($info['scripturl']) && !empty($url = $info['scripturl'])) {
-                if (strpos($url, 'http') === false) {
+                if (strpos($url, 'http') === false && is_callable('is_https')) {
                     $url = (is_https() ? 'https' : 'http') . "://{$url}";
+                } else {
+                    $url = "https://{$url}"; // Force https.
                 }
                 $page->requires->js(new moodle_url($url), $inhead);
             }
@@ -134,7 +151,7 @@ class injector {
      * @return array
      * @throws \dml_exception
      */
-    private function retrieveTrackerInfoAllConfigs($type, $configs): array {
+    private function retrieve_tracker_info_all_configs($type, $configs): array {
         $result = [];
         foreach ($configs as $config) {
             $trackerinfo = $this->retrieveTrackerInfo($type, $config);
@@ -171,6 +188,16 @@ class injector {
             if (!empty($scripturl = $engine::get_script_url($config))) {
                 $trackerinfo['scripturl'] = $scripturl;
             }
+
+            foreach (self::SETTING_PROVIDER_MAPPING as $setting => $providers) {
+                if (isset($providers[$type])) {
+                    $trackerinfo[$setting] = !empty($config->{"{$type}_{$setting}"});
+                }
+            }
+
+            // Last but not least, inject static shares to footer.
+            $engine::build_static_shares($config);
+
             return $trackerinfo;
         }
         return null;
@@ -181,7 +208,7 @@ class injector {
      * @return array
      * @throws \dml_exception
      */
-    private function getAvailableConfigs() {
+    private function get_available_configs() {
         global $CFG;
         $configs = [];
         // Normal Moodle config for client use.

@@ -45,7 +45,6 @@ class kinesis extends analytics {
         if (self::should_track($config)) {
             $res['trackerId'] = 'kinesis';
             $res['kinesisURL'] = $kinesisurl;
-            $res['staticShares'] = self::get_static_shares($config);
         }
 
         return $res;

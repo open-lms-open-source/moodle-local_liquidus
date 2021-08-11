@@ -43,12 +43,25 @@ class local_liquidus_analytics_testcase extends advanced_testcase {
      * @throws coding_exception
      */
     public function test_get_static_shares_default($analyticstype) {
+        global $CFG, $PAGE;
         // Login as someone.
         $user = $this->getDataGenerator()->create_user();
         $this->setUser($user);
 
+        // Navigate to a course so we can get the page path static share.
+        $course = $this->getDataGenerator()->create_course();
+
+        // Set the page as a course.
+        $urlparams = ['id' => $course->id];
+        $PAGE->set_url('/course/view.php', $urlparams);
+        $PAGE->set_title(get_string('coursetitle', 'moodle', ['course' => $course->fullname]));
+        $PAGE->set_pagetype('course-view-' . $course->format);
+        $PAGE->set_context(\context_course::instance($course->id));
+        $PAGE->set_course($course);
+
+        /** @var analytics $classname */
         $classname = "\\local_liquidus\\api\\{$analyticstype}";
-        $shares = $classname::get_static_shares(get_config('local_liquidus'));
+        $classname::build_static_shares(get_config('local_liquidus'));
 
         // All shares are enabled as default.
         $sharekeys = array_merge(analytics::STATIC_SHARES_ALWAYS, analytics::STATIC_SHARES);
@@ -59,7 +72,8 @@ class local_liquidus_analytics_testcase extends advanced_testcase {
         });
 
         foreach ($sharekeys as $sharekey) {
-            $this->assertArrayHasKey($sharekey, $shares);
+            $jsvarname = "localLiquidusShares.{$analyticstype}.{$sharekey}";
+            $this->assertStringContainsString($jsvarname, $CFG->additionalhtmlfooter);
         }
     }
 

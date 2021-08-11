@@ -52,7 +52,6 @@ class keenio extends analytics {
             $res['trackerId'] = 'keenio';
             $res['projectId'] = $projectid;
             $res['writeKey'] = $writekey;
-            $res['staticShares'] = self::get_static_shares($config);
         }
 
         return $res;

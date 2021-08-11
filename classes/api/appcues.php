@@ -45,7 +45,6 @@ class appcues extends analytics {
         if (!empty($accountid) && self::should_track($config)) {
             $res['trackerId'] = 'appcues';
             $res['accountid'] = $accountid;
-            $res['staticShares'] = self::get_static_shares($config);
         }
 
         return $res;

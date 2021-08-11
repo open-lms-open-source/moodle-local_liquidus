@@ -50,7 +50,7 @@ class local_liquidus_injector_testcase extends advanced_testcase {
      * @throws coding_exception
      */
     private function run_injection_type($type, $configtype = self::CONFIG_TYPE_SETTING, $requirecallcount = 1) {
-        global $PAGE;
+        global $PAGE, $CFG;
 
         // Login as someone.
         $user = $this->getDataGenerator()->create_user();
@@ -62,8 +62,22 @@ class local_liquidus_injector_testcase extends advanced_testcase {
         $pagereqs->js_call_amd(Argument::type('string'), Argument::type('string'), Argument::type('array'))
             ->shouldBeCalledTimes($requirecallcount);
         $mockpage->requires = $pagereqs->reveal();
-        $mockpage->context = $PAGE->context;
-        $mockpage->pagetype = $PAGE->pagetype;
+
+        // Navigate to a course so we can get the page path static share.
+        $course = $this->getDataGenerator()->create_course();
+
+        // Set the page as a course.
+        $urlparams = ['id' => $course->id];
+        $PAGE->set_url('/course/view.php', $urlparams);
+        $PAGE->set_title(get_string('coursetitle', 'moodle', ['course' => $course->fullname]));
+        $PAGE->set_pagetype('course-view-' . $course->format);
+        $PAGE->set_context(\context_course::instance($course->id));
+        $PAGE->set_course($course);
+
+        // Add properties to the page mock.
+        foreach (get_object_vars($PAGE) as $key => $value) {
+            $mockpage->{$key} = $value;
+        }
 
         // Enable plugin and tracker type.
         $config = $this->enable_plugin_and_tracker($type, $configtype);

@@ -32,6 +32,9 @@ global $ADMIN;
 if ($hassiteconfig) {
     $pluginname = 'local_liquidus';
 
+    // Var to hold the 'notchecked' hide-if condition for ease of use.
+    $notcheckedcondition = 'notchecked';
+
     $settings = new admin_settingpage($pluginname, get_string('pluginname', $pluginname));
     $ADMIN->add('localplugins', $settings);
 
@@ -74,18 +77,17 @@ if ($hassiteconfig) {
     $setting = new admin_setting_configcheckbox($name, $title, $description, $default, true, false);
     $settings->add($setting);
 
-    $providers = injector::get_instance()->get_analytics_types();
+    $types = injector::get_instance()->get_analytics_types();
+    foreach ($types as $type) {
+        $name = new lang_string($type, $pluginname);
+        $description = new lang_string("{$type}_desc", $pluginname);
+        $settings->add(new admin_setting_heading($type, $name, $description));
 
-    foreach ($providers as $provider) {
-        $name = new lang_string($provider, $pluginname);
-        $description = new lang_string("{$provider}_desc", $pluginname);
-        $settings->add(new admin_setting_heading($provider, $name, $description));
-
-        $prefix = "{$pluginname}/{$provider}";
+        $prefix = "{$pluginname}/{$type}";
 
         $name = $prefix;
-        $title = new lang_string($provider, $pluginname);
-        $description = new lang_string("{$provider}_desc", $pluginname);
+        $title = new lang_string($type, $pluginname);
+        $description = new lang_string("{$type}_desc", $pluginname);
         $default = false;
         $setting = new admin_setting_configcheckbox($name, $title, $description, $default, true, false);
         $settings->add($setting);
@@ -103,7 +105,7 @@ if ($hassiteconfig) {
             $settings->add($setting);
 
             // Conditional form show.
-            $settings->hide_if($name, $prefix, 'notchecked');
+            $settings->hide_if($name, $prefix, $notcheckedcondition);
         }
 
         $name = "{$prefix}_staticshares";
@@ -118,11 +120,26 @@ if ($hassiteconfig) {
         $settings->add($setting);
 
         // Conditional form show.
-        $settings->hide_if($name, $prefix, 'notchecked');
+        $settings->hide_if($name, $prefix, $notcheckedcondition);
 
-        $classname = "\\local_liquidus\\api\\{$provider}";
+        // Additional settings specific to providers.
+        foreach (injector::SETTING_PROVIDER_MAPPING as $setting => $providers) {
+            if (isset($providers[$type])) {
+                $name = "{$prefix}_{$setting}";
+                $title = new lang_string($setting, $pluginname);
+                $description = new lang_string("{$setting}_desc", $pluginname);
+                $default = false;
+                $setting = new admin_setting_configcheckbox($name, $title, $description, $default, true, false);
+                $settings->add($setting);
+
+                // Conditional form show.
+                $settings->hide_if($name, $prefix, $notcheckedcondition);
+            }
+        }
+
+        $classname = "\\local_liquidus\\api\\{$type}";
         if (!class_exists($classname, true)) {
-            debugging("Local Liquidus Module: Analytics setting '{$provider}' doesn't map to a class name.");
+            debugging("Local Liquidus Module: Analytics setting '{$type}' doesn't map to a class name.");
         }
 
         /** @var analytics $engine */
@@ -137,7 +154,7 @@ if ($hassiteconfig) {
             $settings->add($setting);
 
             // Conditional form show.
-            $settings->hide_if($name, $prefix, 'notchecked');
+            $settings->hide_if($name, $prefix, $notcheckedcondition);
         }
     }
 }

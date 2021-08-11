@@ -68,10 +68,23 @@ define(['jquery','core/log'],
             }
             Object.entries(tracker.trackerInfo.staticShares).forEach(
                 ([type, value]) => {
+                    if (type === 'pageType'
+                        && typeof tracker.trackerInfo.pagetypeevent != 'undefined'
+                        && tracker.trackerInfo.pagetypeevent
+                    ) {
+                        return; // Page type will be appended to page event.
+                    }
                     data[type] = value;
                 }
             );
-            self.analytics.track('Page view', data);
+            let eventId = 'Page view';
+            if (typeof tracker.trackerInfo.pagetypeevent != 'undefined'
+                && tracker.trackerInfo.pagetypeevent
+                && typeof tracker.trackerInfo.staticShares.pageType != 'undefined'
+            ) {
+                eventId += ' - ' + tracker.trackerInfo.staticShares.pageType;
+            }
+            self.analytics.track(eventId, data);
         };
 
         tracker.processEvent = function(dfd, metricName, data) {
