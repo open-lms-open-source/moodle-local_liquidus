@@ -30,13 +30,31 @@ define(['jquery','core/log', 'core/templates'],
         self.addAnalyticsJS = function() {
             var dfd = $.Deferred();
             var siteid = tracker.trackerInfo.siteid;
+            var lengthgid = siteid.length;
+            var pageTitle = tracker.trackerInfo.staticShares.pageTitle;
+            if (typeof pageTitle === 'undefined') {
+                pageTitle = siteid[0];
+            }
             if (!siteid) {
                 Log.debug('Liquidus is misconfigured for Google, Site ID is missing.');
                 return;
             }
             var context = [];
-            context['siteid'] = siteid;
-            Templates.render('local_liquidus/gtag', context).then(function(html) {
+            context['siteid'] = siteid[0];
+            context['pageTitle'] = pageTitle;
+            context['gacodes'] = [];
+            context['uacodes'] = [];
+            var startWith = '';
+            for (var count = 0; count < lengthgid; count++) {
+                startWith = siteid[count].substring(0, 2);
+                if (startWith === 'G-') {
+                    context['gacodes'].push(siteid[count]);
+                } else {
+                    context['uacodes'].push(siteid[count]);
+                }
+            }
+
+            Templates.render('local_liquidus/gtag', context).then(function (html) {
                 $('body').append(html);
                 if (typeof gtag === 'undefined') {
                     dfd.fail();
@@ -46,7 +64,6 @@ define(['jquery','core/log', 'core/templates'],
                 self.gtag = gtag;
                 dfd.resolve();
             });
-
             return dfd;
         };
 

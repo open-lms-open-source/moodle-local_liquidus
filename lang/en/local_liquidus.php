@@ -71,8 +71,9 @@ $string['eventdef_desc'] = 'Event handle definition';
 $string['privacy:metadata'] = 'The Liquidus plugin does not store any personal data.';
 $string['google'] = 'Google';
 $string['google_desc'] = 'Google tracking using gtag (Google Analytics, Google Ads, and Google Marketing Platform)';
-$string['googlesiteid'] = 'Google Analytics property ID';
-$string['googlesiteid_desc'] = 'You can get your Google Analytics property ID in your Google Analytics account administration.';
+$string['googlesiteid'] = 'Google Analytics Measurement ID';
+$string['googlesiteid_desc'] = 'You can get your Google Analytics Measurement ID in your Google Analytics account administration. 
+You can set up to 5 Measurement IDs (separated by commas).';
 $string['trackernotconfigured'] = 'Liquidus tracker {$a} not properly configured.';
 $string['trackermissingfield'] = 'Liquidus tracker missing field: {$a}';
 $string['mixpanel'] = 'Mixpanel';
@@ -91,3 +92,4 @@ $string['pagetypeevent'] = 'Append page type to page event';
 $string['pagetypeevent_desc'] = 'When sending the page event to the analytics tracker, the "page type" identifier will be appended to the event identifier instead of sending it as a static share.';
 $string['view'] = 'View';
 $string['edit'] = 'Edit';
+$string['excedlimitfield'] = 'The limit of 5 Measurement ID has been exceeded, {$a} were set.';

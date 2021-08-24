@@ -29,12 +29,18 @@
 
     Example context (json):
     { "siteid": UA-90210-15 }
+    It is necessary the MESASUREMENT ID, not the property ID.
 }}
 <!-- Global site tag (gtag.js) - Google Analytics -->
-<script src="https://www.googletagmanager.com/gtag/js?id={{siteid}}"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id={{siteid}}"></script>
 <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-    gtag('config', '{{siteid}}');
+    {{#uacodes}}
+        gtag('config', '{{{.}}}');
+    {{/uacodes}}
+    {{#gacodes}}
+        gtag('config', '{{{.}}}', {'page_title' : '{{pageTitle}}'});
+    {{/gacodes}}
 </script>

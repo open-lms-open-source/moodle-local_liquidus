@@ -93,19 +93,19 @@ abstract class analytics {
     public static function track_path($urlencode = false, $leadingslash = false) {
         global $DB, $PAGE;
         $pageinfo = get_context_info_array($PAGE->context->id);
-        $trackurl = "";
+        $trackurl = '';
 
         if ($leadingslash) {
-            $trackurl .= "/";
+            $trackurl .= '/';
         }
 
         // Adds course category name.
         if (isset($pageinfo[1]->category)) {
             if ($category = $DB->get_record('course_categories', ['id' => $pageinfo[1]->category])
             ) {
-                $cats = explode("/", $category->path);
+                $cats = explode('/', $category->path);
                 foreach (array_filter($cats) as $cat) {
-                    if ($categorydepth = $DB->get_record("course_categories", ["id" => $cat])) {
+                    if ($categorydepth = $DB->get_record('course_categories', ['id' => $cat])) {
                         $trackurl .= self::might_encode($categorydepth->name, $urlencode).'/';
                     }
                 }
@@ -225,7 +225,6 @@ abstract class analytics {
                 case self::STATIC_PAGE_PATH:
                     $value = self::track_path();
                     break;
-
             }
 
             if (!empty($value)) {

@@ -40,11 +40,19 @@ class google extends analytics {
             return $res;
         }
 
-        $siteid = $config->googlesiteid;
+        $siteid = (string) $config->googlesiteid;
 
         if (!empty($siteid) && self::should_track($config)) {
             $res['trackerId'] = 'google';
-            $res['siteid'] = $siteid;
+            $siteid = str_replace(' ', '', $siteid);
+            $limit = 5;
+            $separator = ',';
+            $siteidsfull = explode($separator, $siteid);
+            $siteids =  array_splice($siteidsfull, 0, $limit);
+            $res['siteid'] = $siteids;
+            if (count($siteidsfull) > $limit) {
+                debugging(get_string('excedlimitfield', 'local_liquidus', count($siteidsfull)));
+            }
         }
 
         return $res;
