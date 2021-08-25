@@ -77,6 +77,14 @@ if ($hassiteconfig) {
     $setting = new admin_setting_configcheckbox($name, $title, $description, $default, true, false);
     $settings->add($setting);
 
+    // TODO: Enable and show this setting only if user has acepted the privacy agreement.
+    $name = "{$pluginname}/share_identifiable";
+    $title = new lang_string('shareidentifiable', $pluginname);
+    $description = new lang_string('shareidentifiable_desc', $pluginname);
+    $default = false;
+    $setting = new admin_setting_configcheckbox($name, $title, $description, $default, true, false);
+    $settings->add($setting);
+
     $types = injector::get_instance()->get_analytics_types();
     foreach ($types as $type) {
         $name = new lang_string($type, $pluginname);
@@ -108,11 +116,11 @@ if ($hassiteconfig) {
             $settings->hide_if($name, $prefix, $notcheckedcondition);
         }
 
-        $name = "{$prefix}_staticshares";
-        $title = new lang_string('staticshares', $pluginname);
-        $description = new lang_string('staticshares_desc', $pluginname);
-        $staticshares = [];
-        foreach (\local_liquidus\api\analytics::STATIC_SHARES as $share) {
+        $name = "{$prefix}_unidentifiable_staticshares";
+        $title = new lang_string('unidentifiable_staticshares', $pluginname);
+        $description = new lang_string('unidentifiable_staticshares_desc', $pluginname);
+        $staticshares = $default = [];
+        foreach (\local_liquidus\api\analytics::UNIDENTIFIABLE_STATIC_SHARES as $share) {
             $staticshares[$share] = get_string('staticshares_' . $share, 'local_liquidus');
             $default[] = $share;
         }
@@ -121,6 +129,23 @@ if ($hassiteconfig) {
 
         // Conditional form show.
         $settings->hide_if($name, $prefix, $notcheckedcondition);
+
+        if (!empty($CFG->local_liquidus_identifiable_share_providers) && in_array($type, $CFG->local_liquidus_identifiable_share_providers)) {
+            $name = "{$prefix}_identifiable_staticshares";
+            $title = new lang_string('identifiable_staticshares', $pluginname);
+            $description = new lang_string('identifiable_staticshares_desc', $pluginname);
+            $staticshares = $default = [];
+            foreach (\local_liquidus\api\analytics::IDENTIFIABLE_STATIC_SHARES as $share) {
+                $staticshares[$share] = get_string('staticshares_' . $share, 'local_liquidus');
+                $default[] = $share;
+            }
+            $setting = new admin_setting_configmultiselect($name, $title, $description, $default, $staticshares);
+            $settings->add($setting);
+
+            // Conditional form show.
+            // TODO: Hide this form if $config->share_identifiable is false too.
+            $settings->hide_if($name, $prefix, $notcheckedcondition);
+        }
 
         // Additional settings specific to providers.
         foreach (injector::SETTING_PROVIDER_MAPPING as $setting => $providers) {

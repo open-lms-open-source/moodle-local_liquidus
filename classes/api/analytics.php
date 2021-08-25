@@ -34,6 +34,7 @@ use core\session\manager;
  */
 abstract class analytics {
 
+    // Unidentifiable static shares.
     const STATIC_USER_HASH = 'userhash';
     const STATIC_USER_ROLE = 'userrole';
     const STATIC_CONTEXT_LEVEL = 'contextlevel';
@@ -42,12 +43,18 @@ abstract class analytics {
     const STATIC_PAGE_TITLE = 'pagetitle';
     const STATIC_PAGE_URL = 'pageurl';
     const STATIC_PAGE_PATH = 'pagepath';
+    const STATIC_SITE_SHORT_NAME = 'siteshortname';
+    const STATIC_LANGUAGE = 'sitelanguage';
+
+    // Identifiable static shares.
+    const STATIC_USER_ID = 'userid';
+    const STATIC_USER_EMAIL = 'useremail';
 
     const STATIC_SHARES_ALWAYS = [
         self::STATIC_USER_HASH,
     ];
 
-    const STATIC_SHARES = [
+    const UNIDENTIFIABLE_STATIC_SHARES = [
         self::STATIC_USER_ROLE,
         self::STATIC_CONTEXT_LEVEL,
         self::STATIC_PAGE_TYPE,
@@ -55,17 +62,28 @@ abstract class analytics {
         self::STATIC_PAGE_TITLE,
         self::STATIC_PAGE_URL,
         self::STATIC_PAGE_PATH,
+        self::STATIC_SITE_SHORT_NAME,
+        self::STATIC_LANGUAGE,
+    ];
+
+    const IDENTIFIABLE_STATIC_SHARES = [
+        self::STATIC_USER_ID,
+        self::STATIC_USER_EMAIL,
     ];
 
     const STATIC_SHARES_CAMEL_CASE = [
         self::STATIC_USER_HASH => 'userHash',
         self::STATIC_USER_ROLE => 'userRole',
+        self::STATIC_USER_ID => 'userId',
+        self::STATIC_USER_EMAIL => 'userEmail',
         self::STATIC_CONTEXT_LEVEL => 'contextLevel',
         self::STATIC_PAGE_TYPE => 'pageType',
         self::STATIC_PLUGINS => 'plugins',
         self::STATIC_PAGE_TITLE => 'pageTitle',
         self::STATIC_PAGE_URL => 'pageUrl',
         self::STATIC_PAGE_PATH => 'pagePath',
+        self::STATIC_SITE_SHORT_NAME => 'siteShortName',
+        self::STATIC_LANGUAGE => 'siteLanguage',
     ];
 
     /**
@@ -167,7 +185,7 @@ abstract class analytics {
      * @param \stdClass $config
      */
     public static function build_static_shares($config) {
-        global $USER, $PAGE, $SITE;
+        global $USER, $PAGE, $SITE, $CFG;
 
         if (!isloggedin()) {
             return;
@@ -184,14 +202,22 @@ abstract class analytics {
         }
 
         $provider = static::get_my_provider_name();
-        $staticsharesettingkey = "{$provider}_staticshares";
         $staticshares = [];
-        if (property_exists($config, $staticsharesettingkey)) {
-            $staticshares = $config->{$staticsharesettingkey};
-            if (!empty($staticshares)) {
-                $staticshares = explode(',', $staticshares);
-            } else {
-                $staticshares = [];
+        $unidentifiablestaticsharesettingkey = "{$provider}_unidentifiable_staticshares";
+        if (property_exists($config, $unidentifiablestaticsharesettingkey)) {
+            $unidentifiablestaticshares = $config->{$unidentifiablestaticsharesettingkey};
+            if (!empty($unidentifiablestaticshares)) {
+                $staticshares = array_merge($staticshares, explode(',', $unidentifiablestaticshares));
+            }
+        }
+
+        if (!empty($CFG->local_liquidus_identifiable_share_providers) && in_array($provider, $CFG->local_liquidus_identifiable_share_providers)) {
+            $identifiablestaticsharessettingskey = "{$provider}_identifiable_staticshares";
+            if (property_exists($config, $identifiablestaticsharessettingskey)) {
+                $identifiablestaticshares = $config->{$identifiablestaticsharessettingskey};
+                if (!empty($identifiablestaticshares)) {
+                    $staticshares = array_merge($staticshares, explode(',', $identifiablestaticshares));
+                }
             }
         }
 
@@ -199,6 +225,9 @@ abstract class analytics {
         $staticshares = array_merge(self::STATIC_SHARES_ALWAYS, $staticshares);
 
         foreach ($staticshares as $staticshare) {
+            if (in_array($staticshare, self::IDENTIFIABLE_STATIC_SHARES) && empty($config->share_identifiable)) {
+                continue;
+            }
             $value = '';
             switch ($staticshare) {
                 case self::STATIC_USER_HASH:
@@ -225,6 +254,17 @@ abstract class analytics {
                 case self::STATIC_PAGE_PATH:
                     $value = self::track_path();
                     break;
+                case self::STATIC_LANGUAGE:
+                    $value = current_language();
+                    break;
+                case self::STATIC_USER_EMAIL:
+                    $value = $user->email;
+                    break;
+                case self::STATIC_USER_ID:
+                    $value = $SITE->id . '|' . $user->id;
+                    break;
+                case self::STATIC_SITE_SHORT_NAME:
+                    $value = $SITE->shortname;
             }
 
             if (!empty($value)) {

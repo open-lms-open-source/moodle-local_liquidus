@@ -33,8 +33,9 @@ defined('MOODLE_INTERNAL') || die();
 class local_liquidus_analytics_testcase extends advanced_testcase {
 
     public function setUp(): void {
-        $this->resetAfterTest(true);
+        $this->resetAfterTest();
     }
+
     /**
      * Test that static shares are what's expected.
      * @dataProvider get_analytics_types
@@ -64,7 +65,7 @@ class local_liquidus_analytics_testcase extends advanced_testcase {
         $classname::build_static_shares(get_config('local_liquidus'));
 
         // All shares are enabled as default.
-        $sharekeys = array_merge(analytics::STATIC_SHARES_ALWAYS, analytics::STATIC_SHARES);
+        $sharekeys = array_merge(analytics::STATIC_SHARES_ALWAYS, analytics::UNIDENTIFIABLE_STATIC_SHARES);
 
         // Keys are converted to camel case.
         array_walk($sharekeys, function(&$sharekey) {
@@ -74,6 +75,140 @@ class local_liquidus_analytics_testcase extends advanced_testcase {
         foreach ($sharekeys as $sharekey) {
             $jsvarname = "localLiquidusShares.{$analyticstype}.{$sharekey}";
             $this->assertStringContainsString($jsvarname, $CFG->additionalhtmlfooter);
+        }
+    }
+
+    /**
+     * Test that static shares are what's expected including identifiable static shares.
+     * @dataProvider get_analytics_types
+     *
+     * @param string $analyticstype
+     * @throws coding_exception
+     */
+    public function test_get_identifiable_static_shares($analyticstype) {
+        global $CFG, $PAGE;
+        // Login as someone.
+        $user = $this->getDataGenerator()->create_user();
+        $this->setUser($user);
+
+        // Navigate to a course so we can get the page path static share.
+        $course = $this->getDataGenerator()->create_course();
+
+        // Set the page as a course.
+        $urlparams = ['id' => $course->id];
+        $PAGE->set_url('/course/view.php', $urlparams);
+        $PAGE->set_title(get_string('coursetitle', 'moodle', ['course' => $course->fullname]));
+        $PAGE->set_pagetype('course-view-' . $course->format);
+        $PAGE->set_context(\context_course::instance($course->id));
+        $PAGE->set_course($course);
+
+        /** @var analytics $classname */
+        $classname = "\\local_liquidus\\api\\{$analyticstype}";
+        $CFG->local_liquidus_identifiable_share_providers = ['appcues', 'google', 'keenio', 'kinesis', 'mixpanel', 'segment'];
+        set_config('share_identifiable', '1', 'local_liquidus');
+        set_config("{$analyticstype}_identifiable_staticshares", 'userid,useremail', 'local_liquidus');
+        $classname::build_static_shares(get_config('local_liquidus'));
+
+        // All shares are enabled as default.
+        $sharekeys = array_merge(analytics::STATIC_SHARES_ALWAYS, analytics::UNIDENTIFIABLE_STATIC_SHARES, analytics::IDENTIFIABLE_STATIC_SHARES);
+
+        // Keys are converted to camel case.
+        array_walk($sharekeys, function(&$sharekey) {
+            $sharekey = analytics::STATIC_SHARES_CAMEL_CASE[$sharekey];
+        });
+
+        foreach ($sharekeys as $sharekey) {
+            $jsvarname = "localLiquidusShares.{$analyticstype}.{$sharekey}";
+            $this->assertStringContainsString($jsvarname, $CFG->additionalhtmlfooter);
+        }
+
+        $CFG->local_liquidus_identifiable_share_providers = [];
+        $CFG->additionalhtmlfooter = '';
+        $classname::build_static_shares(get_config('local_liquidus'));
+
+        // Only unidentifiable shares are enabled.
+        $sharekeys = array_merge(analytics::STATIC_SHARES_ALWAYS, analytics::UNIDENTIFIABLE_STATIC_SHARES);
+
+        // Keys are converted to camel case.
+        array_walk($sharekeys, function(&$sharekey) {
+            $sharekey = analytics::STATIC_SHARES_CAMEL_CASE[$sharekey];
+        });
+
+        foreach ($sharekeys as $sharekey) {
+            $jsvarname = "localLiquidusShares.{$analyticstype}.{$sharekey}";
+            $this->assertStringContainsString($jsvarname, $CFG->additionalhtmlfooter);
+        }
+
+        foreach (analytics::IDENTIFIABLE_STATIC_SHARES as $sharekey) {
+            $jsvarname = "localLiquidusShares.{$analyticstype}.{$sharekey}";
+            $this->assertStringNotContainsString($jsvarname, $CFG->additionalhtmlfooter);
+        }
+    }
+
+
+    /**
+     * Test that static shares are what's expected taking into account $CFG->local_liquidus_enabled_providers.
+     * @dataProvider get_analytics_types
+     *
+     * @param string $analyticstype
+     * @throws coding_exception
+     */
+    public function test_get_static_shares_with_specified_providers($analyticstype) {
+        global $CFG, $PAGE;
+        // Login as someone.
+        $user = $this->getDataGenerator()->create_user();
+        $this->setUser($user);
+
+        // Navigate to a course so we can get the page path static share.
+        $course = $this->getDataGenerator()->create_course();
+
+        // Set the page as a course.
+        $urlparams = ['id' => $course->id];
+        $PAGE->set_url('/course/view.php', $urlparams);
+        $PAGE->set_title(get_string('coursetitle', 'moodle', ['course' => $course->fullname]));
+        $PAGE->set_pagetype('course-view-' . $course->format);
+        $PAGE->set_context(\context_course::instance($course->id));
+        $PAGE->set_course($course);
+
+        /** @var analytics $classname */
+        $classname = "\\local_liquidus\\api\\{$analyticstype}";
+        $CFG->local_liquidus_identifiable_share_providers = ['appcues', 'google', 'keenio', 'kinesis', 'mixpanel', 'segment'];
+        $classname::build_static_shares(get_config('local_liquidus'));
+
+        // All shares are enabled as default.
+        $unidentifiablesharekeys = array_merge(analytics::STATIC_SHARES_ALWAYS, analytics::UNIDENTIFIABLE_STATIC_SHARES);
+        $identifiablesharekeys = analytics::IDENTIFIABLE_STATIC_SHARES;
+
+        // Keys are converted to camel case.
+        array_walk($unidentifiablesharekeys, function(&$sharekey) {
+            $sharekey = analytics::STATIC_SHARES_CAMEL_CASE[$sharekey];
+        });
+        array_walk($identifiablesharekeys, function(&$sharekey) {
+            $sharekey = analytics::STATIC_SHARES_CAMEL_CASE[$sharekey];
+        });
+
+        foreach ($unidentifiablesharekeys as $sharekey) {
+            $jsvarname = "localLiquidusShares.{$analyticstype}.{$sharekey}";
+            $this->assertStringContainsString($jsvarname, $CFG->additionalhtmlfooter);
+        }
+        foreach ($identifiablesharekeys as $sharekey) {
+            $jsvarname = "localLiquidusShares.{$analyticstype}.{$sharekey}";
+            $this->assertStringNotContainsString($jsvarname, $CFG->additionalhtmlfooter);
+        }
+
+        $CFG->local_liquidus_identifiable_share_providers = ['appcues', 'google'];
+        $CFG->additionalhtmlfooter = '';
+        set_config('share_identifiable', '1', 'local_liquidus');
+        set_config("{$analyticstype}_identifiable_staticshares", 'userid,useremail', 'local_liquidus');
+        $classname::build_static_shares(get_config('local_liquidus'));
+
+        foreach (array_merge($unidentifiablesharekeys, $identifiablesharekeys) as $sharekey) {
+            $jsvarname = "localLiquidusShares.{$analyticstype}.{$sharekey}";
+            if (!in_array($analyticstype, $CFG->local_liquidus_identifiable_share_providers) && in_array($sharekey, $identifiablesharekeys)) {
+                $this->assertStringNotContainsString($jsvarname, $CFG->additionalhtmlfooter);
+            } else {
+                $this->assertStringContainsString($jsvarname, $CFG->additionalhtmlfooter);
+            }
         }
     }
 
