@@ -62,8 +62,8 @@ class event_definition extends \external_api {
                                     'selector' => new \external_value(PARAM_TEXT, 'data value selector'),
                                     'type' => new \external_value(PARAM_TEXT, 'data html element selector'),
                                 ]
-                            )
-                        ),
+                            ), 'Data to send with event', VALUE_OPTIONAL
+                        )
                     ])
                 )
             ])

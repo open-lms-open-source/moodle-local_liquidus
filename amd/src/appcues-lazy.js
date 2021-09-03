@@ -74,12 +74,8 @@ define(['jquery','core/log'],
         };
 
         tracker.processEvent = function(dfd, metricName, data) {
-            self.analytics.track(metricName, {
-                eventData: data,
-            }, {}, function() {
-                dfd.resolve(true);
-                Log.debug('Appcues resolved custom event.');
-            });
+            self.analytics.track(metricName, data);
+            // We don't resolve the dfd promise here so we have some time from the API.
         };
 
         return tracker;

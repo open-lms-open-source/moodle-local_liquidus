@@ -67,5 +67,26 @@ function xmldb_local_liquidus_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2021060101, 'local', 'liquidus');
     }
 
+    if ($oldversion < 2021060109) {
+        // Static shares have moved to unidentifiable static shares.
+        $providers = injector::get_instance()->get_analytics_types();
+        $pluginname = 'local_liquidus';
+
+        // Global setting list to move.
+        $list = ['staticshares' => 'unidentifiable_staticshares'];
+        // Gather existing setting values.
+        foreach ($list as $oldsetting => $newsetting) {
+            // Iterate over provider settings to set new values.
+            foreach ($providers as $provider) {
+                $configsetting = get_config($pluginname, "{$provider}_{$oldsetting}");
+                set_config("{$provider}_{$newsetting}", $configsetting, $pluginname);
+                unset_config("{$provider}_{$oldsetting}", $pluginname);
+            }
+        }
+
+        // Savepoint reached.
+        upgrade_plugin_savepoint(true, 2021060109, 'local', 'liquidus');
+    }
+
     return true;
 }

@@ -40,14 +40,18 @@ class injector {
      * Constants related to provider specific settings.
      */
     const SETTING_PAGE_TYPE_EVENT = 'pagetypeevent';
+    const SETTING_TRACK_FORMS = 'trackforms';
 
     /*
      * Constant that specifies which setting is allowed on which provider.
      */
     const SETTING_PROVIDER_MAPPING = [
         self::SETTING_PAGE_TYPE_EVENT => [
-            'mixpanel' => true
-        ]
+            'mixpanel' => true,
+        ],
+        self::SETTING_TRACK_FORMS => [
+            'mixpanel' => true,
+        ],
     ];
 
     /** @var injector */
@@ -76,14 +80,14 @@ class injector {
     public function inject() {
         global $PAGE;
 
-        if (!isloggedin()) {
-            return;
-        }
-
         if ($this->injected) {
             return;
         }
         $this->injected = true;
+
+        if (!isloggedin()) {
+            return;
+        }
 
         $configs = $this->get_available_configs();
         if (empty($configs)) {

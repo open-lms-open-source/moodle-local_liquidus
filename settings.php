@@ -27,8 +27,8 @@ use local_liquidus\injector;
 
 defined('MOODLE_INTERNAL') || die;
 
-global $ADMIN;
-
+global $ADMIN, $CFG, $PAGE;
+/** @var $hassiteconfig */
 if ($hassiteconfig) {
     $pluginname = 'local_liquidus';
 
@@ -77,7 +77,7 @@ if ($hassiteconfig) {
     $setting = new admin_setting_configcheckbox($name, $title, $description, $default, true, false);
     $settings->add($setting);
 
-    // TODO: Enable and show this setting only if user has acepted the privacy agreement.
+    // TODO: Enable and show this setting only if user has accepted the privacy agreement.
     $name = "{$pluginname}/share_identifiable";
     $title = new lang_string('shareidentifiable', $pluginname);
     $description = new lang_string('shareidentifiable_desc', $pluginname);
@@ -101,19 +101,12 @@ if ($hassiteconfig) {
         $settings->add($setting);
 
         if (!empty($CFG->local_liquidus_enable_eventdef)) {
-            $name = new lang_string('eventhandling', $pluginname);
-            $description = new lang_string('eventhandling_help', $pluginname);
-            $settings->add(new admin_setting_heading('eventhandling', $name, $description));
-
             $name = "{$prefix}_eventdef";
             $title = new lang_string('eventdef', $pluginname);
             $description = new lang_string('eventdef_desc', $pluginname);
             $default = '';
             $setting = new admin_setting_configtextarea($name, $title, $description, $default);
             $settings->add($setting);
-
-            // Conditional form show.
-            $settings->hide_if($name, $prefix, $notcheckedcondition);
         }
 
         $name = "{$prefix}_unidentifiable_staticshares";
@@ -127,9 +120,6 @@ if ($hassiteconfig) {
         $setting = new admin_setting_configmultiselect($name, $title, $description, $default, $staticshares);
         $settings->add($setting);
 
-        // Conditional form show.
-        $settings->hide_if($name, $prefix, $notcheckedcondition);
-
         if (!empty($CFG->local_liquidus_identifiable_share_providers) && in_array($type, $CFG->local_liquidus_identifiable_share_providers)) {
             $name = "{$prefix}_identifiable_staticshares";
             $title = new lang_string('identifiable_staticshares', $pluginname);
@@ -141,10 +131,6 @@ if ($hassiteconfig) {
             }
             $setting = new admin_setting_configmultiselect($name, $title, $description, $default, $staticshares);
             $settings->add($setting);
-
-            // Conditional form show.
-            // TODO: Hide this form if $config->share_identifiable is false too.
-            $settings->hide_if($name, $prefix, $notcheckedcondition);
         }
 
         // Additional settings specific to providers.
@@ -156,9 +142,6 @@ if ($hassiteconfig) {
                 $default = false;
                 $setting = new admin_setting_configcheckbox($name, $title, $description, $default, true, false);
                 $settings->add($setting);
-
-                // Conditional form show.
-                $settings->hide_if($name, $prefix, $notcheckedcondition);
             }
         }
 
@@ -177,9 +160,9 @@ if ($hassiteconfig) {
             $default = '';
             $setting = new admin_setting_configtext($name, $title, $description, $default);
             $settings->add($setting);
-
-            // Conditional form show.
-            $settings->hide_if($name, $prefix, $notcheckedcondition);
         }
     }
+
+    // AMD that moves settings into tabs.
+    $PAGE->requires->js_call_amd('local_liquidus/settings-handler-lazy', 'init', ['types' => $types]);
 }
