@@ -354,9 +354,15 @@ HTML;
         if (!isset($CFG->additionalhtmlfooter)) {
             $CFG->additionalhtmlfooter = '';
         }
-        // Note, we have to put the plugin list into the footer instead of passing them into the amd module as an
-        // argument. If you pass large amounts of data into the amd arguments then it throws a debug error.
-        $CFG->additionalhtmlfooter .= $script;
+
+        $localliquidusshare = "localLiquidusShares.{$provider}.{$sharecamelcase}";
+
+        // Check if share is already within the footer, if not add it.
+        if (strpos($CFG->additionalhtmlfooter, $localliquidusshare) === false) {
+            // Note, we have to put the plugin list into the footer instead of passing them into the amd module as an
+            // argument. If you pass large amounts of data into the amd arguments then it throws a debug error.
+            $CFG->additionalhtmlfooter .= $script;
+        }
     }
 
     /**
