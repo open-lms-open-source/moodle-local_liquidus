@@ -28,36 +28,8 @@ use local_liquidus\injector;
 require_once(__DIR__.'/../../config.php');
 
 /**
- * Used since Moodle 29.
+ * Used in Moodle 3.3+ to inject a chunk of JS or CSS into every page.
  */
-function local_liquidus_extend_navigation() {
-    injector::get_instance()->inject();
-}
-
-/**
- * Used since Moodle 29.
- */
-function local_liquidus_extend_settings_navigation() {
-    injector::get_instance()->inject();
-}
-
-/**
- * Used in Moodle 30+ when a user is logged on.
- */
-function local_liquidus_extend_navigation_user_settings() {
-    injector::get_instance()->inject();
-}
-
-/**
- * Used in Moodle 30+ on the frontpage.
- */
-function local_liquidus_extend_navigation_frontpage() {
-    injector::get_instance()->inject();
-}
-
-/**
- * Used in Moodle 31+ when a user is logged on.
- */
-function local_liquidus_extend_navigation_user() {
+function local_liquidus_before_footer() {
     injector::get_instance()->inject();
 }

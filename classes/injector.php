@@ -199,7 +199,7 @@ class injector {
                 }
             }
 
-            // Last but not least, inject static shares to footer.
+            // Last but not least, inject static shares to HTML.
             $engine::build_static_shares($config);
 
             return $trackerinfo;

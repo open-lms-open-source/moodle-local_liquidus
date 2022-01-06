@@ -30,7 +30,7 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * @group local_liquidus
  */
-class local_liquidus_analytics_testcase extends advanced_testcase {
+class local_liquidus_analytics_test extends advanced_testcase {
 
     public function setUp(): void {
         $this->resetAfterTest();
@@ -44,7 +44,7 @@ class local_liquidus_analytics_testcase extends advanced_testcase {
      * @throws coding_exception
      */
     public function test_get_static_shares_default($analyticstype) {
-        global $CFG, $PAGE;
+        global $PAGE;
         // Login as someone.
         $user = $this->getDataGenerator()->create_user();
         $this->setUser($user);
@@ -62,7 +62,9 @@ class local_liquidus_analytics_testcase extends advanced_testcase {
 
         /** @var analytics $classname */
         $classname = "\\local_liquidus\\api\\{$analyticstype}";
+        $classname::clear_rendered_static_shares();
         $classname::build_static_shares(get_config('local_liquidus'));
+        $injectedstaticshares = $classname::get_rendered_static_shares();
 
         // All shares are enabled as default.
         $sharekeys = array_merge(analytics::STATIC_SHARES_ALWAYS, analytics::UNIDENTIFIABLE_STATIC_SHARES);
@@ -74,7 +76,7 @@ class local_liquidus_analytics_testcase extends advanced_testcase {
 
         foreach ($sharekeys as $sharekey) {
             $jsvarname = "localLiquidusShares.{$analyticstype}.{$sharekey}";
-            $this->assertStringContainsString($jsvarname, $CFG->additionalhtmlfooter);
+            $this->assertStringContainsString($jsvarname, $injectedstaticshares);
         }
     }
 
@@ -108,6 +110,7 @@ class local_liquidus_analytics_testcase extends advanced_testcase {
         set_config('share_identifiable', '1', 'local_liquidus');
         set_config("{$analyticstype}_identifiable_staticshares", 'userid,useremail', 'local_liquidus');
         $classname::build_static_shares(get_config('local_liquidus'));
+        $injectedstaticshares = $classname::get_rendered_static_shares();
 
         // All shares are enabled as default.
         $sharekeys = array_merge(analytics::STATIC_SHARES_ALWAYS, analytics::UNIDENTIFIABLE_STATIC_SHARES, analytics::IDENTIFIABLE_STATIC_SHARES);
@@ -119,12 +122,13 @@ class local_liquidus_analytics_testcase extends advanced_testcase {
 
         foreach ($sharekeys as $sharekey) {
             $jsvarname = "localLiquidusShares.{$analyticstype}.{$sharekey}";
-            $this->assertStringContainsString($jsvarname, $CFG->additionalhtmlfooter);
+            $this->assertStringContainsString($jsvarname, $injectedstaticshares);
         }
 
         $CFG->local_liquidus_identifiable_share_providers = [];
-        $CFG->additionalhtmlfooter = '';
+        $classname::clear_rendered_static_shares();
         $classname::build_static_shares(get_config('local_liquidus'));
+        $injectedstaticshares = $classname::get_rendered_static_shares();
 
         // Only unidentifiable shares are enabled.
         $sharekeys = array_merge(analytics::STATIC_SHARES_ALWAYS, analytics::UNIDENTIFIABLE_STATIC_SHARES);
@@ -136,12 +140,12 @@ class local_liquidus_analytics_testcase extends advanced_testcase {
 
         foreach ($sharekeys as $sharekey) {
             $jsvarname = "localLiquidusShares.{$analyticstype}.{$sharekey}";
-            $this->assertStringContainsString($jsvarname, $CFG->additionalhtmlfooter);
+            $this->assertStringContainsString($jsvarname, $injectedstaticshares);
         }
 
         foreach (analytics::IDENTIFIABLE_STATIC_SHARES as $sharekey) {
             $jsvarname = "localLiquidusShares.{$analyticstype}.{$sharekey}";
-            $this->assertStringNotContainsString($jsvarname, $CFG->additionalhtmlfooter);
+            $this->assertStringNotContainsString($jsvarname, $injectedstaticshares);
         }
     }
 
@@ -173,7 +177,9 @@ class local_liquidus_analytics_testcase extends advanced_testcase {
         /** @var analytics $classname */
         $classname = "\\local_liquidus\\api\\{$analyticstype}";
         $CFG->local_liquidus_identifiable_share_providers = ['appcues', 'google', 'keenio', 'kinesis', 'mixpanel', 'segment'];
+        $classname::clear_rendered_static_shares();
         $classname::build_static_shares(get_config('local_liquidus'));
+        $injectedstaticshares = $classname::get_rendered_static_shares();
 
         // All shares are enabled as default.
         $unidentifiablesharekeys = array_merge(analytics::STATIC_SHARES_ALWAYS, analytics::UNIDENTIFIABLE_STATIC_SHARES);
@@ -189,25 +195,26 @@ class local_liquidus_analytics_testcase extends advanced_testcase {
 
         foreach ($unidentifiablesharekeys as $sharekey) {
             $jsvarname = "localLiquidusShares.{$analyticstype}.{$sharekey}";
-            $this->assertStringContainsString($jsvarname, $CFG->additionalhtmlfooter);
+            $this->assertStringContainsString($jsvarname, $injectedstaticshares);
         }
         foreach ($identifiablesharekeys as $sharekey) {
             $jsvarname = "localLiquidusShares.{$analyticstype}.{$sharekey}";
-            $this->assertStringNotContainsString($jsvarname, $CFG->additionalhtmlfooter);
+            $this->assertStringNotContainsString($jsvarname, $injectedstaticshares);
         }
 
         $CFG->local_liquidus_identifiable_share_providers = ['appcues', 'google'];
-        $CFG->additionalhtmlfooter = '';
+        $classname::clear_rendered_static_shares();
         set_config('share_identifiable', '1', 'local_liquidus');
         set_config("{$analyticstype}_identifiable_staticshares", 'userid,useremail', 'local_liquidus');
         $classname::build_static_shares(get_config('local_liquidus'));
+        $injectedstaticshares = $classname::get_rendered_static_shares();
 
         foreach (array_merge($unidentifiablesharekeys, $identifiablesharekeys) as $sharekey) {
             $jsvarname = "localLiquidusShares.{$analyticstype}.{$sharekey}";
             if (!in_array($analyticstype, $CFG->local_liquidus_identifiable_share_providers) && in_array($sharekey, $identifiablesharekeys)) {
-                $this->assertStringNotContainsString($jsvarname, $CFG->additionalhtmlfooter);
+                $this->assertStringNotContainsString($jsvarname, $injectedstaticshares);
             } else {
-                $this->assertStringContainsString($jsvarname, $CFG->additionalhtmlfooter);
+                $this->assertStringContainsString($jsvarname, $injectedstaticshares);
             }
         }
     }

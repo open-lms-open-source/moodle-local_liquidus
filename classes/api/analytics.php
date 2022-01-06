@@ -86,6 +86,24 @@ abstract class analytics {
         self::STATIC_LANGUAGE => 'siteLanguage',
     ];
 
+    private static string $renderedstaticshares = '';
+
+    /**
+     * Get string of JS scripts containing the static shares.
+     *
+     * @return string
+     */
+    public static function get_rendered_static_shares(): string {
+        return self::$renderedstaticshares;
+    }
+
+    /**
+     * Clear string of JS scripts containing the static shares.
+     */
+    public static function clear_rendered_static_shares() : void {
+        self::$renderedstaticshares = '';
+    }
+
     /**
      * Encode a substring if required.
      *
@@ -234,7 +252,7 @@ abstract class analytics {
                     $value = sha1($SITE->shortname . '-' . $user->id . '-' . $user->username);
                     break;
                 case self::STATIC_USER_ROLE:
-                    self::add_user_roles_to_footer($PAGE->context, $user->id);
+                    self::add_user_roles_to_html($PAGE->context, $user->id);
                     break;
                 case self::STATIC_CONTEXT_LEVEL:
                     $value = $PAGE->context->contextlevel;
@@ -243,7 +261,7 @@ abstract class analytics {
                     $value = $PAGE->pagetype;
                     break;
                 case self::STATIC_PLUGINS:
-                    self::add_current_plugins_called_to_footer();
+                    self::add_current_plugins_called_to_html();
                     break;
                 case self::STATIC_PAGE_TITLE:
                     $value = $PAGE->title;
@@ -268,12 +286,12 @@ abstract class analytics {
             }
 
             if (!empty($value)) {
-                self::encode_and_add_json_to_footer($staticshare, $value);
+                self::encode_and_add_json_to_html($staticshare, $value);
             }
         }
     }
 
-    private static function add_current_plugins_called_to_footer() {
+    private static function add_current_plugins_called_to_html() {
         $currfile = __FILE__;
         $files = get_included_files();
 
@@ -309,11 +327,11 @@ abstract class analytics {
             }
         });
 
-        // Adding plugin list straight to footer.
-        self::encode_and_add_json_to_footer(self::STATIC_PLUGINS, $plugins);
+        // Adding plugin list straight to HTML.
+        self::encode_and_add_json_to_html(self::STATIC_PLUGINS, $plugins);
     }
 
-    private static function add_user_roles_to_footer(context $context, int $userid) {
+    private static function add_user_roles_to_html(context $context, int $userid) {
         $roles = get_user_roles($context, $userid);
 
         $rolenames = [];
@@ -321,48 +339,35 @@ abstract class analytics {
             $rolenames[] = $role->shortname;
         }
 
-        // Adding user roles straight to footer.
-        self::encode_and_add_json_to_footer(self::STATIC_USER_ROLE, $rolenames);
+        // Adding user roles straight to HTML.
+        self::encode_and_add_json_to_html(self::STATIC_USER_ROLE, $rolenames);
     }
 
     /**
      * @param string $share Share identifier.
      * @param array|string $value This will encoded as json.
      */
-    private static function encode_and_add_json_to_footer($share, $value) {
-        global $CFG;
+    private static function encode_and_add_json_to_html($share, $value) {
+        global $OUTPUT;
 
-        $json = json_encode($value);
+        $jsonvalue = json_encode($value);
         $provider = static::get_my_provider_name();
         $sharecamelcase = self::STATIC_SHARES_CAMEL_CASE[$share];
 
-        $script = <<<HTML
+        $data = [
+            'provider' => $provider,
+            'sharecamelcase' => $sharecamelcase,
+            'jsonvalue' => $jsonvalue
+        ];
 
-            <script>
-                if (typeof localLiquidusShares === 'undefined') {
-                    var localLiquidusShares = {};
-                }
+        $staticsharescript = $OUTPUT->render_from_template('local_liquidus/static_shares_scripts', $data);
+        self::$renderedstaticshares .= $staticsharescript;
 
-                if (typeof localLiquidusShares.{$provider} === 'undefined') {
-                    localLiquidusShares.{$provider} = {};
-                }
-                localLiquidusShares.{$provider}.{$sharecamelcase} = {$json};
-            </script>
-
-HTML;
-
-        if (!isset($CFG->additionalhtmlfooter)) {
-            $CFG->additionalhtmlfooter = '';
+        if (!PHPUNIT_TEST){
+            echo $staticsharescript;
         }
 
-        $localliquidusshare = "localLiquidusShares.{$provider}.{$sharecamelcase}";
 
-        // Check if share is already within the footer, if not add it.
-        if (strpos($CFG->additionalhtmlfooter, $localliquidusshare) === false) {
-            // Note, we have to put the plugin list into the footer instead of passing them into the amd module as an
-            // argument. If you pass large amounts of data into the amd arguments then it throws a debug error.
-            $CFG->additionalhtmlfooter .= $script;
-        }
     }
 
     /**
