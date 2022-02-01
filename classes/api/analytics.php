@@ -182,9 +182,14 @@ abstract class analytics {
      */
     public static function should_track($config) {
         $tracknonadmin = !empty($config->tracknonadmin);
+        $checkadmin = is_siteadmin();
 
-        if ($tracknonadmin == 1 && !is_siteadmin()) {
+        if ($tracknonadmin == 1 && !$checkadmin) {
             return true;
+        }
+
+        if ($tracknonadmin == 0 && !$checkadmin) {
+            return false;
         }
 
         $trackadmin = !empty($config->trackadmin);

@@ -220,6 +220,75 @@ class local_liquidus_analytics_test extends advanced_testcase {
     }
 
     /**
+     * Test admins and non-admins are tracked as expected
+     * @dataProvider get_analytics_types
+     *
+     * @throws coding_exception
+     */
+    public function test_tracking_admin_non_admin() {
+        global $PAGE;
+
+        // Navigate to a course so we can get the page path static share.
+        $course = $this->getDataGenerator()->create_course();
+
+        // Set the page as a course.
+        $urlparams = ['id' => $course->id];
+        $PAGE->set_url('/course/view.php', $urlparams);
+        $PAGE->set_title(get_string('coursetitle', 'moodle', ['course' => $course->fullname]));
+        $PAGE->set_pagetype('course-view-' . $course->format);
+        $PAGE->set_context(\context_course::instance($course->id));
+        $PAGE->set_course($course);
+
+        //Enrol student within the course
+        $student = $this->getDataGenerator()->create_and_enrol($course, 'student');
+
+        // Non-admin AND admins should not be tracked
+        set_config('trackadmin', '0', 'local_liquidus');
+        set_config('tracknonadmin', '0', 'local_liquidus');
+        $config = get_config('local_liquidus');
+
+        $this->setAdminUser();
+        $this->assertEquals(false, analytics::should_track($config));
+
+        $this->setUser($student);
+        $this->assertEquals(false, analytics::should_track($config));
+
+        // Only admins should be tracked
+        set_config('trackadmin', '1', 'local_liquidus');
+        set_config('tracknonadmin', '0', 'local_liquidus');
+        $config = get_config('local_liquidus');
+
+        $this->setAdminUser();
+        $this->assertEquals(true, analytics::should_track($config));
+
+        $this->setUser($student);
+        $this->assertEquals(false, analytics::should_track($config));
+
+        // Only non-admins should be tracked
+        set_config('trackadmin', '0', 'local_liquidus');
+        set_config('tracknonadmin', '1', 'local_liquidus');
+        $config = get_config('local_liquidus');
+
+        $this->setAdminUser();
+        $this->assertEquals(false, analytics::should_track($config));
+
+        $this->setUser($student);
+        $this->assertEquals(true, analytics::should_track($config));
+
+        // Non-admin AND admins should be tracked
+        set_config('trackadmin', '1', 'local_liquidus');
+        set_config('tracknonadmin', '1', 'local_liquidus');
+        $config = get_config('local_liquidus');
+
+        $this->setAdminUser();
+        $this->assertEquals(true, analytics::should_track($config));
+
+        $this->setUser($student);
+        $this->assertEquals(true, analytics::should_track($config));
+
+    }
+
+    /**
      * @return array|false|string[]
      */
     public function get_analytics_types() {
