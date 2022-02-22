@@ -87,6 +87,7 @@ abstract class analytics {
     ];
 
     private static string $renderedstaticshares = '';
+    private static array $personalinfo = [];
 
     /**
      * Get string of JS scripts containing the static shares.
@@ -95,6 +96,15 @@ abstract class analytics {
      */
     public static function get_rendered_static_shares(): string {
         return self::$renderedstaticshares;
+    }
+
+    /**
+     * Get string of JS scripts containing the static shares.
+     *
+     * @return array
+     */
+    public static function get_personal_info_array(): array {
+        return self::$personalinfo;
     }
 
     /**
@@ -223,6 +233,8 @@ abstract class analytics {
                 $user = manager::get_realuser();
             }
         }
+
+        self::$personalinfo = self::get_personal_information($user);
 
         $provider = static::get_my_provider_name();
         $staticshares = [];
@@ -355,6 +367,7 @@ abstract class analytics {
     private static function encode_and_add_json_to_html($share, $value) {
         global $OUTPUT;
 
+        $value = self::remove_personal_information($value);
         $jsonvalue = json_encode($value);
         $provider = static::get_my_provider_name();
         $sharecamelcase = self::STATIC_SHARES_CAMEL_CASE[$share];
@@ -397,4 +410,39 @@ abstract class analytics {
         $classparts = explode('\\', $classname);
         return end($classparts);
     }
+
+    /**
+     * Get personal information of the user
+     * @return array
+     */
+    public static function get_personal_information($user) {
+        GLOBAL $DB;
+        $personalinfo = $DB->get_records('user', ['id'=>$user->id])[$user->id];
+        return [
+            $personalinfo->username,
+            $personalinfo->firstname,
+            $personalinfo->lastname,
+            $personalinfo->email
+        ];
+    }
+
+    /**
+     * Remove personal information (if present)
+     * @return string
+     */
+    public static function remove_personal_information($value) {
+
+        if (!is_array($value)) {
+            foreach (self::$personalinfo as $personal) {
+                if (!(strpos($value, $personal) === false)) {
+                    $value = str_replace($personal, "", $value);
+                }
+            }
+        }
+        return $value;
+    }
+
+
+
+
 }

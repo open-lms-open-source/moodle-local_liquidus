@@ -289,6 +289,51 @@ class local_liquidus_analytics_test extends advanced_testcase {
     }
 
     /**
+     * Test that personal information is not sent implicitly within the unidentifiable static shares
+     * @dataProvider get_analytics_types
+     *
+     * @throws coding_exception
+     */
+    public function test_no_personal_information_within_unidentifiable_static_shares($analyticstype) {
+        global $PAGE;
+
+        // Login as someone.
+        $user = $this->getDataGenerator()->create_user();
+        $this->setUser($user);
+
+        // Set the profile page.
+        $userfullname = fullname($user);
+        $urlparams = ['id' => $user->id];
+        $strpublicprofile = get_string('publicprofile');
+        $PAGE->set_url('/user/profile.php', $urlparams);
+        $PAGE->set_context(context_system::instance());
+        $PAGE->set_title($userfullname.": $strpublicprofile");
+        $PAGE->set_heading($userfullname);
+        $PAGE->set_pagetype('user-profile');
+
+        /** @var analytics $classname */
+        $classname = "\\local_liquidus\\api\\{$analyticstype}";
+        $classname::clear_rendered_static_shares();
+        $classname::build_static_shares(get_config('local_liquidus'));
+        $injectedstaticshares = $classname::get_rendered_static_shares();
+
+        // All shares are enabled as default.
+        $sharekeys = array_merge(analytics::STATIC_SHARES_ALWAYS, analytics::UNIDENTIFIABLE_STATIC_SHARES);
+
+        // Keys are converted to camel case.
+        array_walk($sharekeys, function(&$sharekey) {
+            $sharekey = analytics::STATIC_SHARES_CAMEL_CASE[$sharekey];
+        });
+
+        $personalinfo = analytics::get_personal_info_array();
+
+        foreach ($personalinfo as $personal) {
+            $this->assertStringNotContainsString($personal, $injectedstaticshares);
+        }
+
+    }
+
+    /**
      * @return array|false|string[]
      */
     public function get_analytics_types() {
