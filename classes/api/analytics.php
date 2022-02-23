@@ -87,7 +87,7 @@ abstract class analytics {
     ];
 
     private static string $renderedstaticshares = '';
-    private static array $personalinfo = [];
+    private static \stdClass $personalinfo;
 
     /**
      * Get string of JS scripts containing the static shares.
@@ -99,11 +99,11 @@ abstract class analytics {
     }
 
     /**
-     * Get string of JS scripts containing the static shares.
+     * Get object containing the personal information.
      *
-     * @return array
+     * @return \stdClass
      */
-    public static function get_personal_info_array(): array {
+    public static function get_personal_info_array(): \stdClass {
         return self::$personalinfo;
     }
 
@@ -186,7 +186,7 @@ abstract class analytics {
     /**
      * Whether to track this request.
      *
-     * @param \stdClass $config
+     * @param \stdClass $config Config object.
      * @return boolean
      *   The outcome of our deliberations.
      */
@@ -215,7 +215,7 @@ abstract class analytics {
 
     /**
      * Gets an array with all the static info.
-     * @param \stdClass $config
+     * @param \stdClass $config Config object.
      */
     public static function build_static_shares($config) {
         global $USER, $PAGE, $SITE, $CFG;
@@ -362,7 +362,7 @@ abstract class analytics {
 
     /**
      * @param string $share Share identifier.
-     * @param array|string $value This will encoded as json.
+     * @param array|string $value Share value. This will be encoded as json.
      */
     private static function encode_and_add_json_to_html($share, $value) {
         global $OUTPUT;
@@ -412,22 +412,18 @@ abstract class analytics {
     }
 
     /**
-     * Get personal information of the user
-     * @return array
+     * Get personal information of the user.
+     * @param \stdClass $user User object.
+     * @return \stdClass
      */
     public static function get_personal_information($user) {
-        GLOBAL $DB;
-        $personalinfo = $DB->get_records('user', ['id'=>$user->id])[$user->id];
-        return [
-            $personalinfo->username,
-            $personalinfo->firstname,
-            $personalinfo->lastname,
-            $personalinfo->email
-        ];
+        global $DB;
+        return $DB->get_record('user', ['id' => $user->id], 'username, firstname, lastname, email');
     }
 
     /**
-     * Remove personal information (if present)
+     * Remove personal information (if present).
+     * @param array|string $value Share value. This will be encoded as json.
      * @return string
      */
     public static function remove_personal_information($value) {
@@ -441,8 +437,4 @@ abstract class analytics {
         }
         return $value;
     }
-
-
-
-
 }

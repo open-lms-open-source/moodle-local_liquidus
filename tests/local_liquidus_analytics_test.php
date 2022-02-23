@@ -289,7 +289,7 @@ class local_liquidus_analytics_test extends advanced_testcase {
     }
 
     /**
-     * Test that personal information is not sent implicitly within the unidentifiable static shares
+     * Test that personal information is not sent implicitly within the unidentifiable static shares.
      * @dataProvider get_analytics_types
      *
      * @throws coding_exception
