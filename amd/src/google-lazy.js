@@ -31,9 +31,9 @@ define(['jquery','core/log', 'core/templates'],
             var dfd = $.Deferred();
             var siteid = tracker.trackerInfo.siteid;
             var lengthgid = siteid.length;
-            var pageTitle = tracker.trackerInfo.staticShares.pageTitle;
-            if (typeof pageTitle === 'undefined') {
-                pageTitle = siteid[0];
+            var courseId = tracker.trackerInfo.staticShares.courseId;
+            if (typeof courseId === 'undefined') {
+                courseId = siteid[0];
             }
             if (!siteid) {
                 Log.debug('Liquidus is misconfigured for Google, Site ID is missing.');
@@ -41,7 +41,7 @@ define(['jquery','core/log', 'core/templates'],
             }
             var context = [];
             context['siteid'] = siteid[0];
-            context['pageTitle'] = pageTitle;
+            context['courseId'] = courseId;
             context['gacodes'] = [];
             context['uacodes'] = [];
             var startWith = '';

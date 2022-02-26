@@ -40,7 +40,7 @@ abstract class analytics {
     const STATIC_CONTEXT_LEVEL = 'contextlevel';
     const STATIC_PAGE_TYPE = 'pagetype';
     const STATIC_PLUGINS = 'plugins';
-    const STATIC_PAGE_TITLE = 'pagetitle';
+    const STATIC_COURSE_ID = 'courseid';
     const STATIC_PAGE_URL = 'pageurl';
     const STATIC_PAGE_PATH = 'pagepath';
     const STATIC_SITE_SHORT_NAME = 'siteshortname';
@@ -59,7 +59,7 @@ abstract class analytics {
         self::STATIC_CONTEXT_LEVEL,
         self::STATIC_PAGE_TYPE,
         self::STATIC_PLUGINS,
-        self::STATIC_PAGE_TITLE,
+        self::STATIC_COURSE_ID,
         self::STATIC_PAGE_URL,
         self::STATIC_PAGE_PATH,
         self::STATIC_SITE_SHORT_NAME,
@@ -79,7 +79,7 @@ abstract class analytics {
         self::STATIC_CONTEXT_LEVEL => 'contextLevel',
         self::STATIC_PAGE_TYPE => 'pageType',
         self::STATIC_PLUGINS => 'plugins',
-        self::STATIC_PAGE_TITLE => 'pageTitle',
+        self::STATIC_COURSE_ID => 'courseId',
         self::STATIC_PAGE_URL => 'pageUrl',
         self::STATIC_PAGE_PATH => 'pagePath',
         self::STATIC_SITE_SHORT_NAME => 'siteShortName',
@@ -87,7 +87,6 @@ abstract class analytics {
     ];
 
     private static string $renderedstaticshares = '';
-    private static \stdClass $personalinfo;
 
     /**
      * Get string of JS scripts containing the static shares.
@@ -96,15 +95,6 @@ abstract class analytics {
      */
     public static function get_rendered_static_shares(): string {
         return self::$renderedstaticshares;
-    }
-
-    /**
-     * Get object containing the personal information.
-     *
-     * @return \stdClass
-     */
-    public static function get_personal_info_array(): \stdClass {
-        return self::$personalinfo;
     }
 
     /**
@@ -234,8 +224,6 @@ abstract class analytics {
             }
         }
 
-        self::$personalinfo = self::get_personal_information($user);
-
         $provider = static::get_my_provider_name();
         $staticshares = [];
         $unidentifiablestaticsharesettingkey = "{$provider}_unidentifiable_staticshares";
@@ -280,8 +268,8 @@ abstract class analytics {
                 case self::STATIC_PLUGINS:
                     self::add_current_plugins_called_to_html();
                     break;
-                case self::STATIC_PAGE_TITLE:
-                    $value = $PAGE->title;
+                case self::STATIC_COURSE_ID:
+                    $value = $PAGE->course->id;
                     break;
                 case self::STATIC_PAGE_URL:
                     $value = $PAGE->url->out(false);
@@ -367,7 +355,6 @@ abstract class analytics {
     private static function encode_and_add_json_to_html($share, $value) {
         global $OUTPUT;
 
-        $value = self::remove_personal_information($value);
         $jsonvalue = json_encode($value);
         $provider = static::get_my_provider_name();
         $sharecamelcase = self::STATIC_SHARES_CAMEL_CASE[$share];
@@ -409,32 +396,5 @@ abstract class analytics {
         $classname = static::class;
         $classparts = explode('\\', $classname);
         return end($classparts);
-    }
-
-    /**
-     * Get personal information of the user.
-     * @param \stdClass $user User object.
-     * @return \stdClass
-     */
-    public static function get_personal_information($user) {
-        global $DB;
-        return $DB->get_record('user', ['id' => $user->id], 'username, firstname, lastname, email');
-    }
-
-    /**
-     * Remove personal information (if present).
-     * @param array|string $value Share value. This will be encoded as json.
-     * @return string
-     */
-    public static function remove_personal_information($value) {
-
-        if (!is_array($value)) {
-            foreach (self::$personalinfo as $personal) {
-                if (!(strpos($value, $personal) === false)) {
-                    $value = str_replace($personal, "", $value);
-                }
-            }
-        }
-        return $value;
     }
 }
