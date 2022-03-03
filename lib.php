@@ -27,9 +27,10 @@ use local_liquidus\injector;
 
 require_once(__DIR__.'/../../config.php');
 
+
 /**
- * Used in Moodle 3.3+ to inject a chunk of JS or CSS into every page.
+ * Used since Moodle 29.
  */
-function local_liquidus_before_footer() {
+function local_liquidus_extend_navigation() {
     injector::get_instance()->inject();
 }
