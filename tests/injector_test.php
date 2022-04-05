@@ -82,19 +82,23 @@ class local_liquidus_injector_testcase extends advanced_testcase {
         // Enable plugin and tracker type.
         $config = $this->enable_plugin_and_tracker($type, $configtype);
 
-        // Check for track url. If it is used by the provider, the js method should be called.
+
         $classname = "\\local_liquidus\\api\\{$type}";
         /** @var analytics $engine */
         $engine = new $classname;
-        if (!empty($engine::get_script_url($config))) {
-            $pagereqs->js(Argument::type('moodle_url'), Argument::type('bool'))
-                ->shouldBeCalledTimes($requirecallcount);
-        }
+
+        injector::clear_appcues_scripturl();
 
         // Let's tell te injector class to use our mock page so our prophecy becomes true.
         injector::get_instance()->set_test_page($mockpage);
 
         injector::get_instance()->inject();
+
+        // Check for track url (appcues). If it is used by the provider, the url should be injected within the page.
+        if (!empty($url = $engine::get_script_url($config)) && $type == "appcues" && $requirecallcount > 0) {
+            $injectedscripturl = injector::get_appcues_scripturl();
+            $this->assertStringContainsString($url, $injectedscripturl);
+        }
 
         $pagereqs->checkProphecyMethodsPredictions();
     }

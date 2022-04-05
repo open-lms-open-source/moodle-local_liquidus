@@ -16,7 +16,7 @@
 
 /**
  * Liquidus
- * 
+ *
  * @package   local_liquidus
  * @copyright Copyright (c) 2020 Open LMS
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -29,8 +29,9 @@ require_once(__DIR__.'/../../config.php');
 
 
 /**
- * Used since Moodle 29.
+ * Used in Moodle 3.3+ to inject a chunk of JS or CSS into every page.
+ * Used because this callback does not buffer outputs.
  */
-function local_liquidus_extend_navigation() {
+function local_liquidus_before_footer() {
     injector::get_instance()->inject();
 }

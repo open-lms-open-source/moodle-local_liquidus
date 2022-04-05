@@ -66,6 +66,24 @@ class injector {
     /** @var string[] */
     private $analyticstypes;
 
+    private static string $scripturl = '';
+
+    /**
+     * Get string containing JS appcues script url.
+     *
+     * @return string
+     */
+    public static function get_appcues_scripturl(): string {
+        return self::$scripturl;
+    }
+
+    /**
+     * Clear string containing JS appcues script url.
+     */
+    public static function clear_appcues_scripturl() : void {
+        self::$scripturl = '';
+    }
+
     private function __construct() {
         $this->reset();
     }
@@ -78,7 +96,7 @@ class injector {
     }
 
     public function inject() {
-        global $PAGE;
+        global $PAGE, $OUTPUT;
 
         if ($this->injected) {
             return;
@@ -113,16 +131,21 @@ class injector {
             $page = $this->testpage;
         }
 
-        // Add script tags for trackers which require it.
-        $inhead = true;
+        // Add script tags for appcues
         foreach ($trackersinfo as $info) {
-            if (isset($info['scripturl']) && !empty($url = $info['scripturl'])) {
+            if (isset($info['scripturl']) && !empty($url = $info['scripturl']) && $info['trackerId'] == "appcues") {
                 if (strpos($url, 'http') === false && is_callable('is_https')) {
                     $url = (is_https() ? 'https' : 'http') . "://{$url}";
                 } else {
                     $url = "https://{$url}"; // Force https.
                 }
-                $page->requires->js(new moodle_url($url), $inhead);
+
+                self::$scripturl = $OUTPUT->render_from_template('local_liquidus/appcues', ['url' => $url]);
+
+                if (!PHPUNIT_TEST) {
+                    echo self::$scripturl;
+                }
+
             }
             $page->requires->js_call_amd('local_liquidus/main', 'init', [$info]);
         }
