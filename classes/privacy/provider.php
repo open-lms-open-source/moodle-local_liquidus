@@ -76,6 +76,7 @@ class provider implements metadataprovider,
             'sitelanguage' => 'privacy:metadata:liquidus:sitelanguage',
             'userid' => 'privacy:metadata:liquidus:userid',
             'useremail' => 'privacy:metadata:liquidus:useremail',
+            'sitehash' => 'privacy:metadata:liquidus:sitehash',
         ], 'privacy:metadata:liquidus');
 
         return $collection;
