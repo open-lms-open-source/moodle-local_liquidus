@@ -236,16 +236,15 @@ class injector {
      * @throws \dml_exception
      */
     private function get_available_configs() {
-        global $CFG;
+
         $configs = [];
         // Normal Moodle config for client use.
         $configs[] = get_config('local_liquidus');
-        // Shadow config for internal Open LMS use.
-        if (!empty($CFG->local_liquidus_olms_cfg) && is_object($CFG->local_liquidus_olms_cfg)) {
-            $configs[] = $CFG->local_liquidus_olms_cfg;
-        }
 
         return array_filter($configs, function($config) {
+            if (!isset($config->enabled)) {
+                return;
+            }
             $pluginenabled = $config->enabled;
             $shouldtrack = analytics::should_track($config);
             return !empty($pluginenabled) && $shouldtrack;

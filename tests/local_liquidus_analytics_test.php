@@ -59,6 +59,8 @@ class local_liquidus_analytics_test extends advanced_testcase {
         $PAGE->set_pagetype('course-view-' . $course->format);
         $PAGE->set_context(\context_course::instance($course->id));
         $PAGE->set_course($course);
+        $unidentifiable_staticshares = 'userrole,contextlevel,courseid,pagetype,plugins,pageurl,pagepath,siteshortname,sitelanguage,sitehash';
+        set_config("{$analyticstype}_unidentifiable_staticshares", $unidentifiable_staticshares, 'local_liquidus');
 
         /** @var analytics $classname */
         $classname = "\\local_liquidus\\api\\{$analyticstype}";
@@ -66,7 +68,6 @@ class local_liquidus_analytics_test extends advanced_testcase {
         $classname::build_static_shares(get_config('local_liquidus'));
         $injectedstaticshares = $classname::get_rendered_static_shares();
 
-        // All shares are enabled as default.
         $sharekeys = array_merge(analytics::STATIC_SHARES_ALWAYS, analytics::UNIDENTIFIABLE_STATIC_SHARES);
 
         // Keys are converted to camel case.
@@ -103,6 +104,8 @@ class local_liquidus_analytics_test extends advanced_testcase {
         $PAGE->set_pagetype('course-view-' . $course->format);
         $PAGE->set_context(\context_course::instance($course->id));
         $PAGE->set_course($course);
+        $unidentifiable_staticshares = 'userrole,contextlevel,courseid,pagetype,plugins,pageurl,pagepath,siteshortname,sitelanguage,sitehash';
+        set_config("{$analyticstype}_unidentifiable_staticshares", $unidentifiable_staticshares, 'local_liquidus');
 
         /** @var analytics $classname */
         $classname = "\\local_liquidus\\api\\{$analyticstype}";
@@ -112,7 +115,6 @@ class local_liquidus_analytics_test extends advanced_testcase {
         $classname::build_static_shares(get_config('local_liquidus'));
         $injectedstaticshares = $classname::get_rendered_static_shares();
 
-        // All shares are enabled as default.
         $sharekeys = array_merge(analytics::STATIC_SHARES_ALWAYS, analytics::UNIDENTIFIABLE_STATIC_SHARES, analytics::IDENTIFIABLE_STATIC_SHARES);
 
         // Keys are converted to camel case.
@@ -173,6 +175,8 @@ class local_liquidus_analytics_test extends advanced_testcase {
         $PAGE->set_pagetype('course-view-' . $course->format);
         $PAGE->set_context(\context_course::instance($course->id));
         $PAGE->set_course($course);
+        $unidentifiable_staticshares = 'userrole,contextlevel,courseid,pagetype,plugins,pageurl,pagepath,siteshortname,sitelanguage,sitehash';
+        set_config("{$analyticstype}_unidentifiable_staticshares", $unidentifiable_staticshares, 'local_liquidus');
 
         /** @var analytics $classname */
         $classname = "\\local_liquidus\\api\\{$analyticstype}";
@@ -181,7 +185,7 @@ class local_liquidus_analytics_test extends advanced_testcase {
         $classname::build_static_shares(get_config('local_liquidus'));
         $injectedstaticshares = $classname::get_rendered_static_shares();
 
-        // All shares are enabled as default.
+
         $unidentifiablesharekeys = array_merge(analytics::STATIC_SHARES_ALWAYS, analytics::UNIDENTIFIABLE_STATIC_SHARES);
         $identifiablesharekeys = analytics::IDENTIFIABLE_STATIC_SHARES;
 
@@ -286,47 +290,6 @@ class local_liquidus_analytics_test extends advanced_testcase {
         $this->setUser($student);
         $this->assertEquals(true, analytics::should_track($config));
 
-    }
-
-    /**
-     * Test courseid is tracked as expected.
-     * @dataProvider get_analytics_types
-     *
-     * @throws coding_exception
-     */
-    public function test_tracking_course_id($analyticstype) {
-        global $PAGE;
-        // Login as someone.
-        $user = $this->getDataGenerator()->create_user();
-        $this->setUser($user);
-
-        // Navigate to a course so we can get the page path static share.
-        $course = $this->getDataGenerator()->create_course();
-
-        // Set the page as a course.
-        $urlparams = ['id' => $course->id];
-        $PAGE->set_url('/course/view.php', $urlparams);
-        $PAGE->set_title(get_string('coursetitle', 'moodle', ['course' => $course->fullname]));
-        $PAGE->set_pagetype('course-view-' . $course->format);
-        $PAGE->set_context(\context_course::instance($course->id));
-        $PAGE->set_course($course);
-
-        /** @var analytics $classname */
-        $classname = "\\local_liquidus\\api\\{$analyticstype}";
-        $classname::clear_rendered_static_shares();
-        $classname::build_static_shares(get_config('local_liquidus'));
-        $injectedstaticshares = $classname::get_rendered_static_shares();
-
-        // All shares are enabled as default.
-        $sharekeys = array_merge(analytics::STATIC_SHARES_ALWAYS, analytics::UNIDENTIFIABLE_STATIC_SHARES);
-
-        // Keys are converted to camel case.
-        array_walk($sharekeys, function(&$sharekey) {
-            $sharekey = analytics::STATIC_SHARES_CAMEL_CASE[$sharekey];
-        });
-
-        $jscourseid = 'localLiquidusShares.'.$analyticstype.'.courseId = "'.$PAGE->course->id.'"';
-        $this->assertStringContainsString($jscourseid, $injectedstaticshares);
     }
 
     /**

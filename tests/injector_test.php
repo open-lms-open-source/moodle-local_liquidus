@@ -34,7 +34,6 @@ defined('MOODLE_INTERNAL') || die();
 class local_liquidus_injector_testcase extends advanced_testcase {
 
     const CONFIG_TYPE_SETTING = 0;
-    const CONFIG_TYPE_SHADOW = 1;
 
     public function setUp(): void {
         parent::setUp();
@@ -45,12 +44,12 @@ class local_liquidus_injector_testcase extends advanced_testcase {
     /**
      * Runs an injection type on a config type.
      * @param string $type tracker type
-     * @param int $configtype config type: self::CONFIG_TYPE_SETTING || self::CONFIG_TYPE_SHADOW
+     * @param int $configtype config type: self::CONFIG_TYPE_SETTING
      * @param int $requirecallcount Amount of expected JS require calls
      * @throws coding_exception
      */
     private function run_injection_type($type, $configtype = self::CONFIG_TYPE_SETTING, $requirecallcount = 1) {
-        global $PAGE, $CFG;
+        global $PAGE;
 
         // Login as someone.
         $user = $this->getDataGenerator()->create_user();
@@ -110,7 +109,6 @@ class local_liquidus_injector_testcase extends advanced_testcase {
      * @return stdClass Config object
      */
     private function enable_plugin_and_tracker($type, $configtype = self::CONFIG_TYPE_SETTING) {
-        global $CFG;
         $returncfg = null;
         switch ($configtype) {
             case self::CONFIG_TYPE_SETTING:
@@ -139,41 +137,6 @@ class local_liquidus_injector_testcase extends advanced_testcase {
                 }
                 $returncfg = get_config('local_liquidus');
                 break;
-            case self::CONFIG_TYPE_SHADOW:
-                if (!isset($CFG->local_liquidus_olms_cfg)) {
-                    $CFG->local_liquidus_olms_cfg = new stdClass();
-                }
-                $CFG->local_liquidus_olms_cfg->enabled = true;
-                $CFG->local_liquidus_olms_cfg->{$type} = true;
-                $CFG->local_liquidus_olms_cfg->{"{$type}_staticshares"} = implode(',', [
-                    'userrole',
-                    'contextlevel',
-                    'pagetype',
-                    'plugins',
-                ]);
-                switch ($type) {
-                    case 'google':
-                        $CFG->local_liquidus_olms_cfg->googlesiteid = 'SOMESITEID';
-                        break;
-                    case 'kinesis':
-                        $CFG->local_liquidus_olms_cfg->kinesisurl = 'somekinesisurl';
-                        break;
-                    case 'segment':
-                        $CFG->local_liquidus_olms_cfg->segmentwritekey = 'somesegmentwritekey';
-                        break;
-                    case 'keenio':
-                        $CFG->local_liquidus_olms_cfg->keeniowritekey = 'somekeeniowritekey';
-                        $CFG->local_liquidus_olms_cfg->keenioprojectid = 'somekeenioprojectid';
-                        break;
-                    case 'mixpanel':
-                        $CFG->local_liquidus_olms_cfg->mixpaneltoken = 'somemixpaneltoken';
-                        break;
-                    case 'appcues':
-                        $CFG->local_liquidus_olms_cfg->appcuesaccountid = 'SOMEACCOUNTID';
-                        break;
-                }
-                $returncfg = $CFG->local_liquidus_olms_cfg;
-                break;
         }
         return $returncfg;
     }
@@ -186,21 +149,8 @@ class local_liquidus_injector_testcase extends advanced_testcase {
      * @throws coding_exception
      */
     public function test_injector_with_settings($analyticstype) {
+        set_config('tracknonadmin', '1', 'local_liquidus');
         $this->run_injection_type($analyticstype);
-    }
-
-    /**
-     * Tests the injector using config flags, A.K.A. shadow config.
-     * @dataProvider get_analytics_types
-     *
-     * @param string $analyticstype
-     * @throws coding_exception
-     */
-    public function test_injector_shadow($analyticstype) {
-        global $CFG;
-        $CFG->local_liquidus_olms_cfg = new stdClass();
-        $CFG->local_liquidus_olms_cfg->tracknonadmin = 1;
-        $this->run_injection_type($analyticstype, self::CONFIG_TYPE_SHADOW);
     }
 
     /**
@@ -211,14 +161,8 @@ class local_liquidus_injector_testcase extends advanced_testcase {
      * @throws coding_exception
      */
     public function test_injector_no_track($analyticstype) {
-        global $CFG;
-
         set_config('tracknonadmin', '0', 'local_liquidus');
         $this->run_injection_type($analyticstype, self::CONFIG_TYPE_SETTING, 0);
-
-        $CFG->local_liquidus_olms_cfg = new stdClass();
-        $CFG->local_liquidus_olms_cfg->tracknonadmin = 0;
-        $this->run_injection_type($analyticstype, self::CONFIG_TYPE_SHADOW, 0);
     }
 
     /**
