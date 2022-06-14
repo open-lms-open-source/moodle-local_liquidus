@@ -45,6 +45,7 @@ abstract class analytics {
     const STATIC_PAGE_PATH = 'pagepath';
     const STATIC_SITE_SHORT_NAME = 'siteshortname';
     const STATIC_LANGUAGE = 'sitelanguage';
+    const STATIC_SITE_HASH = 'sitehash';
 
     // Identifiable static shares.
     const STATIC_USER_ID = 'userid';
@@ -52,6 +53,7 @@ abstract class analytics {
 
     const STATIC_SHARES_ALWAYS = [
         self::STATIC_USER_HASH,
+        self::STATIC_SITE_HASH,
     ];
 
     const UNIDENTIFIABLE_STATIC_SHARES = [
@@ -84,6 +86,7 @@ abstract class analytics {
         self::STATIC_PAGE_PATH => 'pagePath',
         self::STATIC_SITE_SHORT_NAME => 'siteShortName',
         self::STATIC_LANGUAGE => 'siteLanguage',
+        self::STATIC_SITE_HASH => 'siteHash',
     ];
 
     private static string $renderedstaticshares = '';
@@ -288,6 +291,10 @@ abstract class analytics {
                     break;
                 case self::STATIC_SITE_SHORT_NAME:
                     $value = $SITE->shortname;
+                    break;
+                case self::STATIC_SITE_HASH:
+                    $value = sha1(parse_url($PAGE->url->out(false))['host']);
+                    break;
             }
 
             if (!empty($value)) {
