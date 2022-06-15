@@ -37,6 +37,7 @@ require_once($CFG->libdir . '/clilib.php');
         'tracknonadmin' => null,
         'cleanurl' => null,
         'share_identifiable' => null,
+        'mixpanel' => null,
         'mixpanel_unidentifiable_staticshares' => null,
         'mixpanel_pagetypeevent' => null,
         'mixpanel_trackforms' => null,
@@ -50,6 +51,7 @@ require_once($CFG->libdir . '/clilib.php');
         'tna' => 'tracknonadmin',
         'cu' => 'cleanurl',
         'si' => 'share_identifiable',
+        'mi' => 'mixpanel',
         'mus' => 'mixpanel_unidentifiable_staticshares',
         'mpt' => 'mixpanel_pagetypeevent',
         'mtf' => 'mixpanel_trackforms',
@@ -62,26 +64,27 @@ if ($unrecognized) {
     cli_error(get_string('cliunknowoption', 'admin', $unrecognized));
 }
 
-if ($options['help'] || (!$options['mixpaneltoken'])) {
+if ($options['help']) {
     $help = "Update internal tracking configuration.
 
 Options:
 -h,    --help                                   Print out this help
--e,    --enabled                                Enable the plugin and Mixpanel tracking
+-e,    --enabled                                Enable the plugin
 -mh,   --masquerade_handling                    Handle when admin impersonates a user
 -ta,   --trackadmin                             Track admin roles only
 -tna,  --tracknonadmin                          Track non-admin roles only
 -cu,   --cleanurl                               Generate clean URL 
 -si,   --share_identifiable                     Enable sharing identifiable data of user
--'mus', --mixpanel_unidentifiable_staticshares  Static shares to be shared with the analytics tracker
+-mi,   --mixpanel                               Enable Mixpanel tracking
+-mus,  --mixpanel_unidentifiable_staticshares   Static shares to be shared with the analytics tracker
                                                     'all': Share all static shares
--'mpt', --mixpanel_pagetypeevent                Append page type to event name
--'mtf', --mixpanel_trackforms                   Track form submissions
--'mt',  --mixpaneltoken                         Mixpanel token (required)
+-mpt,  --mixpanel_pagetypeevent                 Append page type to event name
+-mtf,  --mixpanel_trackforms                    Track form submissions
+-mt,   --mixpaneltoken                          Mixpanel token
 
 Example:
-Enable plugin, track non admin roles, track user role and sitelanguage only, and use token MIXPANEL_TOKEN
-$ /usr/bin/php local/liquidus/cli/update_internal_config.php -e -tna -mus='userrole,sitelanguage' -mt='MIXPANEL_TOKEN'
+Enable plugin and Mixpanel tracking, track non admin roles, track user role and sitelanguage only, and use token MIXPANEL_TOKEN
+$ /usr/bin/php local/liquidus/cli/update_internal_config.php -e='1' -mi='1' -tna='1' -mus='userrole,sitelanguage' -mt='MIXPANEL_TOKEN'
 ";
 
     cli_write($help);
@@ -92,7 +95,8 @@ $pluginname = 'local_liquidus';
 foreach ($options as $key => $value) {
     if ($value !== null && $key !== "help") { //Set new config only if requested in the CLI script parameters.
         if ($key == 'mixpanel_unidentifiable_staticshares' && $value =='all') {
-            set_config($key, 'userrole,contextlevel,courseid,pagetype,plugins,pageurl,pagepath,siteshortname,sitelanguage', $pluginname);
+            $unidentifiable_static_shares = implode (",", \local_liquidus\api\analytics::UNIDENTIFIABLE_STATIC_SHARES);
+            set_config($key, $unidentifiable_static_shares, $pluginname);
             continue;
         }
         set_config($key, $value, $pluginname);
