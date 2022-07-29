@@ -22,8 +22,8 @@
  */
 defined('MOODLE_INTERNAL') || die();
 /** @var object $plugin */
-$plugin->version   = 2022041300; // The current plugin version (Date: YYYYMMDDXX).
+$plugin->version   = 2022072900; // The current plugin version (Date: YYYYMMDDXX).
 $plugin->requires  = 2021051700; // Requires this Moodle version.
 $plugin->component = 'local_liquidus'; // Full name of the plugin (used for diagnostics).
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '3.11.3';
+$plugin->release   = '3.11.6';
