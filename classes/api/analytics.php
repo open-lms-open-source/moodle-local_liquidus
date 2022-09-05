@@ -131,7 +131,13 @@ abstract class analytics {
      */
     public static function track_path($urlencode = false, $leadingslash = false) {
         global $DB, $PAGE;
-        $pageinfo = get_context_info_array($PAGE->context->id);
+        $id = $PAGE->context->id;
+
+        if (!$DB->record_exists('context', ['id' => $id])) {
+            return '';
+        }
+
+        $pageinfo = get_context_info_array($id);
         $trackurl = '';
 
         if ($leadingslash) {

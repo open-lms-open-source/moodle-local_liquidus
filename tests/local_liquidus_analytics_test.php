@@ -293,6 +293,64 @@ class local_liquidus_analytics_test extends advanced_testcase {
     }
 
     /**
+     * Test that even if a category is deleted, static shares work and page path is not tracked.
+     * @dataProvider get_analytics_types
+     *
+     * @param string $analyticstype
+     * @throws coding_exception
+     */
+    public function test_page_path_deleted_category($analyticstype) {
+        global $PAGE, $CFG;
+        require_once($CFG->dirroot.'/course/lib.php');
+
+        // Login as someone.
+        $user = $this->getDataGenerator()->create_user();
+        $this->setUser($user);
+
+        // Navigate to a course so we can get the page path static share.
+        $course = $this->getDataGenerator()->create_course();
+
+        // Set the page as a course.
+        $urlparams = ['id' => $course->id];
+        $PAGE->set_url('/course/view.php', $urlparams);
+        $PAGE->set_title(get_string('coursetitle', 'moodle', ['course' => $course->fullname]));
+        $PAGE->set_pagetype('course-view-' . $course->format);
+        $PAGE->set_context(\context_course::instance($course->id));
+        $PAGE->set_course($course);
+
+        //Delete the category and context of the course
+        $category = core_course_category::get($course->category);
+        $category->delete_full(false);
+
+        $unidentifiable_staticshares = 'userrole,contextlevel,courseid,pagetype,plugins,pageurl,pagepath,siteshortname,sitelanguage,sitehash';
+        set_config("{$analyticstype}_unidentifiable_staticshares", $unidentifiable_staticshares, 'local_liquidus');
+
+        /** @var analytics $classname */
+        $classname = "\\local_liquidus\\api\\{$analyticstype}";
+        $classname::clear_rendered_static_shares();
+        $classname::build_static_shares(get_config('local_liquidus'));
+        $injectedstaticshares = $classname::get_rendered_static_shares();
+
+        $sharekeys = array_merge(analytics::STATIC_SHARES_ALWAYS, analytics::UNIDENTIFIABLE_STATIC_SHARES);
+
+        // Keys are converted to camel case.
+        array_walk($sharekeys, function(&$sharekey) {
+            $sharekey = analytics::STATIC_SHARES_CAMEL_CASE[$sharekey];
+        });
+
+        $jspathvarname = "localLiquidusShares.{$analyticstype}.pagepath";
+        $this->assertStringNotContainsString($jspathvarname, $injectedstaticshares);
+
+        foreach ($sharekeys as $sharekey) {
+            if ($sharekey != "pagePath") {
+                $jsvarname = "localLiquidusShares.{$analyticstype}.{$sharekey}";
+                $this->assertStringContainsString($jsvarname, $injectedstaticshares);
+            }
+        }
+
+    }
+
+    /**
      * @return array|false|string[]
      */
     public function get_analytics_types() {
