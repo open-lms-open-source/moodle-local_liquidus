@@ -293,17 +293,15 @@ class local_liquidus_analytics_test extends advanced_testcase {
     }
 
     /**
-     * Test that even if a category is deleted, static shares work and page path is not tracked.
+     * Test that shares aren't tracked if course context doesn't exist or was deleted
      * @dataProvider get_analytics_types
      *
      * @param string $analyticstype
      * @throws coding_exception
      */
-    public function test_page_path_deleted_category($analyticstype) {
+    public function test_no_tracking_if_no_context($analyticstype) {
         global $PAGE, $CFG;
         require_once($CFG->dirroot.'/course/lib.php');
-
-        $this->markTestSkipped('Failing in moodle 4.0. To be reviewed in INT-18359');
 
         // Login as someone.
         $user = $this->getDataGenerator()->create_user();
@@ -340,14 +338,9 @@ class local_liquidus_analytics_test extends advanced_testcase {
             $sharekey = analytics::STATIC_SHARES_CAMEL_CASE[$sharekey];
         });
 
-        $jspathvarname = "localLiquidusShares.{$analyticstype}.pagepath";
-        $this->assertStringNotContainsString($jspathvarname, $injectedstaticshares);
-
         foreach ($sharekeys as $sharekey) {
-            if ($sharekey != "pagePath") {
-                $jsvarname = "localLiquidusShares.{$analyticstype}.{$sharekey}";
-                $this->assertStringContainsString($jsvarname, $injectedstaticshares);
-            }
+            $jsvarname = "localLiquidusShares.{$analyticstype}.{$sharekey}";
+            $this->assertStringNotContainsString($jsvarname, $injectedstaticshares);
         }
 
     }
