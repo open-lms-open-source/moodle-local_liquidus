@@ -46,6 +46,7 @@ abstract class analytics {
     const STATIC_SITE_SHORT_NAME = 'siteshortname';
     const STATIC_LANGUAGE = 'sitelanguage';
     const STATIC_SITE_HASH = 'sitehash';
+    const STATIC_IS_SUPPORT_USER = 'issupportuser';
 
     // Identifiable static shares.
     const STATIC_USER_ID = 'userid';
@@ -54,6 +55,7 @@ abstract class analytics {
     const STATIC_SHARES_ALWAYS = [
         self::STATIC_USER_HASH,
         self::STATIC_SITE_HASH,
+        self::STATIC_IS_SUPPORT_USER,
     ];
 
     const UNIDENTIFIABLE_STATIC_SHARES = [
@@ -66,6 +68,7 @@ abstract class analytics {
         self::STATIC_PAGE_PATH,
         self::STATIC_SITE_SHORT_NAME,
         self::STATIC_LANGUAGE,
+        self::STATIC_IS_SUPPORT_USER,
     ];
 
     const IDENTIFIABLE_STATIC_SHARES = [
@@ -87,6 +90,7 @@ abstract class analytics {
         self::STATIC_SITE_SHORT_NAME => 'siteShortName',
         self::STATIC_LANGUAGE => 'siteLanguage',
         self::STATIC_SITE_HASH => 'siteHash',
+        self::STATIC_IS_SUPPORT_USER => 'isSupportUser'
     ];
 
     private static string $renderedstaticshares = '';
@@ -304,6 +308,9 @@ abstract class analytics {
                 case self::STATIC_SITE_HASH:
                     $value = sha1(parse_url($PAGE->url->out(false))['host']);
                     break;
+                case self::STATIC_IS_SUPPORT_USER:
+                    $value = self::identify_support_users($user->email);
+                    break;
             }
 
             if (!empty($value)) {
@@ -362,6 +369,22 @@ abstract class analytics {
 
         // Adding user roles straight to HTML.
         self::encode_and_add_json_to_html(self::STATIC_USER_ROLE, $rolenames);
+    }
+
+    public static function identify_support_users(string $email) {
+        global $CFG;
+
+        $emaildomainarray = explode("@", $email);
+        if (!isset($CFG->local_liquidus_olms_cfg->support_user_domains)) {
+            return "no";
+        }
+
+        $supportuserdomains = $CFG->local_liquidus_olms_cfg->support_user_domains;
+        if (in_array(end($emaildomainarray), $supportuserdomains) || in_array($email, $supportuserdomains)) {
+            return "yes";
+        }
+
+        return "no";
     }
 
     /**
