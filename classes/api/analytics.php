@@ -68,7 +68,6 @@ abstract class analytics {
         self::STATIC_PAGE_PATH,
         self::STATIC_SITE_SHORT_NAME,
         self::STATIC_LANGUAGE,
-        self::STATIC_IS_SUPPORT_USER,
     ];
 
     const IDENTIFIABLE_STATIC_SHARES = [

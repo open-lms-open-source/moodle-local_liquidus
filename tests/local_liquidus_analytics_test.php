@@ -59,7 +59,7 @@ class local_liquidus_analytics_test extends advanced_testcase {
         $PAGE->set_pagetype('course-view-' . $course->format);
         $PAGE->set_context(\context_course::instance($course->id));
         $PAGE->set_course($course);
-        $unidentifiable_staticshares = 'userrole,contextlevel,courseid,pagetype,plugins,pageurl,pagepath,siteshortname,sitelanguage,sitehash,issupportuser';
+        $unidentifiable_staticshares = join(",", analytics::UNIDENTIFIABLE_STATIC_SHARES);
         set_config("{$analyticstype}_unidentifiable_staticshares", $unidentifiable_staticshares, 'local_liquidus');
 
         /** @var analytics $classname */
@@ -104,7 +104,7 @@ class local_liquidus_analytics_test extends advanced_testcase {
         $PAGE->set_pagetype('course-view-' . $course->format);
         $PAGE->set_context(\context_course::instance($course->id));
         $PAGE->set_course($course);
-        $unidentifiable_staticshares = 'userrole,contextlevel,courseid,pagetype,plugins,pageurl,pagepath,siteshortname,sitelanguage,sitehash,issupportuser';
+        $unidentifiable_staticshares = join(",", analytics::UNIDENTIFIABLE_STATIC_SHARES);
         set_config("{$analyticstype}_unidentifiable_staticshares", $unidentifiable_staticshares, 'local_liquidus');
 
         /** @var analytics $classname */
@@ -175,7 +175,7 @@ class local_liquidus_analytics_test extends advanced_testcase {
         $PAGE->set_pagetype('course-view-' . $course->format);
         $PAGE->set_context(\context_course::instance($course->id));
         $PAGE->set_course($course);
-        $unidentifiable_staticshares = 'userrole,contextlevel,courseid,pagetype,plugins,pageurl,pagepath,siteshortname,sitelanguage,sitehash,issupportuser';
+        $unidentifiable_staticshares = join(",", analytics::UNIDENTIFIABLE_STATIC_SHARES);
         set_config("{$analyticstype}_unidentifiable_staticshares", $unidentifiable_staticshares, 'local_liquidus');
 
         /** @var analytics $classname */
@@ -322,7 +322,7 @@ class local_liquidus_analytics_test extends advanced_testcase {
         $category = core_course_category::get($course->category);
         $category->delete_full(false);
 
-        $unidentifiable_staticshares = 'userrole,contextlevel,courseid,pagetype,plugins,pageurl,pagepath,siteshortname,sitelanguage,sitehash,issupportuser';
+        $unidentifiable_staticshares = join(",", analytics::UNIDENTIFIABLE_STATIC_SHARES);
         set_config("{$analyticstype}_unidentifiable_staticshares", $unidentifiable_staticshares, 'local_liquidus');
 
         /** @var analytics $classname */
