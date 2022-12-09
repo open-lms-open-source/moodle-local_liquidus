@@ -46,6 +46,7 @@ abstract class analytics {
     const STATIC_SITE_SHORT_NAME = 'siteshortname';
     const STATIC_LANGUAGE = 'sitelanguage';
     const STATIC_SITE_HASH = 'sitehash';
+    const STATIC_THEME = 'theme';
     const STATIC_IS_SUPPORT_USER = 'issupportuser';
 
     // Identifiable static shares.
@@ -68,6 +69,7 @@ abstract class analytics {
         self::STATIC_PAGE_PATH,
         self::STATIC_SITE_SHORT_NAME,
         self::STATIC_LANGUAGE,
+        self::STATIC_THEME,
     ];
 
     const IDENTIFIABLE_STATIC_SHARES = [
@@ -89,6 +91,7 @@ abstract class analytics {
         self::STATIC_SITE_SHORT_NAME => 'siteShortName',
         self::STATIC_LANGUAGE => 'siteLanguage',
         self::STATIC_SITE_HASH => 'siteHash',
+        self::STATIC_THEME => 'theme',
         self::STATIC_IS_SUPPORT_USER => 'isSupportUser'
     ];
 
@@ -307,6 +310,9 @@ abstract class analytics {
                 case self::STATIC_SITE_HASH:
                     $value = sha1(parse_url($PAGE->url->out(false))['host']);
                     break;
+                case self::STATIC_THEME:
+                    $value = $PAGE->theme->name;
+                    break;
                 case self::STATIC_IS_SUPPORT_USER:
                     $value = self::identify_support_users($user->email);
                     break;
@@ -340,6 +346,10 @@ abstract class analytics {
                         $type = 'block';
                     }
                     $id = $exploded[1];
+                }
+
+                if ($id === 'liquidus') { //Don't include Liquidus in the list.
+                    return;
                 }
 
                 if (in_array($type, $validplugintypes)) {

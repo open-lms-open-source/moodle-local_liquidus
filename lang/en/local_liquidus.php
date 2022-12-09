@@ -69,6 +69,7 @@ $string['staticshares_useremail'] = 'User email';
 $string['staticshares_siteshortname'] = 'Site short name';
 $string['staticshares_sitelanguage'] = 'Site language';
 $string['staticshares_sitehash'] = 'Site hash (Unidentifiable identifier)';
+$string['staticshares_theme'] = 'Theme used when rendering the page';
 $string['kinesis'] = 'AWS Kinesis';
 $string['kinesis_desc'] = 'Amazon Web Services Kinesis tracker';
 $string['kinesisurl'] = 'AWS Kinesis URL';
