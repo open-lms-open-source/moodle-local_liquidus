@@ -356,10 +356,15 @@ class local_liquidus_analytics_test extends advanced_testcase {
         global $PAGE, $CFG;
         require_once($CFG->dirroot.'/course/lib.php');
 
-        $unidentifiable_staticshares = 'userrole,contextlevel,courseid,pagetype,plugins,pageurl,pagepath,siteshortname,sitelanguage,sitehash,theme';
+        $unidentifiable_staticshares = join(",", analytics::UNIDENTIFIABLE_STATIC_SHARES);
         set_config("{$analyticstype}_unidentifiable_staticshares", $unidentifiable_staticshares, 'local_liquidus');
 
-        $themes = ['snap', 'boost', 'classic'];
+        $themes = glob($CFG->dirroot."/theme/*", GLOB_ONLYDIR); // Get array of paths to available themes.
+
+        array_walk($themes, function (&$theme) { // Get array of theme names only
+           $theme = explode("/", $theme);
+           $theme = end($theme);
+        });
 
         foreach ($themes as $theme) {
 
