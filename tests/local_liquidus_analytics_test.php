@@ -59,7 +59,7 @@ class local_liquidus_analytics_test extends advanced_testcase {
         $PAGE->set_pagetype('course-view-' . $course->format);
         $PAGE->set_context(\context_course::instance($course->id));
         $PAGE->set_course($course);
-        $unidentifiable_staticshares = 'userrole,contextlevel,courseid,pagetype,plugins,pageurl,pagepath,siteshortname,sitelanguage,sitehash';
+        $unidentifiable_staticshares = join(",", analytics::UNIDENTIFIABLE_STATIC_SHARES);
         set_config("{$analyticstype}_unidentifiable_staticshares", $unidentifiable_staticshares, 'local_liquidus');
 
         /** @var analytics $classname */
@@ -104,7 +104,7 @@ class local_liquidus_analytics_test extends advanced_testcase {
         $PAGE->set_pagetype('course-view-' . $course->format);
         $PAGE->set_context(\context_course::instance($course->id));
         $PAGE->set_course($course);
-        $unidentifiable_staticshares = 'userrole,contextlevel,courseid,pagetype,plugins,pageurl,pagepath,siteshortname,sitelanguage,sitehash';
+        $unidentifiable_staticshares = join(",", analytics::UNIDENTIFIABLE_STATIC_SHARES);
         set_config("{$analyticstype}_unidentifiable_staticshares", $unidentifiable_staticshares, 'local_liquidus');
 
         /** @var analytics $classname */
@@ -175,7 +175,7 @@ class local_liquidus_analytics_test extends advanced_testcase {
         $PAGE->set_pagetype('course-view-' . $course->format);
         $PAGE->set_context(\context_course::instance($course->id));
         $PAGE->set_course($course);
-        $unidentifiable_staticshares = 'userrole,contextlevel,courseid,pagetype,plugins,pageurl,pagepath,siteshortname,sitelanguage,sitehash';
+        $unidentifiable_staticshares = join(",", analytics::UNIDENTIFIABLE_STATIC_SHARES);
         set_config("{$analyticstype}_unidentifiable_staticshares", $unidentifiable_staticshares, 'local_liquidus');
 
         /** @var analytics $classname */
@@ -322,7 +322,7 @@ class local_liquidus_analytics_test extends advanced_testcase {
         $category = core_course_category::get($course->category);
         $category->delete_full(false);
 
-        $unidentifiable_staticshares = 'userrole,contextlevel,courseid,pagetype,plugins,pageurl,pagepath,siteshortname,sitelanguage,sitehash';
+        $unidentifiable_staticshares = join(",", analytics::UNIDENTIFIABLE_STATIC_SHARES);
         set_config("{$analyticstype}_unidentifiable_staticshares", $unidentifiable_staticshares, 'local_liquidus');
 
         /** @var analytics $classname */
@@ -342,6 +342,89 @@ class local_liquidus_analytics_test extends advanced_testcase {
             $jsvarname = "localLiquidusShares.{$analyticstype}.{$sharekey}";
             $this->assertStringNotContainsString($jsvarname, $injectedstaticshares);
         }
+
+    }
+
+    /**
+     * Test that isSupportUser share is populated when there are emails or custom domains to be identified.
+     * @dataProvider get_analytics_types
+     *
+     * @param string $analyticstype
+     * @throws coding_exception
+     */
+    public function test_is_support_user($analyticstype) {
+        global $PAGE, $CFG;
+
+        $CFG->local_liquidus_olms_cfg = new \stdClass();
+
+        // Login as someone.
+        $user = $this->getDataGenerator()->create_user();
+        $this->setUser($user);
+
+        // Navigate to a course so we can get the page path static share.
+        $course = $this->getDataGenerator()->create_course();
+
+        // Set the page as a course.
+        $urlparams = ['id' => $course->id];
+        $PAGE->set_url('/course/view.php', $urlparams);
+        $PAGE->set_title(get_string('coursetitle', 'moodle', ['course' => $course->fullname]));
+        $PAGE->set_pagetype('course-view-' . $course->format);
+        $PAGE->set_context(\context_course::instance($course->id));
+        $PAGE->set_course($course);
+
+
+        /** @var analytics $classname */
+        $classname = "\\local_liquidus\\api\\{$analyticstype}";
+        $classname::clear_rendered_static_shares();
+        $classname::build_static_shares(get_config('local_liquidus'));
+        $injectedstaticshares = $classname::get_rendered_static_shares();
+
+        $sharekeys = array_merge(analytics::STATIC_SHARES_ALWAYS);
+
+        // Keys are converted to camel case.
+        array_walk($sharekeys, function(&$sharekey) {
+            $sharekey = analytics::STATIC_SHARES_CAMEL_CASE[$sharekey];
+        });
+
+        $issupportusershare = analytics::STATIC_SHARES_CAMEL_CASE[analytics::STATIC_IS_SUPPORT_USER];
+        $jsvarname = "localLiquidusShares.{$analyticstype}.{$issupportusershare}";
+        $this->assertStringContainsString($jsvarname, $injectedstaticshares);
+        $this->assertEquals("no", analytics::identify_support_users($user->email));
+
+        $CFG->local_liquidus_olms_cfg->support_user_domains = [$user->email]; //Add test user email to support user domain array
+
+        $classname::clear_rendered_static_shares();
+        $classname::build_static_shares(get_config('local_liquidus'));
+        $injectedstaticshares = $classname::get_rendered_static_shares();
+
+        $sharekeys = array_merge(analytics::STATIC_SHARES_ALWAYS);
+
+        // Keys are converted to camel case.
+        array_walk($sharekeys, function(&$sharekey) {
+            $sharekey = analytics::STATIC_SHARES_CAMEL_CASE[$sharekey];
+        });
+
+        $jsvarname = "localLiquidusShares.{$analyticstype}.{$issupportusershare}";
+        $this->assertStringContainsString($jsvarname, $injectedstaticshares);
+        $this->assertEquals("yes", analytics::identify_support_users($user->email));
+
+        $emaildomainarray = explode("@", $user->email);
+        $CFG->local_liquidus_olms_cfg->support_user_domains = [end($emaildomainarray)]; //Add test user email domain to support user domain array
+
+        $classname::clear_rendered_static_shares();
+        $classname::build_static_shares(get_config('local_liquidus'));
+        $injectedstaticshares = $classname::get_rendered_static_shares();
+
+        $sharekeys = array_merge(analytics::STATIC_SHARES_ALWAYS);
+
+        // Keys are converted to camel case.
+        array_walk($sharekeys, function(&$sharekey) {
+            $sharekey = analytics::STATIC_SHARES_CAMEL_CASE[$sharekey];
+        });
+
+        $jsvarname = "localLiquidusShares.{$analyticstype}.{$issupportusershare}";
+        $this->assertStringContainsString($jsvarname, $injectedstaticshares);
+        $this->assertEquals("yes", analytics::identify_support_users($user->email));
 
     }
 
