@@ -366,6 +366,14 @@ abstract class analytics {
             $rolenames[] = $role->shortname;
         }
 
+        if (empty($rolenames)) {
+            if (is_siteadmin()) { // Check if the user has an admin role if no role can be retrieved
+                $rolenames[] = 'siteadmin';
+            } else {
+                $rolenames[] = 'norole';
+            }
+        }
+
         // Adding user roles straight to HTML.
         self::encode_and_add_json_to_html(self::STATIC_USER_ROLE, $rolenames);
     }
