@@ -46,6 +46,8 @@ abstract class analytics {
     const STATIC_SITE_SHORT_NAME = 'siteshortname';
     const STATIC_LANGUAGE = 'sitelanguage';
     const STATIC_SITE_HASH = 'sitehash';
+    const STATIC_MROOMS_VERSION = 'mroomsversion';
+    const STATIC_MOODLE_VERSION = 'moodleversion';
     const STATIC_THEME = 'theme';
     const STATIC_IS_SUPPORT_USER = 'issupportuser';
 
@@ -69,6 +71,8 @@ abstract class analytics {
         self::STATIC_PAGE_PATH,
         self::STATIC_SITE_SHORT_NAME,
         self::STATIC_LANGUAGE,
+        self::STATIC_MROOMS_VERSION,
+        self::STATIC_MOODLE_VERSION,
         self::STATIC_THEME,
     ];
 
@@ -91,6 +95,8 @@ abstract class analytics {
         self::STATIC_SITE_SHORT_NAME => 'siteShortName',
         self::STATIC_LANGUAGE => 'siteLanguage',
         self::STATIC_SITE_HASH => 'siteHash',
+        self::STATIC_MROOMS_VERSION => 'mRoomsVersion',
+        self::STATIC_MOODLE_VERSION => 'moodleVersion',
         self::STATIC_THEME => 'theme',
         self::STATIC_IS_SUPPORT_USER => 'isSupportUser'
     ];
@@ -316,12 +322,47 @@ abstract class analytics {
                 case self::STATIC_IS_SUPPORT_USER:
                     $value = self::identify_support_users($user->email);
                     break;
+                case self::STATIC_MROOMS_VERSION:
+                    $value = self::get_mrooms_version();
+                    break;
+                case self::STATIC_MOODLE_VERSION:
+                    $value = self::get_moodle_version();
+                    break;
             }
 
             if (!empty($value)) {
                 self::encode_and_add_json_to_html($staticshare, $value);
             }
         }
+    }
+
+    private static function get_mrooms_version() {
+        mr_local_mrooms_version();
+        $version = [];
+        $localmroomsversion = LOCAL_MROOMS_JOULEVERSION;
+
+        $localmroomsversiondate = explode("Build:", $localmroomsversion);
+        $localmroomsversiondate = preg_replace("/[^0-9]/", "", end($localmroomsversiondate));
+
+        $version["name"] = $localmroomsversion;
+        $version["date"] = strtotime($localmroomsversiondate);
+
+        return $version;
+    }
+
+    private static function get_moodle_version() {
+        global $CFG;
+
+        $version = [];
+        $moodleversionrelease = $CFG->release;
+
+        $moodleversiondate= explode("Build:", $moodleversionrelease);
+        $moodleversiondate = preg_replace("/[^0-9]/", "", end($moodleversiondate));
+
+        $version["name"] = $moodleversionrelease;
+        $version["date"] = strtotime($moodleversiondate);
+
+        return $version;
     }
 
     private static function add_current_plugins_called_to_html() {
