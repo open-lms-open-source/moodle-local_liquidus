@@ -346,6 +346,77 @@ class local_liquidus_analytics_test extends advanced_testcase {
     }
 
     /**
+     * Test that the theme used to render the content is tracked.
+     * @dataProvider get_analytics_types
+     *
+     * @param string $analyticstype
+     * @throws coding_exception
+     */
+    public function test_current_theme($analyticstype) {
+        global $PAGE, $CFG;
+        require_once($CFG->dirroot.'/course/lib.php');
+
+        $unidentifiable_staticshares = join(",", analytics::UNIDENTIFIABLE_STATIC_SHARES);
+        set_config("{$analyticstype}_unidentifiable_staticshares", $unidentifiable_staticshares, 'local_liquidus');
+
+        $themes = glob($CFG->dirroot."/theme/*", GLOB_ONLYDIR); // Get array of paths to available themes.
+
+        array_walk($themes, function (&$theme) { // Get array of theme names only
+           $theme = explode("/", $theme);
+           $theme = end($theme);
+        });
+
+        foreach ($themes as $theme) {
+
+            // Login as someone.
+            $user = $this->getDataGenerator()->create_user();
+            $this->setUser($user);
+
+            // Navigate to a course so we can get the page path static share.
+            $course = $this->getDataGenerator()->create_course();
+
+            // Set the page as a course.
+            $urlparams = ['id' => $course->id];
+            $PAGE->set_url('/course/view.php', $urlparams);
+            $PAGE->set_title(get_string('coursetitle', 'moodle', ['course' => $course->fullname]));
+            $PAGE->set_pagetype('course-view-' . $course->format);
+            $PAGE->set_context(\context_course::instance($course->id));
+            $PAGE->set_course($course);
+            $PAGE->force_theme($theme); // Set the current theme
+
+
+            /** @var analytics $classname */
+            $classname = "\\local_liquidus\\api\\{$analyticstype}";
+            $classname::clear_rendered_static_shares();
+            $classname::build_static_shares(get_config('local_liquidus'));
+            $injectedstaticshares = $classname::get_rendered_static_shares();
+
+            $sharekeys = array_merge(analytics::STATIC_SHARES_ALWAYS, analytics::UNIDENTIFIABLE_STATIC_SHARES);
+
+            // Keys are converted to camel case.
+            array_walk($sharekeys, function(&$sharekey) {
+                $sharekey = analytics::STATIC_SHARES_CAMEL_CASE[$sharekey];
+            });
+
+            // Check that all static shares are tracked.
+            foreach ($sharekeys as $sharekey) {
+                $jsvarname = "localLiquidusShares.{$analyticstype}.{$sharekey}";
+                $this->assertStringContainsString($jsvarname, $injectedstaticshares);
+            }
+
+            // Check that the current theme matches the static share that was injected.
+            $themevarname = analytics::STATIC_THEME;
+            $jsthemevarname = 'localLiquidusShares.'.$analyticstype.'.'.$themevarname.' = "'.$theme.'"';
+            $this->assertStringContainsString($jsthemevarname, $injectedstaticshares);
+
+            $PAGE->reset_theme_and_output(); //Reset theme and output so we're able to set the new theme to test.
+
+        }
+
+    }
+
+
+    /**
      * Test that isSupportUser share is populated when there are emails or custom domains to be identified.
      * @dataProvider get_analytics_types
      *
