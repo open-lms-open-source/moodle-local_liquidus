@@ -44,12 +44,13 @@ if ($hassiteconfig) {
 
     $name = "{$pluginname}/enabled";
     $title = new lang_string('enabled', $pluginname);
-    $description = new lang_string('enabled_desc', $pluginname);
+    $description = empty($CFG->local_liquidus_disable_tracker_config) ? new lang_string('enabled_desc', $pluginname) :
+        new lang_string('enabled_olms_desc', $pluginname);
     $default = false;
     $setting = new admin_setting_configcheckbox($name, $title, $description, $default, true, false);
     $settings->add($setting);
 
-    if (isset($CFG->local_liquidus_advanced_configs) && $CFG->local_liquidus_advanced_configs) {
+    if (empty($CFG->local_liquidus_disable_tracker_config)) { // Flag to disable plugin config (for internal Open LMS use.)
 
         $name = "{$pluginname}/masquerade_handling";
         $title = new lang_string('masquerade_handling', $pluginname);

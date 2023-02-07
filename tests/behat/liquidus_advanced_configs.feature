@@ -6,7 +6,7 @@ Feature: Liquidus plugin configuration
   @javascript
   Scenario: Access advanced configuration of plugin
     Given the following config values are set as admin:
-      | local_liquidus_advanced_configs | 1 |
+      | local_liquidus_disable_tracker_config | 0 |
     And I log in as "admin"
     And I navigate to "Plugins > Local plugins > Liquidus" in site administration
     And I should see "Enabled"
@@ -19,7 +19,7 @@ Feature: Liquidus plugin configuration
   @javascript
   Scenario: No access advanced configuration of plugin
     Given the following config values are set as admin:
-      | local_liquidus_advanced_configs | 0 |
+      | local_liquidus_disable_tracker_config | 1 |
     And I log in as "admin"
     And I navigate to "Plugins > Local plugins > Liquidus" in site administration
     And I should see "Enabled"

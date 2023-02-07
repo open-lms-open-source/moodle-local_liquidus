@@ -39,7 +39,8 @@ $string['keenioprojectid_desc'] = 'You can get your Project ID from your Keen.IO
 $string['masquerade_handling'] = 'Handle masquerading';
 $string['masquerade_handling_desc'] = 'Handle when admin impersonates a user.';
 $string['enabled'] = 'Enabled';
-$string['enabled_desc'] = 'Share anonymous usage information of admin users with Open LMS to help improve the product. (Non-admin roles, such as instructor, student, etc., are not tracked). You can learn more about this data telemetry initiative, <a href="https://help.openlms.net/en/administrator/manage-a-site/data-telemetry-faq/" target="_blank">here</a>.';
+$string['enabled_olms_desc'] = 'Share anonymous usage information of admin users with Open LMS to help improve the product. (Non-admin roles, such as instructor, student, etc., are not tracked). You can learn more about this data telemetry initiative, <a href="https://support.openlms.net/hc/en-us/articles/5000851712925-Data-telemetry-FAQ" target="_blank">here</a>.';
+$string['enabled_desc'] = 'Enable Analytics for Moodle';
 $string['cleanurl'] = 'Clean URLs';
 $string['cleanurl_desc'] = 'Generate clean URL for in advanced tracking';
 $string['shareidentifiable'] = 'Share identifiable data of user';
