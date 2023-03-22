@@ -88,6 +88,18 @@ if ($hassiteconfig) {
         $setting = new admin_setting_configcheckbox($name, $title, $description, $default, true, false);
         $settings->add($setting);
 
+        $name = "{$pluginname}/trackroles";
+        $title = new lang_string('trackroles', $pluginname);
+        $description = new lang_string('trackroles_desc', $pluginname);
+        $roles = $default = [];
+        $allrolesshortname = local_liquidus\api\analytics::get_allrolesshortname();
+        foreach ($allrolesshortname as $role) {
+            $roles[$role] = $role;
+            $default[] = $role;
+        }
+        $setting = new admin_setting_configmultiselect($name, $title, $description, $default, $roles);
+        $settings->add($setting);
+
         $types = injector::get_instance()->get_analytics_types();
         foreach ($types as $type) {
             $name = new lang_string($type, $pluginname);

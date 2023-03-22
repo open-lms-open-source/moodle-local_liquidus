@@ -50,7 +50,7 @@ class local_liquidus_injector_testcase extends advanced_testcase {
      * @throws coding_exception
      */
     private function run_injection_type($type, $configtype = self::CONFIG_TYPE_SETTING, $requirecallcount = 1) {
-        global $PAGE, $CFG;
+        global $PAGE;
 
         // Login as someone.
         $user = $this->getDataGenerator()->create_user();
@@ -187,6 +187,7 @@ class local_liquidus_injector_testcase extends advanced_testcase {
      */
     public function test_injector_with_settings($analyticstype) {
         set_config('tracknonadmin', '1', 'local_liquidus');
+        set_config('trackroles', 'allroles', 'local_liquidus');
         $this->run_injection_type($analyticstype);
     }
 
@@ -201,6 +202,7 @@ class local_liquidus_injector_testcase extends advanced_testcase {
         global $CFG;
         $CFG->local_liquidus_olms_cfg = new stdClass();
         $CFG->local_liquidus_olms_cfg->tracknonadmin = 1;
+        $CFG->local_liquidus_olms_cfg->trackroles = 'allroles';
         $this->run_injection_type($analyticstype, self::CONFIG_TYPE_SHADOW);
     }
 

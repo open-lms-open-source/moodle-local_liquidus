@@ -23,6 +23,7 @@
  */
 
 use local_liquidus\injector;
+use local_liquidus\api\analytics;
 
 /**
  * Upgrade function.
@@ -86,6 +87,19 @@ function xmldb_local_liquidus_upgrade($oldversion) {
 
         // Savepoint reached.
         upgrade_plugin_savepoint(true, 2021060109, 'local', 'liquidus');
+    }
+
+    if ($oldversion < 2023032300) {
+        // Tracking depending on user role can be configured
+        $pluginname = 'local_liquidus';
+
+        //Add trackroles config
+        $allrolesshortname = analytics::get_allrolesshortname();
+        $configsetting = implode(',', $allrolesshortname);
+        set_config("trackroles", $configsetting, $pluginname);
+
+        // Savepoint reached.
+        upgrade_plugin_savepoint(true, 2023032300, 'local', 'liquidus');
     }
 
     return true;

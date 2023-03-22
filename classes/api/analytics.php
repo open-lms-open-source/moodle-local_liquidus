@@ -32,11 +32,13 @@ use core\session\manager;
 /**
  * Abstract local analytics class.
  */
-abstract class analytics {
+abstract class analytics
+{
 
     // Unidentifiable static shares.
     const STATIC_USER_HASH = 'userhash';
-    const STATIC_USER_ROLE = 'userrole';
+    const STATIC_USER_ROLE_CONTEXT = 'userrolecontext';
+    const STATIC_ALL_USER_ROLES = "alluserroles";
     const STATIC_CONTEXT_LEVEL = 'contextlevel';
     const STATIC_PAGE_TYPE = 'pagetype';
     const STATIC_PLUGINS = 'plugins';
@@ -62,7 +64,8 @@ abstract class analytics {
     ];
 
     const UNIDENTIFIABLE_STATIC_SHARES = [
-        self::STATIC_USER_ROLE,
+        self::STATIC_USER_ROLE_CONTEXT,
+        self::STATIC_ALL_USER_ROLES,
         self::STATIC_CONTEXT_LEVEL,
         self::STATIC_PAGE_TYPE,
         self::STATIC_PLUGINS,
@@ -83,7 +86,8 @@ abstract class analytics {
 
     const STATIC_SHARES_CAMEL_CASE = [
         self::STATIC_USER_HASH => 'userHash',
-        self::STATIC_USER_ROLE => 'userRole',
+        self::STATIC_USER_ROLE_CONTEXT => 'userRoleContext',
+        self::STATIC_ALL_USER_ROLES => 'allUserRoles',
         self::STATIC_USER_ID => 'userId',
         self::STATIC_USER_EMAIL => 'userEmail',
         self::STATIC_CONTEXT_LEVEL => 'contextLevel',
@@ -191,21 +195,123 @@ abstract class analytics {
     }
 
     /**
+     * Return user object based on masquerading config
+     *
+     * @param \stdClass $config Config object.
+     * @return user User object
+     */
+    public static function get_masqueradinguser($config)
+    {
+        global $USER;
+
+        $user = $USER;
+        $ismasquerading = manager::is_loggedinas();
+
+        if ($ismasquerading) {
+            $usereal = $config->masquerade_handling;
+            if ($usereal) {
+                $user = manager::get_realuser();
+            }
+        }
+        return $user;
+    }
+
+    /**
+     * Retrieve an array containing the short names
+     * of all roles in the whole system.
+     * @return array
+     */
+    public static function get_allrolesshortname()
+    {
+        $allrolenames = get_all_roles();
+        $rolenames = [];
+        foreach ($allrolenames as $role) {
+            $rolenames[] = $role->shortname;
+        }
+
+        return $rolenames;
+    }
+
+    /**
+     * Retrieve an array containing the short names of all roles
+     * assigned to a user in the whole system.
+     *
+     * @param int $userid User id.
+     * @return array
+     */
+    private static function get_all_roles_of_user(int $userid, $issiteadmin)
+    {
+        global $DB;
+
+        $sql = "SELECT r.shortname
+                  FROM {role_assignments} ra, {role} r, {context} c
+                 WHERE ra.userid = ?
+                   AND ra.roleid = r.id
+                   AND ra.contextid = c.id";
+
+        $allroles = $DB->get_records_sql($sql, [$userid]);
+
+        $rolenames = [];
+        foreach ($allroles as $role) {
+            $rolenames[] = $role->shortname;
+        }
+
+        if (empty($rolenames)) {
+            if ($issiteadmin) { // Check if the user has an admin role if no role can be retrieved
+                $rolenames[] = 'siteadmin';
+            } else {
+                $rolenames[] = 'norole';
+            }
+        }
+
+        return $rolenames;
+
+    }
+
+
+    /**
      * Whether to track this request.
      *
      * @param \stdClass $config Config object.
      * @return boolean
      *   The outcome of our deliberations.
      */
-    public static function should_track($config) {
+    public static function should_track($config)
+    {
         $tracknonadmin = !empty($config->tracknonadmin);
         $checkadmin = is_siteadmin();
 
-        if ($tracknonadmin == 1 && !$checkadmin) {
-            return true;
-        }
+        $user = static::get_masqueradinguser($config);
 
         if ($tracknonadmin == 0 && !$checkadmin) {
+            return false;
+        }
+
+        if ($tracknonadmin == 1 && !$checkadmin) {
+            $trackrolesettingkey = "trackroles";
+
+            $alluserroles = self::get_all_roles_of_user($user->id, $checkadmin); // Get all roles assigned to the user.
+
+            if (empty($alluserroles)) { // Track if there's no role
+                return true;
+            }
+
+            if (property_exists($config, $trackrolesettingkey)) {
+                $rolesconf = $config->{$trackrolesettingkey};
+
+                if ($rolesconf == "allroles") { // Early return if all roles are supposed to be tracked.
+                    return true;
+                }
+
+                if (!empty($rolesconf)) {
+                    $rolestotrack = [];
+                    $rolestotrack = array_merge($rolestotrack, explode(',', $rolesconf));
+
+                    if (count(array_intersect($rolestotrack, $alluserroles))) { // Track if there's a role in common
+                        return true;
+                    }
+                }
+            }
             return false;
         }
 
@@ -224,13 +330,15 @@ abstract class analytics {
      * Gets an array with all the static info.
      * @param \stdClass $config Config object.
      */
-    public static function build_static_shares($config) {
-        global $USER, $PAGE, $SITE, $CFG, $DB;
+    public static function build_static_shares($config)
+    {
+        global $PAGE, $SITE, $CFG, $DB;
 
         if (!isloggedin()) {
             return;
         }
 
+        $issiteadmin = is_siteadmin();
         $id = $PAGE->context->id;
 
         // Early return if context is not set or was deleted
@@ -238,15 +346,7 @@ abstract class analytics {
             return;
         }
 
-        $user = $USER;
-        $ismasquerading = manager::is_loggedinas();
-
-        if ($ismasquerading) {
-            $usereal = $config->masquerade_handling;
-            if ($usereal) {
-                $user = manager::get_realuser();
-            }
-        }
+        $user = static::get_masqueradinguser($config);
 
         $provider = static::get_my_provider_name();
         $staticshares = [];
@@ -280,8 +380,11 @@ abstract class analytics {
                 case self::STATIC_USER_HASH:
                     $value = sha1($SITE->shortname . '-' . $user->id . '-' . $user->username);
                     break;
-                case self::STATIC_USER_ROLE:
-                    self::add_user_roles_to_html($PAGE->context, $user->id);
+                case self::STATIC_USER_ROLE_CONTEXT:
+                    self::add_user_roles_in_context_to_html($PAGE->context, $user->id, $issiteadmin);
+                    break;
+                case self::STATIC_ALL_USER_ROLES:
+                    self::add_all_user_roles_of_user_to_html($user->id, $issiteadmin);
                     break;
                 case self::STATIC_CONTEXT_LEVEL:
                     $value = $PAGE->context->contextlevel;
@@ -409,27 +512,37 @@ abstract class analytics {
         self::encode_and_add_json_to_html(self::STATIC_PLUGINS, $plugins);
     }
 
-    private static function add_user_roles_to_html(context $context, int $userid) {
-        $roles = get_user_roles($context, $userid);
+    private static function add_user_roles_in_context_to_html(context $context, int $userid, bool $issiteadmin)
+    {
+        $rolesincontext = get_user_roles($context, $userid);
 
-        $rolenames = [];
-        foreach ($roles as $role) {
-            $rolenames[] = $role->shortname;
+        $rolenamesincontext = [];
+        foreach ($rolesincontext as $role) {
+            $rolenamesincontext[] = $role->shortname;
         }
 
-        if (empty($rolenames)) {
-            if (is_siteadmin()) { // Check if the user has an admin role if no role can be retrieved
-                $rolenames[] = 'siteadmin';
+        if (empty($rolenamesincontext)) {
+            if ($issiteadmin) { // Check if the user has an admin role if no role can be retrieved
+                $rolenamesincontext[] = 'siteadmin';
             } else {
-                $rolenames[] = 'norole';
+                $rolenamesincontext[] = 'norole';
             }
         }
 
         // Adding user roles straight to HTML.
-        self::encode_and_add_json_to_html(self::STATIC_USER_ROLE, $rolenames);
+        self::encode_and_add_json_to_html(self::STATIC_USER_ROLE_CONTEXT, $rolenamesincontext);
     }
 
-    public static function identify_support_users(string $email) {
+    private static function add_all_user_roles_of_user_to_html(int $userid, bool $issiteadmin)
+    {
+        $allrolesuser = self::get_all_roles_of_user($userid, $issiteadmin);
+
+        // Adding user roles straight to HTML.
+        self::encode_and_add_json_to_html(self::STATIC_ALL_USER_ROLES, $allrolesuser);
+    }
+
+    public static function identify_support_users(string $email)
+    {
         global $CFG;
 
         $emaildomainarray = explode("@", $email);
