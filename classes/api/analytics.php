@@ -243,11 +243,10 @@ abstract class analytics
     {
         global $DB;
 
-        $sql = "SELECT r.shortname
-                  FROM {role_assignments} ra, {role} r, {context} c
+        $sql = "SELECT DISTINCT r.shortname
+                  FROM {role_assignments} ra, {role} r
                  WHERE ra.userid = ?
-                   AND ra.roleid = r.id
-                   AND ra.contextid = c.id";
+                   AND ra.roleid = r.id";
 
         $allroles = $DB->get_records_sql($sql, [$userid]);
 
