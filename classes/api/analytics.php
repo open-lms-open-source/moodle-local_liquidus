@@ -425,7 +425,10 @@ abstract class analytics
                     $value = self::identify_support_users($user->email);
                     break;
                 case self::STATIC_MROOMS_VERSION:
-                    $value = self::get_mrooms_version();
+                    $mroomsversion = self::get_mrooms_version();
+                    if ($mroomsversion !== []) {
+                        $value = $mroomsversion;
+                    }
                     break;
                 case self::STATIC_MOODLE_VERSION:
                     $value = self::get_moodle_version();
@@ -439,6 +442,9 @@ abstract class analytics
     }
 
     private static function get_mrooms_version() {
+        if (!function_exists('mr_local_mrooms_version')) {
+            return [];
+        }
         mr_local_mrooms_version();
         $version = [];
         $localmroomsversion = LOCAL_MROOMS_JOULEVERSION;
