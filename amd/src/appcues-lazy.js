@@ -50,7 +50,10 @@ define(['jquery','core/log'],
         };
 
         tracker.identify = function() {
-            self.analytics.identify(tracker.trackerInfo.staticShares.userHash);
+            const userRolesString = String(tracker.trackerInfo.staticShares.allUserRoles);
+            self.analytics.identify(tracker.trackerInfo.staticShares.userHash, {
+                userRoles: userRolesString,
+            });
         };
 
         tracker.trackPage = function() {
