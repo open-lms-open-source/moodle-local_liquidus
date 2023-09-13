@@ -26,7 +26,7 @@ import Templates from 'core/templates';
 
 /**
  * Moves setting sections to tabs.
- * @param types
+ * @param {Array} types
  */
 const moveSectionsToTabs = (types) => {
     const settingsNode = $('#page-admin-setting-local_liquidus .settingsform fieldset');
@@ -76,7 +76,7 @@ const moveSectionsToTabs = (types) => {
 
 /**
  * Initializer.
- * @param types
+ * @param {Array} types
  */
 export const init = (types) => {
     (function() {

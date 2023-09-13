@@ -16,7 +16,6 @@
 /**
  * Liquidus main module. Loads specific trackers.
  *
- * @package   local_liquidus
  * @copyright Copyright (c) 2020 Open LMS
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -50,7 +49,7 @@ function($, Log, Router) {
 
     /**
      * Create a single instance for Liquidus to configure a single tracker.
-     * @param trackerInfo
+     * @param {Object} trackerInfo
      * @constructor
      */
     const Liquidus = function(trackerInfo) {

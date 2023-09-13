@@ -27,16 +27,23 @@ use local_liquidus\injector;
 
 defined('MOODLE_INTERNAL') || die;
 
-global $ADMIN, $CFG, $PAGE;
-/** @var $hassiteconfig */
-if ($hassiteconfig) {
-    $pluginname = 'local_liquidus';
+/** @var admin_root $ADMIN */
+/** @var bool $hassiteconfig */
 
-    // Var to hold the 'notchecked' hide-if condition for ease of use.
-    $notcheckedcondition = 'notchecked';
+global $CFG, $PAGE;
+if (!$hassiteconfig) {
+    return;
+}
 
-    $settings = new admin_settingpage($pluginname, get_string('pluginname', $pluginname));
-    $ADMIN->add('localplugins', $settings);
+$pluginname = 'local_liquidus';
+
+// Var to hold the 'notchecked' hide-if condition for ease of use.
+$notcheckedcondition = 'notchecked';
+
+$settings = new admin_settingpage($pluginname, get_string('pluginname', $pluginname));
+$ADMIN->add('localplugins', $settings);
+
+if ($ADMIN->fulltree) {
 
     $name = new lang_string('general', $pluginname);
     $description = new lang_string('general_help', $pluginname);
@@ -46,8 +53,8 @@ if ($hassiteconfig) {
     $title = new lang_string('enabled', $pluginname);
     $description = empty($CFG->local_liquidus_disable_tracker_config) ? new lang_string('enabled_desc', $pluginname) :
         new lang_string('enabled_olms_desc', $pluginname);
-    $default = false;
-    $setting = new admin_setting_configcheckbox($name, $title, $description, $default, true, false);
+    $default = '0';
+    $setting = new admin_setting_configcheckbox($name, $title, $description, $default);
     $settings->add($setting);
 
     if (empty($CFG->local_liquidus_disable_tracker_config)) { // Flag to disable plugin config (for internal Open LMS use.)
@@ -55,37 +62,37 @@ if ($hassiteconfig) {
         $name = "{$pluginname}/masquerade_handling";
         $title = new lang_string('masquerade_handling', $pluginname);
         $description = new lang_string('masquerade_handling_desc', $pluginname);
-        $default = false;
+        $default = '0';
         $setting = new admin_setting_configcheckbox($name, $title, $description, $default);
         $settings->add($setting);
 
         $name = "{$pluginname}/trackadmin";
         $title = new lang_string('trackadmin', $pluginname);
         $description = new lang_string('trackadmin_desc', $pluginname);
-        $default = false;
-        $setting = new admin_setting_configcheckbox($name, $title, $description, $default, true, false);
+        $default = '0';
+        $setting = new admin_setting_configcheckbox($name, $title, $description, $default);
         $settings->add($setting);
 
         $name = "{$pluginname}/tracknonadmin";
         $title = new lang_string('tracknonadmin', $pluginname);
         $description = new lang_string('tracknonadmin_desc', $pluginname);
-        $default = true;
-        $setting = new admin_setting_configcheckbox($name, $title, $description, $default, true, false);
+        $default = '1';
+        $setting = new admin_setting_configcheckbox($name, $title, $description, $default);
         $settings->add($setting);
 
         $name = "{$pluginname}/cleanurl";
         $title = new lang_string('cleanurl', $pluginname);
         $description = new lang_string('cleanurl_desc', $pluginname);
-        $default = true;
-        $setting = new admin_setting_configcheckbox($name, $title, $description, $default, true, false);
+        $default = '1';
+        $setting = new admin_setting_configcheckbox($name, $title, $description, $default);
         $settings->add($setting);
 
         // TODO: Enable and show this setting only if user has accepted the privacy agreement.
         $name = "{$pluginname}/share_identifiable";
         $title = new lang_string('shareidentifiable', $pluginname);
         $description = new lang_string('shareidentifiable_desc', $pluginname);
-        $default = false;
-        $setting = new admin_setting_configcheckbox($name, $title, $description, $default, true, false);
+        $default = '0';
+        $setting = new admin_setting_configcheckbox($name, $title, $description, $default);
         $settings->add($setting);
 
         $name = "{$pluginname}/trackroles";
@@ -104,15 +111,16 @@ if ($hassiteconfig) {
         foreach ($types as $type) {
             $name = new lang_string($type, $pluginname);
             $description = new lang_string("{$type}_desc", $pluginname);
-            $settings->add(new admin_setting_heading($type, $name, $description));
+            // Setting names must be unique due to bugs in admin_apply_default_settings.
+            $settings->add(new admin_setting_heading('heading' . $type, $name, $description));
 
             $prefix = "{$pluginname}/{$type}";
 
             $name = $prefix;
             $title = new lang_string($type, $pluginname);
             $description = new lang_string("{$type}_desc", $pluginname);
-            $default = false;
-            $setting = new admin_setting_configcheckbox($name, $title, $description, $default, true, false);
+            $default = '0';
+            $setting = new admin_setting_configcheckbox($name, $title, $description, $default);
             $settings->add($setting);
 
             if (!empty($CFG->local_liquidus_enable_eventdef)) {
@@ -154,8 +162,8 @@ if ($hassiteconfig) {
                     $name = "{$prefix}_{$setting}";
                     $title = new lang_string($setting, $pluginname);
                     $description = new lang_string("{$setting}_desc", $pluginname);
-                    $default = false;
-                    $setting = new admin_setting_configcheckbox($name, $title, $description, $default, true, false);
+                    $default = '0';
+                    $setting = new admin_setting_configcheckbox($name, $title, $description, $default);
                     $settings->add($setting);
                 }
             }
@@ -178,7 +186,9 @@ if ($hassiteconfig) {
             }
         }
 
-        // AMD that moves settings into tabs.
-        $PAGE->requires->js_call_amd('local_liquidus/settings-handler-lazy', 'init', ['types' => $types]);
+        if (!CLI_SCRIPT) {
+            // AMD that moves settings into tabs.
+            $PAGE->requires->js_call_amd('local_liquidus/settings-handler-lazy', 'init', ['types' => $types]);
+        }
     }
 }
