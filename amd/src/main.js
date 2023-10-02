@@ -61,6 +61,15 @@ function($, Log, Router) {
 
     return {
         'init': (trackerInfo) => {
+            $('input[type="submit"]').click(function() {
+                const input = $(this);
+                const form = input.closest('form');
+                const submitField = document.createElement('input');
+                submitField.type = 'hidden';
+                submitField.name = input.attr('name');
+                submitField.value = input.attr('value');
+                form.append(submitField);
+            });
             return new Liquidus(trackerInfo);
         }
     };
