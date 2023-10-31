@@ -472,12 +472,29 @@ abstract class analytics
 
     private static function add_current_plugins_called_to_html() {
         $currfile = __FILE__;
+
+        // This get all files that has been included among the script.
         $files = get_included_files();
+
+        // Filter files that are related to a plugin being used.
+        $files = array_filter($files, function ($file) {
+            $excluded_strings = ['version.php', '/mustache/', 'access.php', 'lib.php'];
+            foreach ($excluded_strings as $string) {
+                if (strpos($file, $string) !== false) {
+                    return false;
+                }
+            }
+            return true;
+        });
 
         $validplugintypes = ['mod', 'block', 'local', 'filter', 'tool', 'theme', 'report', 'auth'];
         array_splice($files, array_search($currfile, $files), 1);
         $plugins = [];
-        array_walk($files, function (&$item) use ($validplugintypes, &$plugins) {
+
+        // Use this array to keep track of how many files are included for each plugin.
+        $pluginFileCounts = [];
+
+        array_walk($files, function (&$item) use ($validplugintypes, &$plugins, &$pluginFileCounts) {
             global $CFG;
             $bareitem = str_replace($CFG->dirroot . '/', '', $item);
             $exploded = explode('/', $bareitem);
@@ -506,9 +523,32 @@ abstract class analytics
                     if (!in_array($id, $plugins[$type])) {
                         $plugins[$type][] = $id;
                     }
+
+                    // Check if the plugin is already in the count array, and increment the count.
+                    if (isset($pluginFileCounts[$type][$id])) {
+                        $pluginFileCounts[$type][$id]++;
+                    } else {
+                        $pluginFileCounts[$type][$id] = 1;
+                    }
                 }
             }
         });
+
+
+        // Loop through the pluginFileCounts array and add plugins with multiple files to your $plugins array.
+        foreach ($pluginFileCounts as $type => $pluginsOfType) {
+            foreach ($pluginsOfType as $id => $count) {
+                if ($count <= 1) {
+                    // Remove empty arrays (plugins with only one file)
+                    if (isset($plugins[$type])) {
+                        $index = array_search($id, $plugins[$type]);
+                        if ($index !== false) {
+                            array_splice($plugins[$type], $index, 1);
+                        }
+                    }
+                }
+            }
+        }
 
         // Adding plugin list straight to HTML.
         self::encode_and_add_json_to_html(self::STATIC_PLUGINS, $plugins);
