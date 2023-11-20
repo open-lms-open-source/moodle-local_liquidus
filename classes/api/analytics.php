@@ -32,8 +32,7 @@ use core\session\manager;
 /**
  * Abstract local analytics class.
  */
-abstract class analytics
-{
+abstract class analytics {
 
     // Unidentifiable static shares.
     const STATIC_USER_HASH = 'userhash';
@@ -200,8 +199,7 @@ abstract class analytics
      * @param \stdClass $config Config object.
      * @return user User object
      */
-    public static function get_masqueradinguser($config)
-    {
+    public static function get_masqueradinguser($config) {
         global $USER;
 
         $user = $USER;
@@ -221,8 +219,7 @@ abstract class analytics
      * of all roles in the whole system.
      * @return array
      */
-    public static function get_allrolesshortname()
-    {
+    public static function get_allrolesshortname() {
         $allrolenames = get_all_roles();
         $rolenames = [];
         foreach ($allrolenames as $role) {
@@ -239,8 +236,7 @@ abstract class analytics
      * @param int $userid User id.
      * @return array
      */
-    private static function get_all_roles_of_user(int $userid, $issiteadmin)
-    {
+    private static function get_all_roles_of_user(int $userid, $issiteadmin) {
         global $DB;
 
         $sql = "SELECT DISTINCT r.shortname
@@ -275,8 +271,7 @@ abstract class analytics
      * @return boolean
      *   The outcome of our deliberations.
      */
-    public static function should_track($config)
-    {
+    public static function should_track($config) {
         $tracknonadmin = !empty($config->tracknonadmin);
         $checkadmin = is_siteadmin();
 
@@ -329,8 +324,7 @@ abstract class analytics
      * Gets an array with all the static info.
      * @param \stdClass $config Config object.
      */
-    public static function build_static_shares($config)
-    {
+    public static function build_static_shares($config) {
         global $PAGE, $SITE, $CFG, $DB;
 
         if (!isloggedin()) {
@@ -517,8 +511,7 @@ abstract class analytics
         self::encode_and_add_json_to_html(self::STATIC_PLUGINS, $plugins);
     }
 
-    private static function add_user_roles_in_context_to_html(context $context, int $userid, bool $issiteadmin)
-    {
+    private static function add_user_roles_in_context_to_html(context $context, int $userid, bool $issiteadmin) {
         $rolesincontext = get_user_roles($context, $userid);
 
         $rolenamesincontext = [];
@@ -538,16 +531,14 @@ abstract class analytics
         self::encode_and_add_json_to_html(self::STATIC_USER_ROLE_CONTEXT, $rolenamesincontext);
     }
 
-    private static function add_all_user_roles_of_user_to_html(int $userid, bool $issiteadmin)
-    {
+    private static function add_all_user_roles_of_user_to_html(int $userid, bool $issiteadmin) {
         $allrolesuser = self::get_all_roles_of_user($userid, $issiteadmin);
 
         // Adding user roles straight to HTML.
         self::encode_and_add_json_to_html(self::STATIC_ALL_USER_ROLES, $allrolesuser);
     }
 
-    public static function identify_support_users(string $email)
-    {
+    public static function identify_support_users(string $email) {
         global $CFG;
 
         $emaildomainarray = explode("@", $email);

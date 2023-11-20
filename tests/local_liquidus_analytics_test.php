@@ -506,8 +506,7 @@ class local_liquidus_analytics_test extends advanced_testcase {
      * @param string $analyticstype
      * @throws coding_exception
      */
-    public function test_tracking_based_on_role()
-    {
+    public function test_tracking_based_on_role() {
         global $PAGE;
 
         // Navigate to a course so we can get the page path static share.
@@ -585,8 +584,7 @@ class local_liquidus_analytics_test extends advanced_testcase {
     /**
      * @return array|false|string[]
      */
-    public function get_analytics_types()
-    {
+    public function get_analytics_types() {
         $types = [];
         foreach (injector::get_instance()->get_analytics_types() as $type) {
             $types[$type] = [$type];
