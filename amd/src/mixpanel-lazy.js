@@ -69,8 +69,13 @@ define(['jquery','core/log'],
 
                 id = pageType + id;
 
+                let eventProperties = {
+                    pageType: pageType,
+                    formId: id
+                };
+
                 /* global mixpanel */
-                mixpanel.track_forms(currentForm, 'Form submitted - ' + id);
+                mixpanel.track_forms(currentForm, 'Form submitted', eventProperties);
             });
         };
 
