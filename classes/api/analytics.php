@@ -651,8 +651,6 @@ abstract class analytics {
         if (!PHPUNIT_TEST){
             echo $staticsharescript;
         }
-
-
     }
 
     /**
