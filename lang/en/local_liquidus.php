@@ -105,7 +105,7 @@ $string['privacy:metadata:liquidus:sitehash'] = 'The sitehash is created from th
 $string['google'] = 'Google';
 $string['google_desc'] = 'Google tracking using gtag (Google Analytics, Google Ads, and Google Marketing Platform)';
 $string['googlesiteid'] = 'Google Analytics Measurement ID';
-$string['googlesiteid_desc'] = 'You can get your Google Analytics Measurement ID in your Google Analytics account administration. 
+$string['googlesiteid_desc'] = 'You can get your Google Analytics Measurement ID in your Google Analytics account administration.
 You can set up to 5 Measurement IDs (separated by commas).';
 $string['trackernotconfigured'] = 'Liquidus tracker {$a} not properly configured.';
 $string['trackermissingfield'] = 'Liquidus tracker missing field: {$a}';

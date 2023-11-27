@@ -1,5 +1,5 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
+// This file is part of Moodle  - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -201,7 +201,7 @@ abstract class analytics {
      */
     public static function get_masqueradinguser($config) {
         global $USER;
-
+     
         $user = $USER;
         $ismasquerading = manager::is_loggedinas();
 
@@ -458,7 +458,7 @@ abstract class analytics {
         $version = [];
         $moodleversionrelease = $CFG->release;
 
-        $moodleversiondate= explode("Build:", $moodleversionrelease);
+        $moodleversiondate = explode("Build:", $moodleversionrelease);
         $moodleversiondate = preg_replace("/[^0-9]/", "", end($moodleversiondate));
 
         $version["name"] = $moodleversionrelease;
@@ -491,7 +491,7 @@ abstract class analytics {
                     $id = $exploded[1];
                 }
 
-                if ($id === 'liquidus') { //Don't include Liquidus in the list.
+                if ($id === 'liquidus') {// Don't include Liquidus in the list.
                     return;
                 }
 
