@@ -81,8 +81,6 @@ class local_liquidus_injector_testcase extends advanced_testcase {
 
         // Enable plugin and tracker type.
         $config = $this->enable_plugin_and_tracker($type, $configtype);
-
-
         $classname = "\\local_liquidus\\api\\{$type}";
         /** @var analytics $engine */
         $engine = new $classname;

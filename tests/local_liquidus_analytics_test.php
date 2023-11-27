@@ -184,8 +184,6 @@ class local_liquidus_analytics_test extends advanced_testcase {
         $classname::clear_rendered_static_shares();
         $classname::build_static_shares(get_config('local_liquidus'));
         $injectedstaticshares = $classname::get_rendered_static_shares();
-
-
         $unidentifiablesharekeys = array_merge(analytics::STATIC_SHARES_ALWAYS, analytics::UNIDENTIFIABLE_STATIC_SHARES);
         $identifiablesharekeys = analytics::IDENTIFIABLE_STATIC_SHARES;
 
@@ -383,8 +381,6 @@ class local_liquidus_analytics_test extends advanced_testcase {
             $PAGE->set_context(\context_course::instance($course->id));
             $PAGE->set_course($course);
             $PAGE->force_theme($theme); // Set the current theme
-
-
             /** @var analytics $classname */
             $classname = "\\local_liquidus\\api\\{$analyticstype}";
             $classname::clear_rendered_static_shares();
@@ -442,8 +438,6 @@ class local_liquidus_analytics_test extends advanced_testcase {
         $PAGE->set_pagetype('course-view-' . $course->format);
         $PAGE->set_context(\context_course::instance($course->id));
         $PAGE->set_course($course);
-
-
         /** @var analytics $classname */
         $classname = "\\local_liquidus\\api\\{$analyticstype}";
         $classname::clear_rendered_static_shares();
@@ -546,8 +540,6 @@ class local_liquidus_analytics_test extends advanced_testcase {
 
         $this->setUser($student);
         $this->assertEquals(false, analytics::should_track($config));
-
-
         //Set manager and student roles to be tracked
         set_config('trackroles', 'manager,student', 'local_liquidus');
         $config = get_config('local_liquidus');
