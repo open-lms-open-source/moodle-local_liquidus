@@ -642,7 +642,7 @@ abstract class analytics {
         $data = [
             'provider' => $provider,
             'sharecamelcase' => $sharecamelcase,
-            'jsonvalue' => $jsonvalue
+            'jsonvalue' => $jsonvalue,
         ];
 
         $staticsharescript = $OUTPUT->render_from_template('local_liquidus/static_shares_scripts', $data);
