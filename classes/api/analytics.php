@@ -101,7 +101,7 @@ abstract class analytics {
         self::STATIC_MROOMS_VERSION => 'mRoomsVersion',
         self::STATIC_MOODLE_VERSION => 'moodleVersion',
         self::STATIC_THEME => 'theme',
-        self::STATIC_IS_SUPPORT_USER => 'isSupportUser'
+        self::STATIC_IS_SUPPORT_USER => 'isSupportUser',
     ];
 
     private static string $renderedstaticshares = '';
@@ -568,7 +568,7 @@ abstract class analytics {
         $data = [
             'provider' => $provider,
             'sharecamelcase' => $sharecamelcase,
-            'jsonvalue' => $jsonvalue
+            'jsonvalue' => $jsonvalue,
         ];
 
         $staticsharescript = $OUTPUT->render_from_template('local_liquidus/static_shares_scripts', $data);
