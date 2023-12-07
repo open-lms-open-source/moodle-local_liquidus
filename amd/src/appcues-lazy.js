@@ -49,9 +49,11 @@ define(['jquery','core/log'],
         };
 
         tracker.identify = function() {
-            const userRolesString = String(tracker.trackerInfo.staticShares.allUserRoles);
+            const allUserRolesString = String(tracker.trackerInfo.staticShares.allUserRoles);
+            const userRoleContextString = String(tracker.trackerInfo.staticShares.userRoleContext);
             self.analytics.identify(tracker.trackerInfo.staticShares.userHash, {
-                userRoles: userRolesString,
+                allUserRoles: allUserRolesString,
+                userRoleContext: userRoleContextString,
             });
         };
 

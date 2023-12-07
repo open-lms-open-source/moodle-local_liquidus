@@ -255,12 +255,12 @@ abstract class analytics
             $rolenames[] = $role->shortname;
         }
 
-        if (empty($rolenames)) {
-            if ($issiteadmin) { // Check if the user has an admin role if no role can be retrieved
-                $rolenames[] = 'siteadmin';
-            } else {
-                $rolenames[] = 'norole';
-            }
+        if (empty($rolenames) && !$issiteadmin) {
+            $rolenames[] = 'norole';
+        }
+
+        if ($issiteadmin) {
+            $rolenames[] = 'siteadmin';
         }
 
         return $rolenames;
