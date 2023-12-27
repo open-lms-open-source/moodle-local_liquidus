@@ -75,7 +75,9 @@ define(['jquery','core/log'],
                 };
 
                 /* global mixpanel */
-                mixpanel.track_forms(currentForm, 'Form submitted', eventProperties);
+                if(!skipFormTrack(currentForm[0].baseURI, id)){
+                    mixpanel.track_forms(currentForm, 'Form submitted', eventProperties);
+                }
             });
         };
 
@@ -128,6 +130,16 @@ define(['jquery','core/log'],
                 dfd.resolve();
                 Log.debug('[mixpanel] Sent custom event.');
             });
+        };
+
+        const skipFormTrack = function(url, id) {
+            const formSkipList = tracker.trackerInfo.skipTrackForms;
+            for (let i = 0; i < formSkipList.length; i++) {
+                if (url.includes(formSkipList[i]) || id.includes(formSkipList[i])) {
+                    return true;
+                }
+            }
+            return false;
         };
 
         return tracker;
