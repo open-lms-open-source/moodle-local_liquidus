@@ -102,5 +102,38 @@ function xmldb_local_liquidus_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2023032300, 'local', 'liquidus');
     }
 
+    if ($oldversion < 2024012901) {
+        // Global settings now live under each provider.
+        // We need to move global settings to each individual provider.
+        $providers = injector::get_instance()->get_analytics_types();
+        $pluginname = 'local_liquidus';
+
+        // Global setting list to move.
+        $list = ['masquerade_handling', 'trackadmin', 'tracknonadmin', 'cleanurl', 'share_identifiable', 'trackroles'];
+        $configsettings = [];
+        // Gather existing setting values.
+        foreach ($list as $key) {
+            $configsettings[$key] = get_config($pluginname, $key);
+        }
+
+        // Iterate over provider settings to set new values.
+        foreach ($providers as $provider) {
+            foreach ($configsettings as $key => $configsetting) {
+                if (empty($configsetting)) {
+                    continue;
+                }
+                set_config("{$provider}_{$key}", $configsetting, $pluginname);
+            }
+        }
+
+        // Clear old config values.
+        foreach ($configsettings as $key => $configsetting) {
+            unset_config($key, $pluginname);
+        }
+
+        // Savepoint reached.
+        upgrade_plugin_savepoint(true, 2024012901, 'local', 'liquidus');
+    }
+
     return true;
 }

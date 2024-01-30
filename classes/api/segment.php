@@ -42,7 +42,7 @@ class segment extends analytics {
 
         $writekey = $config->segmentwritekey;
 
-        if (!empty($writekey) && self::should_track($config)) {
+        if (!empty($writekey) && self::should_track($config, 'segment')) {
             $res['trackerId'] = 'segment';
             $res['writeKey'] = $writekey;
         }

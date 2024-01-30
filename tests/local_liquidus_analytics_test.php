@@ -110,7 +110,7 @@ class local_liquidus_analytics_test extends advanced_testcase {
         /** @var analytics $classname */
         $classname = "\\local_liquidus\\api\\{$analyticstype}";
         $CFG->local_liquidus_identifiable_share_providers = ['appcues', 'google', 'keenio', 'kinesis', 'mixpanel', 'segment'];
-        set_config('share_identifiable', '1', 'local_liquidus');
+        set_config("{$analyticstype}_share_identifiable", '1', 'local_liquidus');
         set_config("{$analyticstype}_identifiable_staticshares", 'userid,useremail', 'local_liquidus');
         $classname::build_static_shares(get_config('local_liquidus'));
         $injectedstaticshares = $classname::get_rendered_static_shares();
@@ -208,7 +208,7 @@ class local_liquidus_analytics_test extends advanced_testcase {
 
         $CFG->local_liquidus_identifiable_share_providers = ['appcues', 'google'];
         $classname::clear_rendered_static_shares();
-        set_config('share_identifiable', '1', 'local_liquidus');
+        set_config("{$analyticstype}_share_identifiable", '1', 'local_liquidus');
         set_config("{$analyticstype}_identifiable_staticshares", 'userid,useremail', 'local_liquidus');
         $classname::build_static_shares(get_config('local_liquidus'));
         $injectedstaticshares = $classname::get_rendered_static_shares();
@@ -246,50 +246,53 @@ class local_liquidus_analytics_test extends advanced_testcase {
         //Enrol student within the course
         $student = $this->getDataGenerator()->create_and_enrol($course, 'student');
 
-        // Non-admin AND admins should not be tracked
-        set_config('trackadmin', '0', 'local_liquidus');
-        set_config('tracknonadmin', '0', 'local_liquidus');
-        $config = get_config('local_liquidus');
+        $types = ['google','kinesis', 'segment' , 'keenio', 'mixpanel', 'appcues'];
 
-        $this->setAdminUser();
-        $this->assertEquals(false, analytics::should_track($config));
+        foreach ($types as $type) {
+            // Non-admin AND admins should not be tracked
+            set_config("{$type}_trackadmin", '0', 'local_liquidus');
+            set_config("{$type}_tracknonadmin", '0', 'local_liquidus');
+            $config = get_config('local_liquidus');
 
-        $this->setUser($student);
-        $this->assertEquals(false, analytics::should_track($config));
+            $this->setAdminUser();
+            $this->assertEquals(false, analytics::should_track($config, $type));
 
-        // Only admins should be tracked
-        set_config('trackadmin', '1', 'local_liquidus');
-        set_config('tracknonadmin', '0', 'local_liquidus');
-        $config = get_config('local_liquidus');
+            $this->setUser($student);
+            $this->assertEquals(false, analytics::should_track($config, $type));
 
-        $this->setAdminUser();
-        $this->assertEquals(true, analytics::should_track($config));
+            // Only admins should be tracked
+            set_config("{$type}_trackadmin", '1', 'local_liquidus');
+            set_config("{$type}_tracknonadmin", '0', 'local_liquidus');
+            $config = get_config('local_liquidus');
 
-        $this->setUser($student);
-        $this->assertEquals(false, analytics::should_track($config));
+            $this->setAdminUser();
+            $this->assertEquals(true, analytics::should_track($config, $type));
 
-        // Only non-admins should be tracked
-        set_config('trackadmin', '0', 'local_liquidus');
-        set_config('tracknonadmin', '1', 'local_liquidus');
-        $config = get_config('local_liquidus');
+            $this->setUser($student);
+            $this->assertEquals(false, analytics::should_track($config, $type));
 
-        $this->setAdminUser();
-        $this->assertEquals(false, analytics::should_track($config));
+            // Only non-admins should be tracked
+            set_config("{$type}_trackadmin", '0', 'local_liquidus');
+            set_config("{$type}_tracknonadmin", '1', 'local_liquidus');
+            $config = get_config('local_liquidus');
 
-        $this->setUser($student);
-        $this->assertEquals(true, analytics::should_track($config));
+            $this->setAdminUser();
+            $this->assertEquals(false, analytics::should_track($config, $type));
 
-        // Non-admin AND admins should be tracked
-        set_config('trackadmin', '1', 'local_liquidus');
-        set_config('tracknonadmin', '1', 'local_liquidus');
-        $config = get_config('local_liquidus');
+            $this->setUser($student);
+            $this->assertEquals(true, analytics::should_track($config, $type));
 
-        $this->setAdminUser();
-        $this->assertEquals(true, analytics::should_track($config));
+            // Non-admin AND admins should be tracked
+            set_config("{$type}_trackadmin", '1', 'local_liquidus');
+            set_config("{$type}_tracknonadmin", '1', 'local_liquidus');
+            $config = get_config('local_liquidus');
 
-        $this->setUser($student);
-        $this->assertEquals(true, analytics::should_track($config));
+            $this->setAdminUser();
+            $this->assertEquals(true, analytics::should_track($config, $type));
 
+            $this->setUser($student);
+            $this->assertEquals(true, analytics::should_track($config, $type));
+        }
     }
 
     /**
@@ -525,60 +528,64 @@ class local_liquidus_analytics_test extends advanced_testcase {
         $student = $this->getDataGenerator()->create_and_enrol($course, 'student');
         $manager = $this->getDataGenerator()->create_and_enrol($course, 'manager');
 
-        set_config('tracknonadmin', '1', 'local_liquidus');
-        set_config('trackadmin', '0', 'local_liquidus');
+        $types = ['google','kinesis', 'segment' , 'keenio', 'mixpanel', 'appcues'];
 
-        //Set student role to be tracked
-        set_config('trackroles', 'student', 'local_liquidus');
-        $config = get_config('local_liquidus');
+        foreach ($types as $type) {
+            set_config("{$type}_tracknonadmin", '1', 'local_liquidus');
+            set_config("{$type}_trackadmin", '0', 'local_liquidus');
 
-        $this->setUser($manager);
-        $this->assertEquals(false, analytics::should_track($config));
+            //Set student role to be tracked
+            set_config("{$type}_trackroles", 'student', 'local_liquidus');
+            $config = get_config('local_liquidus');
 
-        $this->setUser($student);
-        $this->assertEquals(true, analytics::should_track($config));
+            $this->setUser($manager);
+            $this->assertEquals(false, analytics::should_track($config, $type));
 
-        //Set manager role to be tracked
-        set_config('trackroles', 'manager', 'local_liquidus');
-        $config = get_config('local_liquidus');
+            $this->setUser($student);
+            $this->assertEquals(true, analytics::should_track($config, $type));
 
-        $this->setUser($manager);
-        $this->assertEquals(true, analytics::should_track($config));
+            //Set manager role to be tracked
+            set_config("{$type}_trackroles", 'manager', 'local_liquidus');
+            $config = get_config('local_liquidus');
 
-        $this->setUser($student);
-        $this->assertEquals(false, analytics::should_track($config));
+            $this->setUser($manager);
+            $this->assertEquals(true, analytics::should_track($config, $type));
+
+            $this->setUser($student);
+            $this->assertEquals(false, analytics::should_track($config, $type));
 
 
-        //Set manager and student roles to be tracked
-        set_config('trackroles', 'manager,student', 'local_liquidus');
-        $config = get_config('local_liquidus');
+            //Set manager and student roles to be tracked
+            set_config("{$type}_trackroles", 'manager,student', 'local_liquidus');
+            $config = get_config('local_liquidus');
 
-        $this->setUser($manager);
-        $this->assertEquals(true, analytics::should_track($config));
+            $this->setUser($manager);
+            $this->assertEquals(true, analytics::should_track($config, $type));
 
-        $this->setUser($student);
-        $this->assertEquals(true, analytics::should_track($config));
+            $this->setUser($student);
+            $this->assertEquals(true, analytics::should_track($config, $type));
 
-        //Check that early return works (non admin tracking disabled but user role tracking configured)
-        set_config('tracknonadmin', '0', 'local_liquidus');
-        $config = get_config('local_liquidus');
+            //Check that early return works (non admin tracking disabled but user role tracking configured)
+            set_config("{$type}_tracknonadmin", '0', 'local_liquidus');
+            $config = get_config('local_liquidus');
 
-        $this->setUser($manager);
-        $this->assertEquals(false, analytics::should_track($config));
+            $this->setUser($manager);
+            $this->assertEquals(false, analytics::should_track($config, $type));
 
-        $this->setUser($student);
-        $this->assertEquals(false, analytics::should_track($config));
+            $this->setUser($student);
+            $this->assertEquals(false, analytics::should_track($config, $type));
 
-        //Check that early return works when (all non admin roles are supposed to be tracked)
-        set_config('tracknonadmin', '1', 'local_liquidus');
-        set_config('trackroles', 'allroles', 'local_liquidus');
-        $config = get_config('local_liquidus');
+            //Check that early return works when (all non admin roles are supposed to be tracked)
+            set_config("{$type}_tracknonadmin", '1', 'local_liquidus');
+            set_config("{$type}_trackroles", 'allroles', 'local_liquidus');
+            $config = get_config('local_liquidus');
 
-        $this->setUser($manager);
-        $this->assertEquals(true, analytics::should_track($config));
+            $this->setUser($manager);
+            $this->assertEquals(true, analytics::should_track($config, $type));
 
-        $this->setUser($student);
-        $this->assertEquals(true, analytics::should_track($config));
+            $this->setUser($student);
+            $this->assertEquals(true, analytics::should_track($config, $type));
+        }
 
     }
 

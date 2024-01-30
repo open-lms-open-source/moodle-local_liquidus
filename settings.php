@@ -59,54 +59,6 @@ if ($ADMIN->fulltree) {
 
     if (empty($CFG->local_liquidus_disable_tracker_config)) { // Flag to disable plugin config (for internal Open LMS use.)
 
-        $name = "{$pluginname}/masquerade_handling";
-        $title = new lang_string('masquerade_handling', $pluginname);
-        $description = new lang_string('masquerade_handling_desc', $pluginname);
-        $default = '0';
-        $setting = new admin_setting_configcheckbox($name, $title, $description, $default);
-        $settings->add($setting);
-
-        $name = "{$pluginname}/trackadmin";
-        $title = new lang_string('trackadmin', $pluginname);
-        $description = new lang_string('trackadmin_desc', $pluginname);
-        $default = '0';
-        $setting = new admin_setting_configcheckbox($name, $title, $description, $default);
-        $settings->add($setting);
-
-        $name = "{$pluginname}/tracknonadmin";
-        $title = new lang_string('tracknonadmin', $pluginname);
-        $description = new lang_string('tracknonadmin_desc', $pluginname);
-        $default = '1';
-        $setting = new admin_setting_configcheckbox($name, $title, $description, $default);
-        $settings->add($setting);
-
-        $name = "{$pluginname}/cleanurl";
-        $title = new lang_string('cleanurl', $pluginname);
-        $description = new lang_string('cleanurl_desc', $pluginname);
-        $default = '1';
-        $setting = new admin_setting_configcheckbox($name, $title, $description, $default);
-        $settings->add($setting);
-
-        // TODO: Enable and show this setting only if user has accepted the privacy agreement.
-        $name = "{$pluginname}/share_identifiable";
-        $title = new lang_string('shareidentifiable', $pluginname);
-        $description = new lang_string('shareidentifiable_desc', $pluginname);
-        $default = '0';
-        $setting = new admin_setting_configcheckbox($name, $title, $description, $default);
-        $settings->add($setting);
-
-        $name = "{$pluginname}/trackroles";
-        $title = new lang_string('trackroles', $pluginname);
-        $description = new lang_string('trackroles_desc', $pluginname);
-        $roles = $default = [];
-        $allrolesshortname = local_liquidus\api\analytics::get_allrolesshortname();
-        foreach ($allrolesshortname as $role) {
-            $roles[$role] = $role;
-            $default[] = $role;
-        }
-        $setting = new admin_setting_configmultiselect($name, $title, $description, $default, $roles);
-        $settings->add($setting);
-
         $types = injector::get_instance()->get_analytics_types();
         foreach ($types as $type) {
             $name = new lang_string($type, $pluginname);
@@ -141,6 +93,54 @@ if ($ADMIN->fulltree) {
                 $default[] = $share;
             }
             $setting = new admin_setting_configmultiselect($name, $title, $description, $default, $staticshares);
+            $settings->add($setting);
+
+            $name = "{$prefix}_masquerade_handling";
+            $title = new lang_string('masquerade_handling', $pluginname);
+            $description = new lang_string('masquerade_handling_desc', $pluginname);
+            $default = '0';
+            $setting = new admin_setting_configcheckbox($name, $title, $description, $default);
+            $settings->add($setting);
+
+            $name = "{$prefix}_trackadmin";
+            $title = new lang_string('trackadmin', $pluginname);
+            $description = new lang_string('trackadmin_desc', $pluginname);
+            $default = '0';
+            $setting = new admin_setting_configcheckbox($name, $title, $description, $default);
+            $settings->add($setting);
+
+            $name = "{$prefix}_tracknonadmin";
+            $title = new lang_string('tracknonadmin', $pluginname);
+            $description = new lang_string('tracknonadmin_desc', $pluginname);
+            $default = '1';
+            $setting = new admin_setting_configcheckbox($name, $title, $description, $default);
+            $settings->add($setting);
+
+            $name = "{$prefix}_cleanurl";
+            $title = new lang_string('cleanurl', $pluginname);
+            $description = new lang_string('cleanurl_desc', $pluginname);
+            $default = '1';
+            $setting = new admin_setting_configcheckbox($name, $title, $description, $default);
+            $settings->add($setting);
+
+            // TODO: Enable and show this setting only if user has accepted the privacy agreement.
+            $name = "{$prefix}_share_identifiable";
+            $title = new lang_string('shareidentifiable', $pluginname);
+            $description = new lang_string('shareidentifiable_desc', $pluginname);
+            $default = '0';
+            $setting = new admin_setting_configcheckbox($name, $title, $description, $default);
+            $settings->add($setting);
+
+            $name = "{$prefix}_trackroles";
+            $title = new lang_string('trackroles', $pluginname);
+            $description = new lang_string('trackroles_desc', $pluginname);
+            $roles = $default = [];
+            $allrolesshortname = local_liquidus\api\analytics::get_allrolesshortname();
+            foreach ($allrolesshortname as $role) {
+                $roles[$role] = $role;
+                $default[] = $role;
+            }
+            $setting = new admin_setting_configmultiselect($name, $title, $description, $default, $roles);
             $settings->add($setting);
 
             if (!empty($CFG->local_liquidus_identifiable_share_providers) && in_array($type, $CFG->local_liquidus_identifiable_share_providers)) {

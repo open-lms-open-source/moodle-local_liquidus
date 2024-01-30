@@ -42,7 +42,7 @@ class appcues extends analytics {
 
         $accountid = $config->appcuesaccountid;
 
-        if (!empty($accountid) && self::should_track($config)) {
+        if (!empty($accountid) && self::should_track($config, 'appcues')) {
             $res['trackerId'] = 'appcues';
             $res['accountid'] = $accountid;
         }

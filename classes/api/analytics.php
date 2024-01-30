@@ -200,7 +200,7 @@ abstract class analytics
      * @param \stdClass $config Config object.
      * @return user User object
      */
-    public static function get_masqueradinguser($config)
+    public static function get_masqueradinguser($config, $provider)
     {
         global $USER;
 
@@ -208,7 +208,7 @@ abstract class analytics
         $ismasquerading = manager::is_loggedinas();
 
         if ($ismasquerading) {
-            $usereal = $config->masquerade_handling;
+            $usereal = $config->{"{$provider}_masquerade_handling"};
             if ($usereal) {
                 $user = manager::get_realuser();
             }
@@ -275,19 +275,19 @@ abstract class analytics
      * @return boolean
      *   The outcome of our deliberations.
      */
-    public static function should_track($config)
+    public static function should_track($config, $provider)
     {
-        $tracknonadmin = !empty($config->tracknonadmin);
+        $tracknonadmin = !empty($config->{"{$provider}_tracknonadmin"});
         $checkadmin = is_siteadmin();
 
-        $user = static::get_masqueradinguser($config);
+        $user = static::get_masqueradinguser($config, $provider);
 
         if ($tracknonadmin == 0 && !$checkadmin) {
             return false;
         }
 
         if ($tracknonadmin == 1 && !$checkadmin) {
-            $trackrolesettingkey = "trackroles";
+            $trackrolesettingkey = "{$provider}_trackroles";
 
             $alluserroles = self::get_all_roles_of_user($user->id, $checkadmin); // Get all roles assigned to the user.
 
@@ -314,7 +314,7 @@ abstract class analytics
             return false;
         }
 
-        $trackadmin = !empty($config->trackadmin);
+        $trackadmin = !empty($config->{"{$provider}_trackadmin"});
         return ($trackadmin == 1);
     }
 
@@ -345,9 +345,8 @@ abstract class analytics
             return;
         }
 
-        $user = static::get_masqueradinguser($config);
-
         $provider = static::get_my_provider_name();
+        $user = static::get_masqueradinguser($config, $provider);
         $staticshares = [];
         $unidentifiablestaticsharesettingkey = "{$provider}_unidentifiable_staticshares";
         if (property_exists($config, $unidentifiablestaticsharesettingkey)) {
@@ -371,7 +370,7 @@ abstract class analytics
         $staticshares = array_merge(self::STATIC_SHARES_ALWAYS, $staticshares);
 
         foreach ($staticshares as $staticshare) {
-            if (in_array($staticshare, self::IDENTIFIABLE_STATIC_SHARES) && empty($config->share_identifiable)) {
+            if (in_array($staticshare, self::IDENTIFIABLE_STATIC_SHARES) && empty($config->{"{$provider}_share_identifiable"})) {
                 continue;
             }
             $value = '';

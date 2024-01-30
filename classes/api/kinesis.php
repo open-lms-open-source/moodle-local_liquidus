@@ -42,7 +42,7 @@ class kinesis extends analytics {
 
         $kinesisurl = $config->kinesisurl;
 
-        if (self::should_track($config)) {
+        if (self::should_track($config, 'kinesis')) {
             $res['trackerId'] = 'kinesis';
             $res['kinesisURL'] = $kinesisurl;
         }

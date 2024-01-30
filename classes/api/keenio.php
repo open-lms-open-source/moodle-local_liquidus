@@ -48,7 +48,7 @@ class keenio extends analytics {
         $writekey = $config->keeniowritekey;
         $projectid = $config->keenioprojectid;
 
-        if (!empty($writekey) && self::should_track($config)) {
+        if (!empty($writekey) && self::should_track($config, 'keenio')) {
             $res['trackerId'] = 'keenio';
             $res['projectId'] = $projectid;
             $res['writeKey'] = $writekey;

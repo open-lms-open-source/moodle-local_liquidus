@@ -42,7 +42,7 @@ class google extends analytics {
 
         $siteid = (string) $config->googlesiteid;
 
-        if (!empty($siteid) && self::should_track($config)) {
+        if (!empty($siteid) && self::should_track($config, 'google')) {
             $res['trackerId'] = 'google';
             $siteid = str_replace(' ', '', $siteid);
             $limit = 5;

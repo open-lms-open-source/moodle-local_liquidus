@@ -46,7 +46,7 @@ class mixpanel extends analytics {
         // Get form list to be skipped for the track forms feature in Mixpanel.
         $skiptrackforms = isset($CFG->local_liquidus_skip_forms_track) ? $CFG->local_liquidus_skip_forms_track : [];
 
-        if (!empty($token) && self::should_track($config)) {
+        if (!empty($token) && self::should_track($config, 'mixpanel')) {
             $res['trackerId'] = 'mixpanel';
             $res['token'] = $token;
             $res['skipTrackForms'] = $skiptrackforms;

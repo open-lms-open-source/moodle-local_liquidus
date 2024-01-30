@@ -138,6 +138,8 @@ class local_liquidus_injector_testcase extends advanced_testcase {
                     'pagetype',
                     'plugins',
                 ]);
+                $CFG->local_liquidus_olms_cfg->{"{$type}_tracknonadmin"} = 1;
+                $CFG->local_liquidus_olms_cfg->{"{$type}_trackroles"} = 'allroles';
                 switch ($type) {
                     case 'google':
                         $CFG->local_liquidus_olms_cfg->googlesiteid = 'SOMESITEID';
@@ -173,8 +175,8 @@ class local_liquidus_injector_testcase extends advanced_testcase {
      * @throws coding_exception
      */
     public function test_injector_with_settings($analyticstype) {
-        set_config('tracknonadmin', '1', 'local_liquidus');
-        set_config('trackroles', 'allroles', 'local_liquidus');
+        set_config($analyticstype.'_tracknonadmin', '1', 'local_liquidus');
+        set_config($analyticstype.'_trackroles', 'allroles', 'local_liquidus');
         $this->run_injection_type($analyticstype);
     }
 
@@ -188,8 +190,8 @@ class local_liquidus_injector_testcase extends advanced_testcase {
     public function test_injector_shadow($analyticstype) {
         global $CFG;
         $CFG->local_liquidus_olms_cfg = new stdClass();
-        $CFG->local_liquidus_olms_cfg->tracknonadmin = 1;
-        $CFG->local_liquidus_olms_cfg->trackroles = 'allroles';
+        $CFG->local_liquidus_olms_cfg->{"{$analyticstype}_tracknonadmin"} = 1;
+        $CFG->local_liquidus_olms_cfg->{"{$analyticstype}_trackroles"} = 'allroles';
         $this->run_injection_type($analyticstype, self::CONFIG_TYPE_SHADOW);
     }
 
@@ -203,11 +205,11 @@ class local_liquidus_injector_testcase extends advanced_testcase {
     public function test_injector_no_track($analyticstype) {
         global $CFG;
 
-        set_config('tracknonadmin', '0', 'local_liquidus');
+        set_config("{$analyticstype}_tracknonadmin", '0', 'local_liquidus');
         $this->run_injection_type($analyticstype, self::CONFIG_TYPE_SETTING, 0);
 
         $CFG->local_liquidus_olms_cfg = new stdClass();
-        $CFG->local_liquidus_olms_cfg->tracknonadmin = 0;
+        $CFG->local_liquidus_olms_cfg->{"{$analyticstype}_tracknonadmin"} = 0;
         $this->run_injection_type($analyticstype, self::CONFIG_TYPE_SHADOW, 0);
     }
 

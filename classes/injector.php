@@ -196,6 +196,13 @@ class injector {
      * @return array|null
      */
     private function retrieveTrackerInfo($type, $config): ?array {
+        global $CFG;
+        if (!empty($CFG->local_liquidus_trackers_require_consent)) {
+            if (in_array($type, $CFG->local_liquidus_trackers_require_consent) && empty($config->enabled)) {
+                return null;
+            }
+        }
+
         if (!empty($config->$type)) {
             $classname = "\\local_liquidus\\api\\{$type}";
             if (!class_exists($classname, true)) {
@@ -242,18 +249,14 @@ class injector {
         // Normal Moodle config for client use.
         $configs[] = get_config('local_liquidus');
         // Shadow config for internal Open LMS use.
+        $enabledbyuser = $configs[0]->enabled;
         if (!empty($CFG->local_liquidus_olms_cfg) && is_object($CFG->local_liquidus_olms_cfg)) {
             $configs[] = $CFG->local_liquidus_olms_cfg;
-        }
-
-        return array_filter($configs, function($config) {
-            if (!isset($config->enabled)) {
-                return;
+            if (isset($enabledbyuser)) {
+                $configs[1]->enabled = $enabledbyuser;
             }
-            $pluginenabled = $config->enabled;
-            $shouldtrack = analytics::should_track($config);
-            return !empty($pluginenabled) && $shouldtrack;
-        });
+        }
+        return $configs;
     }
 
     /**
