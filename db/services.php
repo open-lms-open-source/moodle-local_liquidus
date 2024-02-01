@@ -33,6 +33,6 @@ $functions = [
         'ajax'            => true,
         'loginrequired'   => true,
         'readonlysession' => true,
-    ]
+    ],
 ];
 

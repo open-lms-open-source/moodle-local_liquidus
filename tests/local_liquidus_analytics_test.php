@@ -184,8 +184,6 @@ class local_liquidus_analytics_test extends advanced_testcase {
         $classname::clear_rendered_static_shares();
         $classname::build_static_shares(get_config('local_liquidus'));
         $injectedstaticshares = $classname::get_rendered_static_shares();
-
-
         $unidentifiablesharekeys = array_merge(analytics::STATIC_SHARES_ALWAYS, analytics::UNIDENTIFIABLE_STATIC_SHARES);
         $identifiablesharekeys = analytics::IDENTIFIABLE_STATIC_SHARES;
 
@@ -243,7 +241,7 @@ class local_liquidus_analytics_test extends advanced_testcase {
         $PAGE->set_context(\context_course::instance($course->id));
         $PAGE->set_course($course);
 
-        //Enrol student within the course
+        // Enrol student within the course
         $student = $this->getDataGenerator()->create_and_enrol($course, 'student');
 
         // Non-admin AND admins should not be tracked
@@ -318,7 +316,7 @@ class local_liquidus_analytics_test extends advanced_testcase {
         $PAGE->set_context(\context_course::instance($course->id));
         $PAGE->set_course($course);
 
-        //Delete the category and context of the course
+        // Delete the category and context of the course
         $category = core_course_category::get($course->category);
         $category->delete_full(false);
 
@@ -362,8 +360,8 @@ class local_liquidus_analytics_test extends advanced_testcase {
         $themes = glob($CFG->dirroot."/theme/*", GLOB_ONLYDIR); // Get array of paths to available themes.
 
         array_walk($themes, function (&$theme) { // Get array of theme names only
-           $theme = explode("/", $theme);
-           $theme = end($theme);
+            $theme = explode("/", $theme);
+            $theme = end($theme);
         });
 
         foreach ($themes as $theme) {
@@ -383,8 +381,6 @@ class local_liquidus_analytics_test extends advanced_testcase {
             $PAGE->set_context(\context_course::instance($course->id));
             $PAGE->set_course($course);
             $PAGE->force_theme($theme); // Set the current theme
-
-
             /** @var analytics $classname */
             $classname = "\\local_liquidus\\api\\{$analyticstype}";
             $classname::clear_rendered_static_shares();
@@ -409,7 +405,7 @@ class local_liquidus_analytics_test extends advanced_testcase {
             $jsthemevarname = 'localLiquidusShares.'.$analyticstype.'.'.$themevarname.' = "'.$theme.'"';
             $this->assertStringContainsString($jsthemevarname, $injectedstaticshares);
 
-            $PAGE->reset_theme_and_output(); //Reset theme and output so we're able to set the new theme to test.
+            $PAGE->reset_theme_and_output(); // Reset theme and output so we're able to set the new theme to test.
 
         }
 
@@ -442,8 +438,6 @@ class local_liquidus_analytics_test extends advanced_testcase {
         $PAGE->set_pagetype('course-view-' . $course->format);
         $PAGE->set_context(\context_course::instance($course->id));
         $PAGE->set_course($course);
-
-
         /** @var analytics $classname */
         $classname = "\\local_liquidus\\api\\{$analyticstype}";
         $classname::clear_rendered_static_shares();
@@ -462,7 +456,7 @@ class local_liquidus_analytics_test extends advanced_testcase {
         $this->assertStringContainsString($jsvarname, $injectedstaticshares);
         $this->assertEquals("no", analytics::identify_support_users($user->email));
 
-        $CFG->local_liquidus_olms_cfg->support_user_domains = [$user->email]; //Add test user email to support user domain array
+        $CFG->local_liquidus_olms_cfg->support_user_domains = [$user->email]; // Add test user email to support user domain array
 
         $classname::clear_rendered_static_shares();
         $classname::build_static_shares(get_config('local_liquidus'));
@@ -480,7 +474,7 @@ class local_liquidus_analytics_test extends advanced_testcase {
         $this->assertEquals("yes", analytics::identify_support_users($user->email));
 
         $emaildomainarray = explode("@", $user->email);
-        $CFG->local_liquidus_olms_cfg->support_user_domains = [end($emaildomainarray)]; //Add test user email domain to support user domain array
+        $CFG->local_liquidus_olms_cfg->support_user_domains = [end($emaildomainarray)]; // Add test user email domain to support user domain array
 
         $classname::clear_rendered_static_shares();
         $classname::build_static_shares(get_config('local_liquidus'));
@@ -506,8 +500,7 @@ class local_liquidus_analytics_test extends advanced_testcase {
      * @param string $analyticstype
      * @throws coding_exception
      */
-    public function test_tracking_based_on_role()
-    {
+    public function test_tracking_based_on_role() {
         global $PAGE;
 
         // Navigate to a course so we can get the page path static share.
@@ -521,14 +514,14 @@ class local_liquidus_analytics_test extends advanced_testcase {
         $PAGE->set_context(\context_course::instance($course->id));
         $PAGE->set_course($course);
 
-        //Enrol student within the course
+        // Enrol student within the course
         $student = $this->getDataGenerator()->create_and_enrol($course, 'student');
         $manager = $this->getDataGenerator()->create_and_enrol($course, 'manager');
 
         set_config('tracknonadmin', '1', 'local_liquidus');
         set_config('trackadmin', '0', 'local_liquidus');
 
-        //Set student role to be tracked
+        // Set student role to be tracked
         set_config('trackroles', 'student', 'local_liquidus');
         $config = get_config('local_liquidus');
 
@@ -538,7 +531,7 @@ class local_liquidus_analytics_test extends advanced_testcase {
         $this->setUser($student);
         $this->assertEquals(true, analytics::should_track($config));
 
-        //Set manager role to be tracked
+        // Set manager role to be tracked
         set_config('trackroles', 'manager', 'local_liquidus');
         $config = get_config('local_liquidus');
 
@@ -547,9 +540,7 @@ class local_liquidus_analytics_test extends advanced_testcase {
 
         $this->setUser($student);
         $this->assertEquals(false, analytics::should_track($config));
-
-
-        //Set manager and student roles to be tracked
+        // Set manager and student roles to be tracked
         set_config('trackroles', 'manager,student', 'local_liquidus');
         $config = get_config('local_liquidus');
 
@@ -559,7 +550,7 @@ class local_liquidus_analytics_test extends advanced_testcase {
         $this->setUser($student);
         $this->assertEquals(true, analytics::should_track($config));
 
-        //Check that early return works (non admin tracking disabled but user role tracking configured)
+        // Check that early return works (non admin tracking disabled but user role tracking configured)
         set_config('tracknonadmin', '0', 'local_liquidus');
         $config = get_config('local_liquidus');
 
@@ -569,7 +560,7 @@ class local_liquidus_analytics_test extends advanced_testcase {
         $this->setUser($student);
         $this->assertEquals(false, analytics::should_track($config));
 
-        //Check that early return works when (all non admin roles are supposed to be tracked)
+        // Check that early return works when (all non admin roles are supposed to be tracked)
         set_config('tracknonadmin', '1', 'local_liquidus');
         set_config('trackroles', 'allroles', 'local_liquidus');
         $config = get_config('local_liquidus');
@@ -585,8 +576,7 @@ class local_liquidus_analytics_test extends advanced_testcase {
     /**
      * @return array|false|string[]
      */
-    public function get_analytics_types()
-    {
+    public function get_analytics_types() {
         $types = [];
         foreach (injector::get_instance()->get_analytics_types() as $type) {
             $types[$type] = [$type];
