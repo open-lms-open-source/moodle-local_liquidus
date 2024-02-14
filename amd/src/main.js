@@ -61,7 +61,8 @@ function($, Log, Router) {
 
     return {
         'init': (trackerInfo) => {
-            $('input[type="submit"]').click(function() {
+            const exceptions = 'body#page-grade-grading-form-guide-edit #guide-criteria-addcriterion';
+            $('input[type="submit"]').not(exceptions).click(function() {
                 const input = $(this);
                 const form = input.closest('form');
                 const submitField = document.createElement('input');
