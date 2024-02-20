@@ -52,6 +52,7 @@ abstract class analytics
     const STATIC_MOODLE_VERSION = 'moodleversion';
     const STATIC_THEME = 'theme';
     const STATIC_IS_SUPPORT_USER = 'issupportuser';
+    const STATIC_OLMS_PRODUCT = 'olmsproduct';
 
     // Identifiable static shares.
     const STATIC_USER_ID = 'userid';
@@ -77,6 +78,7 @@ abstract class analytics
         self::STATIC_MROOMS_VERSION,
         self::STATIC_MOODLE_VERSION,
         self::STATIC_THEME,
+        self::STATIC_OLMS_PRODUCT,
     ];
 
     const IDENTIFIABLE_STATIC_SHARES = [
@@ -102,7 +104,8 @@ abstract class analytics
         self::STATIC_MROOMS_VERSION => 'mRoomsVersion',
         self::STATIC_MOODLE_VERSION => 'moodleVersion',
         self::STATIC_THEME => 'theme',
-        self::STATIC_IS_SUPPORT_USER => 'isSupportUser'
+        self::STATIC_IS_SUPPORT_USER => 'isSupportUser',
+        self::STATIC_OLMS_PRODUCT=> 'olmsProduct'
     ];
 
     private static string $renderedstaticshares = '';
@@ -429,6 +432,9 @@ abstract class analytics
                 case self::STATIC_MOODLE_VERSION:
                     $value = self::get_moodle_version();
                     break;
+                case self::STATIC_OLMS_PRODUCT:
+                    $value = self::get_olms_product();
+                    break;
             }
 
             if (!empty($value)) {
@@ -467,6 +473,32 @@ abstract class analytics
         $version["date"] = strtotime($moodleversiondate);
 
         return $version;
+    }
+
+    private static function get_olms_product() {
+        $product = '';
+
+        // Get installed local plugins list.
+        $localplugins = \core_component::get_plugin_list('local');
+        // Get installed authentication plugins list.
+        $authplugins = \core_component::get_plugin_list('auth');
+
+        if (array_key_exists('cloudstore', $localplugins)) {
+            $product = 'Enterprise';
+        } elseif (array_key_exists('cfzapi', $localplugins)) {
+            $product = 'Class for zoom';
+        } elseif (array_key_exists('learnbook', $localplugins)) {
+            $product = 'Learnbook';
+        } elseif (array_key_exists('ethink', $authplugins)) {
+            $product = 'Managed Hosting';
+        } elseif (array_key_exists('olms_work', $localplugins)) {
+            $product = 'WORK';
+        } elseif (array_key_exists('mrooms', $localplugins)) {
+            $product = 'EDU';
+        } else {
+            $product = 'Other';
+        }
+        return $product;
     }
 
     private static function add_current_plugins_called_to_html() {

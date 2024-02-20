@@ -51,9 +51,11 @@ define(['jquery','core/log'],
         tracker.identify = function() {
             const allUserRolesString = String(tracker.trackerInfo.staticShares.allUserRoles);
             const userRoleContextString = String(tracker.trackerInfo.staticShares.userRoleContext);
+            const olmsProductString = String(tracker.trackerInfo.staticShares.olmsProduct);
             self.analytics.identify(tracker.trackerInfo.staticShares.userHash, {
                 allUserRoles: allUserRolesString,
                 userRoleContext: userRoleContextString,
+                olmsProduct: olmsProductString,
             });
         };
 
