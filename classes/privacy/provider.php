@@ -35,6 +35,7 @@ use core_privacy\local\request\contextlist;
 use core_privacy\local\request\core_userlist_provider as userlistprovider;
 use core_privacy\local\request\plugin\provider as pluginprovider;
 use core_privacy\local\request\userlist;
+use core_privacy\local\request\writer;
 
 /**
  * Privacy Subsystem for local_liquidus implementing null_provider.
@@ -84,6 +85,20 @@ class provider implements metadataprovider,
             'sitehash' => 'privacy:metadata:liquidus:sitehash',
         ], 'privacy:metadata:liquidus');
 
+        $collection->add_database_table(
+            'local_liquidus_consent_log',
+            [
+                'userid' => 'privacy:metadata:liquidus:userid',
+                'useremail' => 'privacy:metadata:liquidus:useremail',
+                'previousstatus' => 'privacy:metadata:liquidus:previousstatus',
+                'currentstatus' => 'privacy:metadata:liquidus:currentstatus',
+                'timemodified' => 'privacy:metadata:liquidus:timemodified',
+
+
+            ],
+            'privacy:metadata:liquidus'
+        );
+
         return $collection;
     }
 
@@ -94,7 +109,23 @@ class provider implements metadataprovider,
      * @return  contextlist   $contextlist  The contextlist containing the list of contexts used in this plugin.
      */
     public static function get_contexts_for_userid(int $userid): contextlist {
-        return new contextlist();
+        $contextlist = new contextlist();
+
+        // Get user context.
+        $sql = "SELECT cx.id
+                  FROM {context} cx
+                  JOIN {local_liquidus_consent_log} log ON log.userid = cx.instanceid
+                 WHERE cx.instanceid = :userid and cx.contextlevel = :usercontext
+              GROUP BY cx.id";
+
+        $params = [
+            'userid' => $userid,
+            'usercontext' => CONTEXT_USER
+        ];
+
+        $contextlist->add_from_sql($sql, $params);
+
+        return $contextlist;
     }
 
     /**
@@ -103,6 +134,27 @@ class provider implements metadataprovider,
      * @param approved_contextlist $contextlist The approved contexts to export information for.
      */
     public static function export_user_data(approved_contextlist $contextlist) {
+        global $DB;
+        $userid = $contextlist->get_user()->id;
+        $context = \context_user::instance($userid);
+
+        $sql = "SELECT id, userid, useremail, previousstatus, currentstatus, timemodified FROM {local_liquidus_consent_log}
+                 WHERE userid = :userid";
+        $params = ['userid' => $userid];
+
+        $records = $DB->get_records_sql($sql, $params);
+        $data = [];
+        foreach ($records as $record) {
+            $data[] = (object) [
+                'userid' => $userid,
+                'useremail' => $record->useremail,
+                'previousstatus' => $record->previousstatus,
+                'currentstatus' => $record->currentstatus,
+                'timemodified' => $record->timemodified
+            ];
+        }
+
+        writer::with_context($context)->export_data(['local_liquidus', 'logs'], (object) ['logs' => $data]);
     }
 
     /**
@@ -111,6 +163,14 @@ class provider implements metadataprovider,
      * @param \context $context The specific context to delete data for.
      */
     public static function delete_data_for_all_users_in_context(\context $context) {
+        global $DB;
+
+        if (!$context instanceof \context_system) {
+            return;
+        }
+
+        // Delete local liquidus consent log records.
+        $DB->delete_records('local_liquidus_consent_log');
     }
 
     /**
@@ -119,6 +179,12 @@ class provider implements metadataprovider,
      * @param approved_contextlist $contextlist The approved contexts and user information to delete information for.
      */
     public static function delete_data_for_user(approved_contextlist $contextlist) {
+        global $DB;
+        if (empty($contextlist->count())) {
+            return;
+        }
+        $userid = $contextlist->get_user()->id;
+        $DB->delete_records('local_liquidus_consent_log', ['userid' => $userid]);
     }
 
     /**
@@ -127,6 +193,14 @@ class provider implements metadataprovider,
      * @param userlist $userlist The userlist containing the list of users who have data in this context/plugin combination.
      */
     public static function get_users_in_context(userlist $userlist) {
+        $context = $userlist->get_context();
+
+        if (!$context instanceof \context_system) {
+            return;
+        }
+
+        $sql = "SELECT userid as userid FROM {local_liquidus_consent_log}";
+        $userlist->add_from_sql('userid', $sql, []);
     }
 
     /**
@@ -135,5 +209,16 @@ class provider implements metadataprovider,
      * @param approved_userlist $userlist The approved context and user information to delete information for.
      */
     public static function delete_data_for_users(approved_userlist $userlist) {
+        global $DB;
+
+        $context = $userlist->get_context();
+
+        if ($context instanceof \context_system) {
+            list($userinsql, $userinparams) = $DB->get_in_or_equal($userlist->get_userids(), SQL_PARAMS_NAMED);
+            if (!empty($userinparams)) {
+                $sql = "userid {$userinsql}";
+                $DB->delete_records_select('local_liquidus_consent_log', $sql, $userinparams);
+            }
+        }
     }
 }

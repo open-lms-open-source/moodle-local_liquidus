@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="local/liquidus/db" VERSION="20240219" COMMENT="XMLDB file for Moodle local/liquidus"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="local_liquidus_consent_log" COMMENT="Table to save consent setting change log">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="useremail" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false" COMMENT="Email of the user that changed the consent setting"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Id of the user that changed the consent setting"/>
+        <FIELD NAME="previousstatus" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false" COMMENT="Previous status of the consent setting"/>
+        <FIELD NAME="currentstatus" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false" COMMENT="Current status of the consent setting"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The time in which the setting was changed"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+  </TABLES>
+</XMLDB>

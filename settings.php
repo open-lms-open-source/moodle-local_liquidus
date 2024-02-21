@@ -44,6 +44,8 @@ $settings = new admin_settingpage($pluginname, get_string('pluginname', $pluginn
 $ADMIN->add('localplugins', $settings);
 
 if ($ADMIN->fulltree) {
+    // We need to import the library to use a setting update callback in here.
+    require_once($CFG->dirroot.'/local/liquidus/lib.php');
 
     $name = new lang_string('general', $pluginname);
     $description = new lang_string('general_help', $pluginname);
@@ -55,6 +57,7 @@ if ($ADMIN->fulltree) {
         new lang_string('enabled_olms_desc', $pluginname);
     $default = '0';
     $setting = new admin_setting_configcheckbox($name, $title, $description, $default);
+    $setting->set_updatedcallback('local_liquidus_create_consent_log');
     $settings->add($setting);
 
     if (empty($CFG->local_liquidus_disable_tracker_config)) { // Flag to disable plugin config (for internal Open LMS use.)

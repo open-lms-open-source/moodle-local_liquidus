@@ -135,5 +135,30 @@ function xmldb_local_liquidus_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2024012901, 'local', 'liquidus');
     }
 
+    if ($oldversion < 2024012902) {
+
+        // Define table local_liquidus_consent_log to be created.
+        $table = new xmldb_table('local_liquidus_consent_log');
+
+        // Adding fields to table local_liquidus_consent_log.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('useremail', XMLDB_TYPE_CHAR, '100', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('previousstatus', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('currentstatus', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+
+        // Adding keys to table local_liquidus_consent_log.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        // Conditionally launch create table for local_liquidus_consent_log.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Liquidus savepoint reached.
+        upgrade_plugin_savepoint(true, 2024012902, 'local', 'liquidus');
+    }
+
     return true;
 }

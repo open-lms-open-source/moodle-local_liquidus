@@ -35,3 +35,22 @@ require_once(__DIR__.'/../../config.php');
 function local_liquidus_before_footer() {
     injector::get_instance()->inject();
 }
+
+function local_liquidus_create_consent_log() {
+    global $USER, $DB;
+
+    $data = new \stdClass();
+    $data->userid = $USER->id;
+    $data->useremail = $USER->email;
+    $data->timemodified = time();
+    $configs[] = get_config('local_liquidus');
+    $consentsetting = $configs[0]->enabled;
+    if ($consentsetting) {
+        $data->previousstatus = 0;
+        $data->currentstatus = 1;
+    } else {
+        $data->previousstatus = 1;
+        $data->currentstatus = 0;
+    }
+    $DB->insert_record('local_liquidus_consent_log', $data);
+}
