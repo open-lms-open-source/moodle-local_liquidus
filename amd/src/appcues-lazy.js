@@ -52,11 +52,21 @@ define(['jquery','core/log'],
             const allUserRolesString = String(tracker.trackerInfo.staticShares.allUserRoles);
             const userRoleContextString = String(tracker.trackerInfo.staticShares.userRoleContext);
             const olmsProductString = String(tracker.trackerInfo.staticShares.olmsProduct);
-            self.analytics.identify(tracker.trackerInfo.staticShares.userHash, {
+
+            let identifyData = {
                 allUserRoles: allUserRolesString,
                 userRoleContext: userRoleContextString,
                 olmsProduct: olmsProductString,
-            });
+            };
+
+            // Deck 36 configs.
+            let deck36Configs = tracker.trackerInfo.deck36properties;
+            if (typeof deck36Configs !== 'undefined') {
+                for (const property in deck36Configs) {
+                    identifyData[property] = deck36Configs[property] === "1" ? "true" : "false";
+                }
+            }
+            self.analytics.identify(tracker.trackerInfo.staticShares.userHash, identifyData);
         };
 
         tracker.trackPage = function() {

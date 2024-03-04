@@ -33,6 +33,15 @@ $functions = [
         'ajax'            => true,
         'loginrequired'   => true,
         'readonlysession' => true,
+    ],
+    'local_liquidus_add_update_appcues_user_properties' => [
+        'classname'       => 'local_liquidus\\webservice\\add_update_appcues_user_properties',
+        'methodname'      => 'service',
+        'description'     => 'Add/update Appcues user properties for admin users',
+        'type'            => 'write',
+        'ajax'            => true,
+        'loginrequired'   => true,
+        'readonlysession' => true,
     ]
 ];
 
