@@ -52,11 +52,13 @@ define(['jquery','core/log'],
             const allUserRolesString = String(tracker.trackerInfo.staticShares.allUserRoles);
             const userRoleContextString = String(tracker.trackerInfo.staticShares.userRoleContext);
             const olmsProductString = String(tracker.trackerInfo.staticShares.olmsProduct);
+            const isImpersonatedString = String(tracker.trackerInfo.staticShares.isImpersonated);
 
             let identifyData = {
                 allUserRoles: allUserRolesString,
                 userRoleContext: userRoleContextString,
                 olmsProduct: olmsProductString,
+                isImpersonated: isImpersonatedString,
             };
 
             // Deck 36 configs.

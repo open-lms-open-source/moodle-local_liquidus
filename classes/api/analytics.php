@@ -53,6 +53,7 @@ abstract class analytics
     const STATIC_THEME = 'theme';
     const STATIC_IS_SUPPORT_USER = 'issupportuser';
     const STATIC_OLMS_PRODUCT = 'olmsproduct';
+    const STATIC_IS_IMPERSONATED = 'isimpersonated';
 
     // Identifiable static shares.
     const STATIC_USER_ID = 'userid';
@@ -79,6 +80,7 @@ abstract class analytics
         self::STATIC_MOODLE_VERSION,
         self::STATIC_THEME,
         self::STATIC_OLMS_PRODUCT,
+        self::STATIC_IS_IMPERSONATED,
     ];
 
     const IDENTIFIABLE_STATIC_SHARES = [
@@ -105,7 +107,8 @@ abstract class analytics
         self::STATIC_MOODLE_VERSION => 'moodleVersion',
         self::STATIC_THEME => 'theme',
         self::STATIC_IS_SUPPORT_USER => 'isSupportUser',
-        self::STATIC_OLMS_PRODUCT=> 'olmsProduct'
+        self::STATIC_OLMS_PRODUCT=> 'olmsProduct',
+        self::STATIC_IS_IMPERSONATED=> 'isImpersonated'
     ];
 
     private static string $renderedstaticshares = '';
@@ -434,6 +437,9 @@ abstract class analytics
                     break;
                 case self::STATIC_OLMS_PRODUCT:
                     $value = self::get_olms_product();
+                    break;
+                case self::STATIC_IS_IMPERSONATED:
+                    $value = manager::is_loggedinas() ? 'true' : 'false';
                     break;
             }
 
