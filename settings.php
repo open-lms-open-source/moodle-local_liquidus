@@ -60,10 +60,10 @@ if ($ADMIN->fulltree) {
     $setting->set_updatedcallback('local_liquidus_create_consent_log');
     $settings->add($setting);
 
-    if (empty($CFG->local_liquidus_disable_tracker_config)) { // Flag to disable plugin config (for internal Open LMS use.)
+if (empty($CFG->local_liquidus_disable_tracker_config)) { // Flag to disable plugin config (for internal Open LMS use.).
 
         $types = injector::get_instance()->get_analytics_types();
-        foreach ($types as $type) {
+    foreach ($types as $type) {
             $name = new lang_string($type, $pluginname);
             $description = new lang_string("{$type}_desc", $pluginname);
             // Setting names must be unique due to bugs in admin_apply_default_settings.
@@ -78,23 +78,23 @@ if ($ADMIN->fulltree) {
             $setting = new admin_setting_configcheckbox($name, $title, $description, $default);
             $settings->add($setting);
 
-            if (!empty($CFG->local_liquidus_enable_eventdef)) {
+        if (!empty($CFG->local_liquidus_enable_eventdef)) {
                 $name = "{$prefix}_eventdef";
                 $title = new lang_string('eventdef', $pluginname);
                 $description = new lang_string('eventdef_desc', $pluginname);
                 $default = '';
                 $setting = new admin_setting_configtextarea($name, $title, $description, $default);
                 $settings->add($setting);
-            }
+        }
 
             $name = "{$prefix}_unidentifiable_staticshares";
             $title = new lang_string('unidentifiable_staticshares', $pluginname);
             $description = new lang_string('unidentifiable_staticshares_desc', $pluginname);
             $staticshares = $default = [];
-            foreach (\local_liquidus\api\analytics::UNIDENTIFIABLE_STATIC_SHARES as $share) {
+        foreach (\local_liquidus\api\analytics::UNIDENTIFIABLE_STATIC_SHARES as $share) {
                 $staticshares[$share] = get_string('staticshares_' . $share, 'local_liquidus');
                 $default[] = $share;
-            }
+        }
             $setting = new admin_setting_configmultiselect($name, $title, $description, $default, $staticshares);
             $settings->add($setting);
 
@@ -139,59 +139,59 @@ if ($ADMIN->fulltree) {
             $description = new lang_string('trackroles_desc', $pluginname);
             $roles = $default = [];
             $allrolesshortname = local_liquidus\api\analytics::get_allrolesshortname();
-            foreach ($allrolesshortname as $role) {
+        foreach ($allrolesshortname as $role) {
                 $roles[$role] = $role;
                 $default[] = $role;
-            }
+        }
             $setting = new admin_setting_configmultiselect($name, $title, $description, $default, $roles);
             $settings->add($setting);
 
-            if (!empty($CFG->local_liquidus_identifiable_share_providers) && in_array($type, $CFG->local_liquidus_identifiable_share_providers)) {
+        if (!empty($CFG->local_liquidus_identifiable_share_providers) &&
+             in_array($type, $CFG->local_liquidus_identifiable_share_providers)) {
                 $name = "{$prefix}_identifiable_staticshares";
                 $title = new lang_string('identifiable_staticshares', $pluginname);
                 $description = new lang_string('identifiable_staticshares_desc', $pluginname);
                 $staticshares = $default = [];
-                foreach (\local_liquidus\api\analytics::IDENTIFIABLE_STATIC_SHARES as $share) {
+            foreach (\local_liquidus\api\analytics::IDENTIFIABLE_STATIC_SHARES as $share) {
                     $staticshares[$share] = get_string('staticshares_' . $share, 'local_liquidus');
                     $default[] = $share;
-                }
+            }
                 $setting = new admin_setting_configmultiselect($name, $title, $description, $default, $staticshares);
                 $settings->add($setting);
-            }
+        }
 
             // Additional settings specific to providers.
-            foreach (injector::SETTING_PROVIDER_MAPPING as $setting => $providers) {
-                if (isset($providers[$type])) {
+        foreach (injector::SETTING_PROVIDER_MAPPING as $setting => $providers) {
+            if (isset($providers[$type])) {
                     $name = "{$prefix}_{$setting}";
                     $title = new lang_string($setting, $pluginname);
                     $description = new lang_string("{$setting}_desc", $pluginname);
                     $default = '0';
                     $setting = new admin_setting_configcheckbox($name, $title, $description, $default);
                     $settings->add($setting);
-                }
             }
+        }
 
             $classname = "\\local_liquidus\\api\\{$type}";
-            if (!class_exists($classname, true)) {
+        if (!class_exists($classname, true)) {
                 debugging("Local Liquidus Module: Analytics setting '{$type}' doesn't map to a class name.");
-            }
+        }
 
             /** @var analytics $engine */
             $engine = new $classname;
             $configsettings = $engine::get_config_settings();
-            foreach ($configsettings as $configsetting) {
+        foreach ($configsettings as $configsetting) {
                 $name = "{$pluginname}/{$configsetting}";
                 $title = new lang_string($configsetting, $pluginname);
                 $description = new lang_string("{$configsetting}_desc", $pluginname);
                 $default = '';
                 $setting = new admin_setting_configtext($name, $title, $description, $default);
                 $settings->add($setting);
-            }
         }
+    }
 
-        if (!CLI_SCRIPT) {
+    if (!CLI_SCRIPT) {
             // AMD that moves settings into tabs.
             $PAGE->requires->js_call_amd('local_liquidus/settings-handler-lazy', 'init', ['types' => $types]);
-        }
     }
 }
