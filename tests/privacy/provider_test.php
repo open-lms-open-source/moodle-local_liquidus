@@ -25,9 +25,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-/**
- * @group local_liquidus
- */
+// @group local_liquidus.
 
 use core_privacy\local\request\approved_contextlist;
 use core_privacy\local\request\writer;
@@ -99,7 +97,7 @@ class local_liquidus_privacy_provider_test extends provider_testcase {
         $context = \context_user::instance($user1->id);
         provider::export_user_data(new approved_contextlist($user1, 'local_liquidus', [$context->id]));
 
-        $data = $writer->get_data(['local_liquidus','logs']);
+        $data = $writer->get_data(['local_liquidus', 'logs']);
         $this->assertCount(2, $data->logs);
     }
 
@@ -242,7 +240,8 @@ class local_liquidus_privacy_provider_test extends provider_testcase {
         $this->assertCount(3, $records);
 
         $systemcontext = context_system::instance();
-        $approveduserlist = new \core_privacy\local\request\approved_userlist($systemcontext, 'local_liquidus',[$user1->id,$user2->id]);
+        $approveduserlist = new \core_privacy\local\request\approved_userlist
+        ($systemcontext, 'local_liquidus', [$user1->id, $user2->id]);
         provider::delete_data_for_users($approveduserlist);
 
         $sql = "SELECT id, userid, useremail, previousstatus, currentstatus, timemodified FROM {local_liquidus_consent_log}";

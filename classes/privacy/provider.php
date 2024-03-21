@@ -93,8 +93,6 @@ class provider implements metadataprovider,
                 'previousstatus' => 'privacy:metadata:liquidus:previousstatus',
                 'currentstatus' => 'privacy:metadata:liquidus:currentstatus',
                 'timemodified' => 'privacy:metadata:liquidus:timemodified',
-
-
             ],
             'privacy:metadata:liquidus'
         );
@@ -120,7 +118,7 @@ class provider implements metadataprovider,
 
         $params = [
             'userid' => $userid,
-            'usercontext' => CONTEXT_USER
+            'usercontext' => CONTEXT_USER,
         ];
 
         $contextlist->add_from_sql($sql, $params);
@@ -150,7 +148,7 @@ class provider implements metadataprovider,
                 'useremail' => $record->useremail,
                 'previousstatus' => $record->previousstatus,
                 'currentstatus' => $record->currentstatus,
-                'timemodified' => $record->timemodified
+                'timemodified' => $record->timemodified,
             ];
         }
 

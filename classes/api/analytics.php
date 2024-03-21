@@ -32,8 +32,7 @@ use core\session\manager;
 /**
  * Abstract local analytics class.
  */
-abstract class analytics
-{
+abstract class analytics {
 
     // Unidentifiable static shares.
     const STATIC_USER_HASH = 'userhash';
@@ -107,9 +106,8 @@ abstract class analytics
         self::STATIC_MOODLE_VERSION => 'moodleVersion',
         self::STATIC_THEME => 'theme',
         self::STATIC_IS_SUPPORT_USER => 'isSupportUser',
-        self::STATIC_OLMS_PRODUCT=> 'olmsProduct',
-        self::STATIC_IS_IMPERSONATED=> 'isImpersonated'
-    ];
+        self::STATIC_OLMS_PRODUCT => 'olmsProduct',
+        self::STATIC_IS_IMPERSONATED => 'isImpersonated', ];
 
     private static string $renderedstaticshares = '';
 
@@ -206,8 +204,7 @@ abstract class analytics
      * @param \stdClass $config Config object.
      * @return user User object
      */
-    public static function get_masqueradinguser($config, $provider)
-    {
+    public static function get_masqueradinguser($config, $provider) {
         global $USER;
 
         $user = $USER;
@@ -227,8 +224,7 @@ abstract class analytics
      * of all roles in the whole system.
      * @return array
      */
-    public static function get_allrolesshortname()
-    {
+    public static function get_allrolesshortname() {
         $allrolenames = get_all_roles();
         $rolenames = [];
         foreach ($allrolenames as $role) {
@@ -245,8 +241,7 @@ abstract class analytics
      * @param int $userid User id.
      * @return array
      */
-    private static function get_all_roles_of_user(int $userid, $issiteadmin)
-    {
+    private static function get_all_roles_of_user(int $userid, $issiteadmin) {
         global $DB;
 
         $sql = "SELECT DISTINCT r.shortname
@@ -281,8 +276,7 @@ abstract class analytics
      * @return boolean
      *   The outcome of our deliberations.
      */
-    public static function should_track($config, $provider)
-    {
+    public static function should_track($config, $provider) {
         $tracknonadmin = !empty($config->{"{$provider}_tracknonadmin"});
         $checkadmin = is_siteadmin();
 
@@ -297,7 +291,7 @@ abstract class analytics
 
             $alluserroles = self::get_all_roles_of_user($user->id, $checkadmin); // Get all roles assigned to the user.
 
-            if (empty($alluserroles)) { // Track if there's no role
+            if (empty($alluserroles)) { // Track if there's no role.
                 return true;
             }
 
@@ -312,7 +306,7 @@ abstract class analytics
                     $rolestotrack = [];
                     $rolestotrack = array_merge($rolestotrack, explode(',', $rolesconf));
 
-                    if (count(array_intersect($rolestotrack, $alluserroles))) { // Track if there's a role in common
+                    if (count(array_intersect($rolestotrack, $alluserroles))) { // Track if there's a role in common.
                         return true;
                     }
                 }
@@ -329,14 +323,13 @@ abstract class analytics
      * @param \stdClass $config Config object.
      * @return array
      */
-    public static abstract function get_tracker_info($config);
+    abstract public static function get_tracker_info($config);
 
     /**
      * Gets an array with all the static info.
      * @param \stdClass $config Config object.
      */
-    public static function build_static_shares($config)
-    {
+    public static function build_static_shares($config) {
         global $PAGE, $SITE, $CFG, $DB;
 
         if (!isloggedin()) {
@@ -346,7 +339,7 @@ abstract class analytics
         $issiteadmin = is_siteadmin();
         $id = $PAGE->context->id;
 
-        // Early return if context is not set or was deleted
+        // Early return if context is not set or was deleted.
         if (!$DB->record_exists('context', ['id' => $id])) {
             return;
         }
@@ -362,7 +355,8 @@ abstract class analytics
             }
         }
 
-        if (!empty($CFG->local_liquidus_identifiable_share_providers) && in_array($provider, $CFG->local_liquidus_identifiable_share_providers)) {
+        if (!empty($CFG->local_liquidus_identifiable_share_providers)
+        && in_array($provider, $CFG->local_liquidus_identifiable_share_providers)) {
             $identifiablestaticsharessettingskey = "{$provider}_identifiable_staticshares";
             if (property_exists($config, $identifiablestaticsharessettingskey)) {
                 $identifiablestaticshares = $config->{$identifiablestaticsharessettingskey};
@@ -472,7 +466,7 @@ abstract class analytics
         $version = [];
         $moodleversionrelease = $CFG->release;
 
-        $moodleversiondate= explode("Build:", $moodleversionrelease);
+        $moodleversiondate = explode("Build:", $moodleversionrelease);
         $moodleversiondate = preg_replace("/[^0-9]/", "", end($moodleversiondate));
 
         $version["name"] = $moodleversionrelease;
@@ -491,15 +485,15 @@ abstract class analytics
 
         if (array_key_exists('cloudstore', $localplugins)) {
             $product = 'Enterprise';
-        } elseif (array_key_exists('cfzapi', $localplugins)) {
+        } else if (array_key_exists('cfzapi', $localplugins)) {
             $product = 'Class for zoom';
-        } elseif (array_key_exists('learnbook', $localplugins)) {
+        } else if (array_key_exists('learnbook', $localplugins)) {
             $product = 'Learnbook';
-        } elseif (array_key_exists('ethink', $authplugins)) {
+        } else if (array_key_exists('ethink', $authplugins)) {
             $product = 'Managed Hosting';
-        } elseif (array_key_exists('olms_work', $localplugins)) {
+        } else if (array_key_exists('olms_work', $localplugins)) {
             $product = 'WORK';
-        } elseif (array_key_exists('mrooms', $localplugins)) {
+        } else if (array_key_exists('mrooms', $localplugins)) {
             $product = 'EDU';
         } else {
             $product = 'Other';
@@ -515,8 +509,8 @@ abstract class analytics
 
         // Filter files that are related to a plugin being used.
         $files = array_filter($files, function ($file) {
-            $excluded_strings = ['version.php', '/mustache/', 'access.php', 'lib.php'];
-            foreach ($excluded_strings as $string) {
+            $excludedstrings = ['version.php', '/mustache/', 'access.php', 'lib.php'];
+            foreach ($excludedstrings as $string) {
                 if (strpos($file, $string) !== false) {
                     return false;
                 }
@@ -529,9 +523,9 @@ abstract class analytics
         $plugins = [];
 
         // Use this array to keep track of how many files are included for each plugin.
-        $pluginFileCounts = [];
+        $pluginfilecounts = [];
 
-        array_walk($files, function (&$item) use ($validplugintypes, &$plugins, &$pluginFileCounts) {
+        array_walk($files, function (&$item) use ($validplugintypes, &$plugins, &$pluginfilecounts) {
             global $CFG;
             $bareitem = str_replace($CFG->dirroot . '/', '', $item);
             $exploded = explode('/', $bareitem);
@@ -548,7 +542,7 @@ abstract class analytics
                     $id = $exploded[1];
                 }
 
-                if ($id === 'liquidus') { //Don't include Liquidus in the list.
+                if ($id === 'liquidus') { // Don't include Liquidus in the list.
                     return;
                 }
 
@@ -562,21 +556,19 @@ abstract class analytics
                     }
 
                     // Check if the plugin is already in the count array, and increment the count.
-                    if (isset($pluginFileCounts[$type][$id])) {
-                        $pluginFileCounts[$type][$id]++;
+                    if (isset($pluginfilecounts[$type][$id])) {
+                        $pluginfilecounts[$type][$id]++;
                     } else {
-                        $pluginFileCounts[$type][$id] = 1;
+                        $pluginfilecounts[$type][$id] = 1;
                     }
                 }
             }
         });
-
-
         // Loop through the pluginFileCounts array and add plugins with multiple files to your $plugins array.
-        foreach ($pluginFileCounts as $type => $pluginsOfType) {
-            foreach ($pluginsOfType as $id => $count) {
+        foreach ($pluginfilecounts as $type => $pluginsoftype) {
+            foreach ($pluginsoftype as $id => $count) {
                 if ($count <= 1) {
-                    // Remove empty arrays (plugins with only one file)
+                    // Remove empty arrays (plugins with only one file).
                     if (isset($plugins[$type])) {
                         $index = array_search($id, $plugins[$type]);
                         if ($index !== false) {
@@ -591,8 +583,7 @@ abstract class analytics
         self::encode_and_add_json_to_html(self::STATIC_PLUGINS, $plugins);
     }
 
-    private static function add_user_roles_in_context_to_html(context $context, int $userid, bool $issiteadmin)
-    {
+    private static function add_user_roles_in_context_to_html(context $context, int $userid, bool $issiteadmin) {
         $rolesincontext = get_user_roles($context, $userid);
 
         $rolenamesincontext = [];
@@ -601,7 +592,7 @@ abstract class analytics
         }
 
         if (empty($rolenamesincontext)) {
-            if ($issiteadmin) { // Check if the user has an admin role if no role can be retrieved
+            if ($issiteadmin) { // Check if the user has an admin role if no role can be retrieved.
                 $rolenamesincontext[] = 'siteadmin';
             } else {
                 $rolenamesincontext[] = 'norole';
@@ -612,16 +603,14 @@ abstract class analytics
         self::encode_and_add_json_to_html(self::STATIC_USER_ROLE_CONTEXT, $rolenamesincontext);
     }
 
-    private static function add_all_user_roles_of_user_to_html(int $userid, bool $issiteadmin)
-    {
+    private static function add_all_user_roles_of_user_to_html(int $userid, bool $issiteadmin) {
         $allrolesuser = self::get_all_roles_of_user($userid, $issiteadmin);
 
         // Adding user roles straight to HTML.
         self::encode_and_add_json_to_html(self::STATIC_ALL_USER_ROLES, $allrolesuser);
     }
 
-    public static function identify_support_users(string $email)
-    {
+    public static function identify_support_users(string $email) {
         global $CFG;
 
         $emaildomainarray = explode("@", $email);
@@ -651,17 +640,15 @@ abstract class analytics
         $data = [
             'provider' => $provider,
             'sharecamelcase' => $sharecamelcase,
-            'jsonvalue' => $jsonvalue
+            'jsonvalue' => $jsonvalue,
         ];
 
         $staticsharescript = $OUTPUT->render_from_template('local_liquidus/static_shares_scripts', $data);
         self::$renderedstaticshares .= $staticsharescript;
 
-        if (!PHPUNIT_TEST){
+        if (!PHPUNIT_TEST) {
             echo $staticsharescript;
         }
-
-
     }
 
     /**
@@ -675,7 +662,7 @@ abstract class analytics
     /**
      * @return string[]
      */
-    public abstract static function get_config_settings();
+    abstract public static function get_config_settings();
 
     /**
      * Get this classname, it should be the same as the provider.

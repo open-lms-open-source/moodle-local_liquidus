@@ -51,7 +51,7 @@ class add_update_appcues_user_properties extends \external_api {
 
     public static function service_returns() {
         return new \external_single_structure([
-            'success'    => new \external_value(PARAM_BOOL, 'Property updated successfully!')
+            'success'    => new \external_value(PARAM_BOOL, 'Property updated successfully!'),
         ]);
     }
 

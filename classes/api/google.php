@@ -48,7 +48,7 @@ class google extends analytics {
             $limit = 5;
             $separator = ',';
             $siteidsfull = explode($separator, $siteid);
-            $siteids =  array_splice($siteidsfull, 0, $limit);
+            $siteids = array_splice($siteidsfull, 0, $limit);
             $res['siteid'] = $siteids;
             if (count($siteidsfull) > $limit) {
                 debugging(get_string('excedlimitfield', 'local_liquidus', count($siteidsfull)));

@@ -90,10 +90,10 @@ function xmldb_local_liquidus_upgrade($oldversion) {
     }
 
     if ($oldversion < 2023032300) {
-        // Tracking depending on user role can be configured
+        // Tracking depending on user role can be configured.
         $pluginname = 'local_liquidus';
 
-        //Add trackroles config
+        // Add trackroles config.
         $allrolesshortname = analytics::get_allrolesshortname();
         $configsetting = implode(',', $allrolesshortname);
         set_config("trackroles", $configsetting, $pluginname);
