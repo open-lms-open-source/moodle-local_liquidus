@@ -59,7 +59,7 @@ if ($ADMIN->fulltree) {
     $setting = new admin_setting_configcheckbox($name, $title, $description, $default);
     $setting->set_updatedcallback('local_liquidus_create_consent_log');
     $settings->add($setting);
-
+}
 if (empty($CFG->local_liquidus_disable_tracker_config)) { // Flag to disable plugin config (for internal Open LMS use.).
 
         $types = injector::get_instance()->get_analytics_types();
