@@ -95,8 +95,12 @@ function($, Log, ajax, notification) {
     self.processDefinition = (tracker, edef) => {
         const trackerId = tracker.trackerInfo.trackerId;
         Log.debug(`[${trackerId}] Adding event handling for custom event: ${edef.selector} -> ${edef.event}`);
-        $(edef.selector).on(edef.event, function(evt) {
-            evt.preventDefault();
+        // Use of the .datatracking namespace to avoid affecting other events.
+        $(edef.selector).on(edef.event + '.dataTracking', function(evt) {
+            const preventEvents = $(this).is('a') && !$(this).attr('href').startsWith('#');
+            if (preventEvents) {
+                evt.preventDefault();
+            }
 
             const parentNode = $(this);
 
@@ -155,8 +159,14 @@ function($, Log, ajax, notification) {
 
             dfd.then(() => {
                 Log.debug(`[${trackerId}] Processed: ${edef.selector} -> ${edef.event}, proceeding with event.`);
-                $(edef.selector).off(edef.event);
-                $(edef.selector).trigger(edef.event);
+                parentNode.off(edef.event + '.dataTracking');
+                if (preventEvents) {
+                    if (parentNode.is('a')) {
+                        window.location.href = parentNode.attr('href');
+                    } else {
+                        parentNode.trigger(edef.event);
+                    }
+                }
             });
         });
     };
