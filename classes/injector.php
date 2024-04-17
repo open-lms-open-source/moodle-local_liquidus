@@ -131,7 +131,7 @@ class injector {
             $page = $this->testpage;
         }
 
-        // Add script tags for appcues
+        // Add script tags for appcues.
         foreach ($trackersinfo as $info) {
             if (isset($info['scripturl']) && !empty($url = $info['scripturl']) && $info['trackerId'] == "appcues") {
                 if (strpos($url, 'http') === false && is_callable('is_https')) {
@@ -181,7 +181,7 @@ class injector {
     private function retrieve_tracker_info_all_configs($type, $configs): array {
         $result = [];
         foreach ($configs as $config) {
-            $trackerinfo = $this->retrieveTrackerInfo($type, $config);
+            $trackerinfo = $this->retrievetrackerinfo($type, $config);
             if (!is_null($trackerinfo)) {
                 $result[] = $trackerinfo;
             }
@@ -195,7 +195,7 @@ class injector {
      * @param $config
      * @return array|null
      */
-    private function retrieveTrackerInfo($type, $config): ?array {
+    private function retrievetrackerinfo($type, $config): ?array {
         global $CFG;
         if (!empty($CFG->local_liquidus_trackers_require_consent)) {
             if (in_array($type, $CFG->local_liquidus_trackers_require_consent) && empty($config->enabled)) {
@@ -235,7 +235,7 @@ class injector {
             if ($trackerinfo['trackerId'] == "appcues" &&
                 has_capability('moodle/site:config', \context_system::instance())) {
                 $deck36properties = [];
-                foreach ($config as $key => $value){
+                foreach ($config as $key => $value) {
                     if (preg_match('/^deck36websvc/', $key)) {
                         $deck36properties[str_replace('deck36websvc', '', $key)] = $value;
                     }
@@ -280,7 +280,8 @@ class injector {
         global $CFG;
 
         if (empty($this->analyticstypes)) {
-            $this->analyticstypes = array_diff(scandir($CFG->dirroot . '/local/liquidus/classes/api'), ['..', '.', 'analytics.php']);
+            $this->analyticstypes = array_diff(scandir($CFG->dirroot . '/local/liquidus/classes/api'),
+             ['..', '.', 'analytics.php']);
             array_walk($this->analyticstypes, function(&$item) {
                 $item = basename($item, '.php');
             });

@@ -49,7 +49,7 @@ class add_update_appcues_user_property_test extends advanced_testcase {
 
         $student = $this->getDataGenerator()->create_user();
         $course = $this->getDataGenerator()->create_course();
-        $studentrole = $DB->get_record('role', array('shortname' => 'student'));
+        $studentrole = $DB->get_record('role', ['shortname' => 'student']);
         $this->getDataGenerator()->enrol_user($student->id, $course->id, $studentrole->id);
 
         $this->setAdminUser();
