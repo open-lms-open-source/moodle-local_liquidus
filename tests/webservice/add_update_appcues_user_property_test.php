@@ -27,8 +27,9 @@ global $CFG;
 
 /**
  * @group local_liquidus
+ * 
+ * @runTestsInSeparateProcesses
  */
-
 class add_update_appcues_user_property_test extends advanced_testcase {
 
     public function test_service_parameters() {
