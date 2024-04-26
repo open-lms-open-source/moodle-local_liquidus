@@ -25,6 +25,9 @@
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 
+use core_external\external_function_parameters;
+use core_external\external_single_structure;
+
 /**
  * @group local_liquidus
  */
@@ -33,12 +36,12 @@ class add_update_appcues_user_property_test extends advanced_testcase {
 
     public function test_service_parameters() {
         $params = local_liquidus\webservice\add_update_appcues_user_properties::service_parameters();
-        $this->assertTrue($params instanceof \external_function_parameters);
+        $this->assertTrue($params instanceof external_function_parameters);
     }
 
     public function test_service_returns() {
         $returns = local_liquidus\webservice\add_update_appcues_user_properties::service_returns();
-        $this->assertTrue($returns instanceof \external_single_structure);
+        $this->assertTrue($returns instanceof external_single_structure);
     }
 
     public function test_service() {

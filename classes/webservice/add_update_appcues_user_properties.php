@@ -24,12 +24,12 @@
 
 namespace local_liquidus\webservice;
 
-use external_function_parameters;
-use external_value;
-
 defined('MOODLE_INTERNAL') || die();
 
-require_once("$CFG->libdir/externallib.php");
+use core_external\external_api;
+use core_external\external_function_parameters;
+use core_external\external_value;
+use core_external\external_single_structure;
 
 /**
  * Add update appcues user properties web service.
@@ -38,9 +38,9 @@ require_once("$CFG->libdir/externallib.php");
  * @copyright Copyright (c) 2024 Open LMS
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class add_update_appcues_user_properties extends \external_api {
+class add_update_appcues_user_properties extends external_api {
     /**
-     * @return \external_function_parameters
+     * @return external_function_parameters
      */
     public static function service_parameters() {
         return new external_function_parameters([
@@ -50,8 +50,8 @@ class add_update_appcues_user_properties extends \external_api {
     }
 
     public static function service_returns() {
-        return new \external_single_structure([
-            'success'    => new \external_value(PARAM_BOOL, 'Property updated successfully!')
+        return new external_single_structure([
+            'success'    => new external_value(PARAM_BOOL, 'Property updated successfully!')
         ]);
     }
 

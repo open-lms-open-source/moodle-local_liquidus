@@ -28,7 +28,11 @@ use local_liquidus\injector;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once(__DIR__ . '/../../../../lib/externallib.php');
+use core_external\external_api;
+use core_external\external_function_parameters;
+use core_external\external_value;
+use core_external\external_single_structure;
+use core_external\external_multiple_structure;
 
 /**
  * Event definition web service.
@@ -37,30 +41,30 @@ require_once(__DIR__ . '/../../../../lib/externallib.php');
  * @copyright Copyright (c) 2020 Open LMS
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class event_definition extends \external_api {
+class event_definition extends external_api {
     /**
-     * @return \external_function_parameters
+     * @return external_function_parameters
      */
     public static function service_parameters() {
-        return new \external_function_parameters([]);
+        return new external_function_parameters([]);
     }
 
     public static function service_returns() {
-        return new \external_multiple_structure(
-            new \external_single_structure([
-                'provider' => new \external_value(PARAM_TEXT, 'provider name'),
-                'definition' => new \external_multiple_structure(
-                    new \external_single_structure([
-                        'name' => new \external_value(PARAM_TEXT, 'definition name'),
-                        'testselector' => new \external_value(PARAM_TEXT, 'definition test selector'),
-                        'selector' => new \external_value(PARAM_TEXT, 'definition selector'),
-                        'event' => new \external_value(PARAM_TEXT, 'definition event type'),
-                        'data' => new \external_multiple_structure(
-                            new \external_single_structure(
+        return new external_multiple_structure(
+            new external_single_structure([
+                'provider' => new external_value(PARAM_TEXT, 'provider name'),
+                'definition' => new external_multiple_structure(
+                    new external_single_structure([
+                        'name' => new external_value(PARAM_TEXT, 'definition name'),
+                        'testselector' => new external_value(PARAM_TEXT, 'definition test selector'),
+                        'selector' => new external_value(PARAM_TEXT, 'definition selector'),
+                        'event' => new external_value(PARAM_TEXT, 'definition event type'),
+                        'data' => new external_multiple_structure(
+                            new external_single_structure(
                                 [
-                                    'name' => new \external_value(PARAM_TEXT, 'data metric name'),
-                                    'selector' => new \external_value(PARAM_TEXT, 'data value selector'),
-                                    'type' => new \external_value(PARAM_TEXT, 'data html element selector'),
+                                    'name' => new external_value(PARAM_TEXT, 'data metric name'),
+                                    'selector' => new external_value(PARAM_TEXT, 'data value selector'),
+                                    'type' => new external_value(PARAM_TEXT, 'data html element selector'),
                                 ]
                             ), 'Data to send with event', VALUE_OPTIONAL
                         )
