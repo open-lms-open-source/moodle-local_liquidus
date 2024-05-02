@@ -38,6 +38,13 @@ plugin as a requirement for this plugin to work.
 
 Check your Google Analytics dashboard to see the influx of events being sent by the plugin.
 
+## Flag
+
+### The  `local_liquidus_olms_cfg flag` flag.
+### The  `local_liquidus_disable_tracker_config` flag.
+### The  `local_liquidus_identifiable_share_providers` flag.
+### The  `local_liquidus_enable_eventdef` flag.
+
 ## License
 Copyright (c) 2021 Open LMS (https://www.openlms.net)
 
