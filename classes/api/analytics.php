@@ -292,6 +292,12 @@ abstract class analytics
             return false;
         }
 
+        global $CFG;
+        $issupportuser = self::identify_support_users($user->email);
+        if ($issupportuser === "yes" && ($CFG->local_liquidus_disable_support_user_domain_tracking ?? true)) {
+            return false;
+        }
+
         if ($tracknonadmin == 1 && !$checkadmin) {
             $trackrolesettingkey = "{$provider}_trackroles";
 
