@@ -686,4 +686,14 @@ abstract class analytics
         $classparts = explode('\\', $classname);
         return end($classparts);
     }
+
+    /**
+     * Build the extra scripts to be added to the page in case some provider needs it.
+     * @param \stdClass $config Config object.
+     * @return array
+     */
+    public static function get_extra_configs(\stdClass $config): array {
+        // To be implemented by the provider, optional.
+        return [];
+    }
 }

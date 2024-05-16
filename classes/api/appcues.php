@@ -69,4 +69,39 @@ class appcues extends analytics {
     public static function get_config_settings() {
         return ['appcuesaccountid'];
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public static function get_extra_configs(\stdClass $config): array {
+        global $CFG;
+        $extra = [];
+
+        if (!empty($CFG->local_liquidus_appcues_user_properties_to_send)) {
+            $user_properties = explode(',', $CFG->local_liquidus_appcues_user_properties_to_send);
+            $user_properties = array_map('trim', $user_properties);
+
+            $extra['userProperties'] = array_reduce($user_properties, function ($result, $property) {
+                if (isset(self::STATIC_SHARES_CAMEL_CASE[$property])) {
+                    $result[] = self::STATIC_SHARES_CAMEL_CASE[$property];
+                }
+
+                return $result;
+            }, []);
+        }
+
+        if (has_capability('moodle/site:config', \context_system::instance())) {
+            $deck36properties = [];
+            foreach ($config as $key => $value) {
+                if (preg_match('/^deck36websvc/', $key)) {
+                    $deck36properties[str_replace('deck36websvc', '', $key)] = $value;
+                }
+            }
+            if (!empty($deck36properties)) {
+                $extra['deck36properties'] = $deck36properties;
+            }
+        }
+
+        return $extra;
+    }
 }
