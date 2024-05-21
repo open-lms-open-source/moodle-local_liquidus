@@ -49,17 +49,27 @@ define(['jquery','core/log'],
         };
 
         tracker.identify = function() {
-            const allUserRolesString = String(tracker.trackerInfo.staticShares.allUserRoles);
-            const userRoleContextString = String(tracker.trackerInfo.staticShares.userRoleContext);
-            const olmsProductString = String(tracker.trackerInfo.staticShares.olmsProduct);
-            const isImpersonatedString = String(tracker.trackerInfo.staticShares.isImpersonated);
+            let identifyData = {};
 
-            let identifyData = {
-                allUserRoles: allUserRolesString,
-                userRoleContext: userRoleContextString,
-                olmsProduct: olmsProductString,
-                isImpersonated: isImpersonatedString,
-            };
+            if(typeof tracker.trackerInfo.userProperties !== 'undefined'){
+                for (const property of tracker.trackerInfo.userProperties) {
+                    if(typeof tracker.trackerInfo.staticShares[property] !== 'undefined'){
+                        identifyData[property] = tracker.trackerInfo.staticShares[property];
+                    }
+                }
+            } else {
+                const allUserRolesString = String(tracker.trackerInfo.staticShares.allUserRoles);
+                const userRoleContextString = String(tracker.trackerInfo.staticShares.userRoleContext);
+                const olmsProductString = String(tracker.trackerInfo.staticShares.olmsProduct);
+                const isImpersonatedString = String(tracker.trackerInfo.staticShares.isImpersonated);
+
+                identifyData = {
+                    allUserRoles: allUserRolesString,
+                    userRoleContext: userRoleContextString,
+                    olmsProduct: olmsProductString,
+                    isImpersonated: isImpersonatedString,
+                };
+            }
 
             // Deck 36 configs.
             let deck36Configs = tracker.trackerInfo.deck36properties;

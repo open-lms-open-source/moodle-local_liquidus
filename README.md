@@ -44,6 +44,9 @@ Check your Google Analytics dashboard to see the influx of events being sent by 
 ### The  `local_liquidus_disable_tracker_config` flag.
 ### The  `local_liquidus_identifiable_share_providers` flag.
 ### The  `local_liquidus_enable_eventdef` flag.
+### The  `local_liquidus_appcues_user_properties_to_send` flag.
+Flag to set the user properties to send to Appcues, as a comma-separated 
+string of user properties, possible values are listed [here](https://github.com/open-lms-open-source/moodle-local_liquidus/blob/master/classes/api/analytics.php#L38).
 
 ## License
 Copyright (c) 2021 Open LMS (https://www.openlms.net)

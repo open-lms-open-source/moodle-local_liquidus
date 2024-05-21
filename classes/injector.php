@@ -229,21 +229,11 @@ class injector {
                 }
             }
 
+            // Get extra configurations unique to the tracker.
+            $trackerinfo = [...$trackerinfo, ...$engine::get_extra_configs($config)];
+
             // Last but not least, inject static shares to HTML.
             $engine::build_static_shares($config);
-
-            if ($trackerinfo['trackerId'] == "appcues" &&
-                has_capability('moodle/site:config', \context_system::instance())) {
-                $deck36properties = [];
-                foreach ($config as $key => $value){
-                    if (preg_match('/^deck36websvc/', $key)) {
-                        $deck36properties[str_replace('deck36websvc', '', $key)] = $value;
-                    }
-                }
-                if (!empty($deck36properties)) {
-                    $trackerinfo['deck36properties'] = $deck36properties;
-                }
-            }
 
             return $trackerinfo;
         }
