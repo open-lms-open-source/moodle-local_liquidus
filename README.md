@@ -38,7 +38,7 @@ plugin as a requirement for this plugin to work.
 
 Check your Google Analytics dashboard to see the influx of events being sent by the plugin.
 
-## Flag
+## Flags
 
 ### The  `local_liquidus_olms_cfg flag` flag.
 ### The  `local_liquidus_disable_tracker_config` flag.
@@ -47,6 +47,11 @@ Check your Google Analytics dashboard to see the influx of events being sent by 
 ### The  `local_liquidus_appcues_user_properties_to_send` flag.
 Flag to set the user properties to send to Appcues, as a comma-separated 
 string of user properties, possible values are listed [here](https://github.com/open-lms-open-source/moodle-local_liquidus/blob/master/classes/api/analytics.php#L38).
+
+### The  `local_liquidus_disable_support_user_domain_tracking` flag.
+This flag is used to disable the support users tracking, it accepts a boolean value,
+if it is set to true, the support users will not be tracked, if it is set to false, the support users will be tracked.
+Default value is true.
 
 ## License
 Copyright (c) 2021 Open LMS (https://www.openlms.net)
