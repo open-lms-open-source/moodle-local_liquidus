@@ -75,7 +75,7 @@ define(['jquery','core/log'],
             let deck36Configs = tracker.trackerInfo.deck36properties;
             if (typeof deck36Configs !== 'undefined') {
                 for (const property in deck36Configs) {
-                    identifyData[property] = deck36Configs[property] === "1" ? "true" : "false";
+                    identifyData[property] = deck36Configs[property];
                 }
             }
             self.analytics.identify(tracker.trackerInfo.staticShares.userHash, identifyData);

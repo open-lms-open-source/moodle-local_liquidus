@@ -45,7 +45,7 @@ class add_update_appcues_user_properties extends \external_api {
     public static function service_parameters() {
         return new external_function_parameters([
             'appcues_property_name'        => new external_value(PARAM_TEXT, 'Appcues property name'),
-            'appcues_property_value'        => new external_value(PARAM_BOOL, 'Appcues property value'),
+            'appcues_property_value'        => new external_value(PARAM_TEXT, 'Appcues property value'),
         ]);
     }
 
