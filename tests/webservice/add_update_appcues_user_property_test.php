@@ -57,13 +57,13 @@ class add_update_appcues_user_property_test extends advanced_testcase {
         $this->getDataGenerator()->enrol_user($student->id, $course->id, $studentrole->id);
 
         $this->setAdminUser();
-        $serviceresult = local_liquidus\webservice\add_update_appcues_user_properties::service("Name property 1", false);
+        $serviceresult = local_liquidus\webservice\add_update_appcues_user_properties::service("Email property 1", "openlms@test.test");
         $this->assertTrue($serviceresult['success']);
         $configs[] = get_config('local_liquidus');
-        $this->assertTrue(property_exists($configs[0], 'deck36websvcNameproperty1'));
+        $this->assertTrue(property_exists($configs[0], 'deck36websvcEmailproperty1'));
 
         $this->setUser($student);
-        $serviceresult = local_liquidus\webservice\add_update_appcues_user_properties::service("Name property 1", true);
+        $serviceresult = local_liquidus\webservice\add_update_appcues_user_properties::service("Email property 1", "openlms@test.test");
         $this->assertFalse($serviceresult['success']);
 
     }
