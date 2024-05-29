@@ -631,11 +631,11 @@ abstract class analytics
         global $CFG;
 
         $emaildomainarray = explode("@", $email);
-        if (!isset($CFG->local_liquidus_olms_cfg->support_user_domains)) {
+        if (!isset($CFG->local_liquidus_olms_support_user_domains)) {
             return "no";
         }
 
-        $supportuserdomains = $CFG->local_liquidus_olms_cfg->support_user_domains;
+        $supportuserdomains = $CFG->local_liquidus_olms_support_user_domains;
         if (in_array(end($emaildomainarray), $supportuserdomains) || in_array($email, $supportuserdomains)) {
             return "yes";
         }
