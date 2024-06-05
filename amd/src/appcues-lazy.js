@@ -61,12 +61,14 @@ define(['jquery','core/log'],
                 const allUserRolesString = String(tracker.trackerInfo.staticShares.allUserRoles);
                 const userRoleContextString = String(tracker.trackerInfo.staticShares.userRoleContext);
                 const olmsProductString = String(tracker.trackerInfo.staticShares.olmsProduct);
+                const olmsPlatformString = String(tracker.trackerInfo.staticShares.olmsPlatform);
                 const isImpersonatedString = String(tracker.trackerInfo.staticShares.isImpersonated);
 
                 identifyData = {
                     allUserRoles: allUserRolesString,
                     userRoleContext: userRoleContextString,
                     olmsProduct: olmsProductString,
+                    olmsPlatform: olmsPlatformString,
                     isImpersonated: isImpersonatedString,
                 };
             }
