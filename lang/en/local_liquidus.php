@@ -77,6 +77,7 @@ $string['staticshares_mroomsversion'] = 'Moodle Rooms version';
 $string['staticshares_moodleversion'] = 'Moodle version';
 $string['staticshares_theme'] = 'Theme used when rendering the page';
 $string['staticshares_olmsproduct'] = 'Open LMS product';
+$string['staticshares_olmsplatform'] = 'Open LMS platform';
 $string['staticshares_isimpersonated'] = 'When an admin impersonates a user';
 $string['kinesis'] = 'AWS Kinesis';
 $string['kinesis_desc'] = 'Amazon Web Services Kinesis tracker';
