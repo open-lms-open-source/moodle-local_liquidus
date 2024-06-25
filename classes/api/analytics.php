@@ -645,7 +645,7 @@ abstract class analytics {
      * @param array|string $value Share value. This will be encoded as json.
      */
     private static function encode_and_add_json_to_html($share, $value) {
-        global $OUTPUT;
+        global $OUTPUT, $PAGE;
 
         $jsonvalue = json_encode($value);
         $provider = static::get_my_provider_name();
@@ -661,7 +661,7 @@ abstract class analytics {
         self::$renderedstaticshares .= $staticsharescript;
 
         if (!PHPUNIT_TEST){
-            echo $staticsharescript;
+            $PAGE->requires->js_init_code($staticsharescript, true);
         }
     }
 

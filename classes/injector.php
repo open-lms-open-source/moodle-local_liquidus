@@ -143,7 +143,7 @@ class injector {
                 self::$scripturl = $OUTPUT->render_from_template('local_liquidus/appcues', ['url' => $url]);
 
                 if (!PHPUNIT_TEST) {
-                    echo self::$scripturl;
+                    $page->requires->js_init_code(self::$scripturl);
                 }
 
             }

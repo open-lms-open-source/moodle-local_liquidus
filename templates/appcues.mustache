@@ -30,4 +30,7 @@
      Example context (json):
      { url: 'http:fast.appcues/accountid.js'}
  }}
- <script src="{{{url}}}"></script>
+ {{#js}}
+    $(`<script type="text/javascript">window.AppcuesSettings = { enableURLDetection: true, skipAMD: true};</`+`script>`).appendTo(document.head);
+    $(`<script src="{{{url}}}"></`+`script>`).appendTo(document.head);
+ {{/js}}
