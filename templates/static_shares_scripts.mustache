@@ -32,15 +32,15 @@
     Example context (json):
     { provider: 'mixpanel', sharecamelcase : 'siteShortName', jsonvalue: 'master' }
 }}
-<script>
 
-    if (typeof localLiquidusShares === 'undefined') {
-        var localLiquidusShares = {};
-    }
-
-    if (typeof localLiquidusShares.{{{provider}}} === 'undefined') {
-        localLiquidusShares.{{{provider}}} = {};
-    }
-    localLiquidusShares.{{{provider}}}.{{{sharecamelcase}}} = {{{jsonvalue}}};
-
-</script>
+{{#js}}
+    $(`<script>
+        if (typeof localLiquidusShares === "undefined") {
+            var localLiquidusShares = {};
+        }
+        if (typeof localLiquidusShares.{{{provider}}} === "undefined") {
+            localLiquidusShares.{{{provider}}} = {};
+        }
+        localLiquidusShares.{{{provider}}}.{{{sharecamelcase}}} = {{{jsonvalue}}};
+    </`+`script>`).appendTo(document.body);
+{{/js}}
