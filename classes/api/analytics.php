@@ -666,6 +666,10 @@ abstract class analytics
             'jsonvalue' => $jsonvalue
         ];
 
+        if ((defined('PHPUNIT_TEST') && PHPUNIT_TEST)) {
+            $data['js'] = true;
+        }
+
         $staticsharescript = $OUTPUT->render_from_template('local_liquidus/static_shares_scripts', $data);
         self::$renderedstaticshares .= $staticsharescript;
 

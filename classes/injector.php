@@ -139,8 +139,15 @@ class injector {
                 } else {
                     $url = "https://{$url}"; // Force https.
                 }
+                $data = [
+                    'url' => $url,
+                ];
 
-                self::$scripturl = $OUTPUT->render_from_template('local_liquidus/appcues', ['url' => $url]);
+                if ((defined('PHPUNIT_TEST') && PHPUNIT_TEST)) {
+                    $data['js'] = true;
+                }
+
+                self::$scripturl = $OUTPUT->render_from_template('local_liquidus/appcues', $data);
 
                 if (!PHPUNIT_TEST) {
                     $page->requires->js_init_code(self::$scripturl);
