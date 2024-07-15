@@ -61,7 +61,9 @@ function($, Log, Router) {
 
     return {
         'init': (trackerInfo) => {
-            const exceptions = 'body#page-grade-grading-form-guide-edit #guide-criteria-addcriterion';
+            const exceptions =
+                'body#page-grade-grading-form-guide-edit #guide-criteria-addcriterion, ' +
+                'body#page-blocks-conduit-view .block_conduit_setting_mappings input[type="submit"]';
             $('input[type="submit"]').not(exceptions).click(function() {
                 const input = $(this);
                 const form = input.closest('form');
