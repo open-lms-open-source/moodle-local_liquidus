@@ -507,8 +507,10 @@ abstract class analytics
             $product = 'Class for zoom';
         } elseif (array_key_exists('learnbook', $localplugins)) {
             $product = 'Learnbook';
-        } elseif (array_key_exists('ethink', $authplugins)) {
-            $product = 'Managed Hosting';
+        } elseif (array_key_exists('ethink', $authplugins) && array_key_exists('olms_work', $localplugins)) {
+            $product = 'Work Managed Hosting';
+        } elseif (array_key_exists('ethink', $authplugins) && !array_key_exists('olms_work', $localplugins)) {
+            $product = 'Moodle Managed Hosting';
         } elseif (array_key_exists('olms_work', $localplugins)) {
             $product = 'WORK';
         } elseif (array_key_exists('mrooms', $localplugins)) {
