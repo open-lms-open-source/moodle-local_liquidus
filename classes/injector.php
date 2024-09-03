@@ -259,6 +259,9 @@ class injector {
         // Normal Moodle config for client use.
         $configs[] = get_config('local_liquidus');
         // Shadow config for internal Open LMS use.
+        if (!isset($configs[0]->enabled)) {
+            $configs[0]->enabled = "0";
+        }
         $enabledbyuser = $configs[0]->enabled;
         if (!empty($CFG->local_liquidus_olms_cfg) && is_object($CFG->local_liquidus_olms_cfg)) {
             $configs[] = $CFG->local_liquidus_olms_cfg;
