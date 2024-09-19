@@ -463,9 +463,10 @@ class local_liquidus_analytics_test extends advanced_testcase {
         $issupportusershare = analytics::STATIC_SHARES_CAMEL_CASE[analytics::STATIC_IS_SUPPORT_USER];
         $jsvarname = "localLiquidusShares.{$analyticstype}.{$issupportusershare}";
         $this->assertStringContainsString($jsvarname, $injectedstaticshares);
-        $this->assertEquals("no", analytics::identify_support_users($user->email));
+        $this->assertEquals("no", analytics::identify_support_users($user->email, $user->auth));
 
         $CFG->local_liquidus_olms_support_user_domains = [$user->email]; //Add test user email to support user domain array
+        $CFG->local_liquidus_olms_support_user_auth_types = [$user->auth]; //Add test user auth method to support user auth types array
 
         $classname::clear_rendered_static_shares();
         $classname::build_static_shares(get_config('local_liquidus'));
@@ -480,7 +481,7 @@ class local_liquidus_analytics_test extends advanced_testcase {
 
         $jsvarname = "localLiquidusShares.{$analyticstype}.{$issupportusershare}";
         $this->assertStringContainsString($jsvarname, $injectedstaticshares);
-        $this->assertEquals("yes", analytics::identify_support_users($user->email));
+        $this->assertEquals("yes", analytics::identify_support_users($user->email, $user->auth));
 
         $emaildomainarray = explode("@", $user->email);
         $CFG->local_liquidus_olms_support_user_domains = [end($emaildomainarray)]; //Add test user email domain to support user domain array
@@ -498,7 +499,13 @@ class local_liquidus_analytics_test extends advanced_testcase {
 
         $jsvarname = "localLiquidusShares.{$analyticstype}.{$issupportusershare}";
         $this->assertStringContainsString($jsvarname, $injectedstaticshares);
-        $this->assertEquals("yes", analytics::identify_support_users($user->email));
+        $this->assertEquals("yes", analytics::identify_support_users($user->email, $user->auth));
+
+        // Unset user domains flag to test auth types flag.
+        $CFG->local_liquidus_olms_support_user_domains = null;
+        $this->assertEquals("yes", analytics::identify_support_users($user->email, $user->auth));
+        $CFG->local_liquidus_olms_support_user_auth_types = null;
+        $this->assertEquals("no", analytics::identify_support_users($user->email, $user->auth));
 
     }
 

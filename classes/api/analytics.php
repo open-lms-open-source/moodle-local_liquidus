@@ -296,7 +296,7 @@ abstract class analytics
         }
 
         global $CFG;
-        $issupportuser = self::identify_support_users($user->email);
+        $issupportuser = self::identify_support_users($user->email, $user->auth);
         if ($issupportuser === "yes" && ($CFG->local_liquidus_disable_support_user_domain_tracking ?? true)) {
             return false;
         }
@@ -436,7 +436,7 @@ abstract class analytics
                     $value = $PAGE->theme->name;
                     break;
                 case self::STATIC_IS_SUPPORT_USER:
-                    $value = self::identify_support_users($user->email);
+                    $value = self::identify_support_users($user->email, $user->auth);
                     break;
                 case self::STATIC_MROOMS_VERSION:
                     $value = self::get_mrooms_version();
@@ -634,18 +634,26 @@ abstract class analytics
         self::encode_and_add_json_to_html(self::STATIC_ALL_USER_ROLES, $allrolesuser);
     }
 
-    public static function identify_support_users(string $email)
+    public static function identify_support_users(string $email, string $auth)
     {
         global $CFG;
 
         $emaildomainarray = explode("@", $email);
-        if (!isset($CFG->local_liquidus_olms_support_user_domains)) {
+        if (!isset($CFG->local_liquidus_olms_support_user_domains) && !isset($CFG->local_liquidus_olms_support_user_auth_types)) {
             return "no";
         }
 
-        $supportuserdomains = $CFG->local_liquidus_olms_support_user_domains;
-        if (in_array(end($emaildomainarray), $supportuserdomains) || in_array($email, $supportuserdomains)) {
-            return "yes";
+        if (isset($CFG->local_liquidus_olms_support_user_domains)) {
+            $supportuserdomains = $CFG->local_liquidus_olms_support_user_domains;
+            if (in_array(end($emaildomainarray), $supportuserdomains) || in_array($email, $supportuserdomains)) {
+                return "yes";
+            }
+        }
+        if (isset($CFG->local_liquidus_olms_support_user_auth_types)) {
+            $supportuserauthmethods = $CFG->local_liquidus_olms_support_user_auth_types;
+            if (in_array($auth, $supportuserauthmethods)) {
+                return "yes";
+            }
         }
 
         return "no";
