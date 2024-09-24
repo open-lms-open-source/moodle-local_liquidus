@@ -129,12 +129,21 @@ This flag is set as a string:
 
 ### The  `local_liquidus_olms_support_user_domains` flag.
 This flag is used to set the support user domain. This can be used along with the `local_liquidus_disable_support_user_domain_tracking`
-flag to disable the support user tracking.
+flag to disable or enable the support user tracking.
 
 This flag is set as an array of strings:
 
 - `$CFG->local_liquidus_olms_support_user_domains = ["support@example.net"];` the user with the domain `support@example.net` will be set as the support user.
-- `$CFG->local_liquidus_olms_support_user_domains: unset` no user will be set as the support user.
+- `$CFG->local_liquidus_olms_support_user_domains: unset` no user will be set as the support user based on the user domain.
+
+### The  `local_liquidus_olms_support_user_auth_types` flag.
+This flag is used to set the support user authentication types. This can be used along with the `local_liquidus_disable_support_user_domain_tracking`
+flag to disable or enable the support user tracking.
+
+This flag is set as an array of strings:
+
+- `$CFG->local_liquidus_olms_support_user_auth_types = ['manual', 'email'];` the user with the authentication method `manual` or `email` will be set as the support user.
+- `$CFG->local_liquidus_olms_support_user_auth_types: unset` no user will be set as the support user based on the authentication method.
 
 
 ### The  `local_liquidus_trackers_require_consent` flag.
