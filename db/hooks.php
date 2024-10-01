@@ -13,17 +13,18 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * Version file for Liquidus plugin.
- *
  * @package   local_liquidus
- * @copyright Copyright (c) 2020 Open LMS
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @author    Jonathan Garcia Gomez <jonathan.garcia@openlms.net>
+ * @copyright Copyright (c) 2024 Open LMS (https://www.openlms.net)
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  */
-defined('MOODLE_INTERNAL') || die();
-/** @var object $plugin */
-$plugin->version = 2024091701; // The current plugin version (Date: YYYYMMDDXX).
-$plugin->requires = 2022112800; // Requires this Moodle version.
-$plugin->component = 'local_liquidus'; // Full name of the plugin (used for diagnostics).
-$plugin->maturity = MATURITY_STABLE;
-$plugin->release = '4.3.4';
+
+$callbacks = [
+    [
+        'hook' => core\hook\output\before_footer_html_generation::class,
+        'callback' => [\local_liquidus\hook_callbacks::class, 'before_footer_html_generation'],
+        'priority' => 0,
+    ],
+];

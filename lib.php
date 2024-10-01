@@ -27,15 +27,6 @@ use local_liquidus\injector;
 
 require_once(__DIR__.'/../../config.php');
 
-
-/**
- * Used in Moodle 3.3+ to inject a chunk of JS or CSS into every page.
- * Used because this callback does not buffer outputs.
- */
-//function local_liquidus_before_footer() { To be reviewed in INT-20323.
-//    injector::get_instance()->inject();
-//}
-
 function local_liquidus_create_consent_log() {
     global $USER, $DB;
 
