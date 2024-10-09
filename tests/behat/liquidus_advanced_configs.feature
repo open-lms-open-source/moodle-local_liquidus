@@ -9,8 +9,7 @@ Feature: Liquidus plugin configuration
       | local_liquidus_disable_tracker_config | 0 |
     And I log in as "admin"
     And I am on site homepage
-    And I navigate to "Plugins > Local plugins" in site administration
-    And I follow "Liquidus"
+    And I navigate to "Plugins > Liquidus" in site administration
     And I should see "Enabled"
     And I should see "Handle masquerading"
     And I should see "Tracking Admins"
@@ -24,8 +23,7 @@ Feature: Liquidus plugin configuration
       | local_liquidus_disable_tracker_config | 1 |
     And I log in as "admin"
     And I am on site homepage
-    And I navigate to "Plugins > Local plugins" in site administration
-    And I follow "Liquidus"
+    And I navigate to "Plugins > Liquidus" in site administration
     And I should see "Enabled"
     And I should not see "Handle masquerading"
     And I should not see "Tracking Admins"
