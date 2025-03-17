@@ -75,8 +75,12 @@ define(['jquery','core/log'],
                 };
 
                 /* global mixpanel */
-                if(!skipFormTrack(currentForm[0].baseURI, id)){
-                    mixpanel.track_forms(currentForm, 'Form submitted', eventProperties);
+                if (!skipFormTrack(currentForm[0].baseURI, id)) {
+                    // Once the form is submitted, send the event data to Mixpanel.
+                    currentForm.on('submit', function() {
+                        mixpanel.track('Form submitted', eventProperties, {send_immediately: true});
+                        Log.debug('[mixpanel] Form Submitted Sent.');
+                    });
                 }
             });
         };
@@ -128,7 +132,7 @@ define(['jquery','core/log'],
             /* global mixpanel */
             mixpanel.track(metricName, data, {send_immediately: true}, () => {
                 dfd.resolve();
-                Log.debug('[mixpanel] Sent custom event.');
+                Log.debug('[mixpanel] Custom event Sent.');
             });
         };
 
