@@ -23,7 +23,7 @@
 namespace local_liquidus;
 
 use local_liquidus\api\analytics;
-use moodle_url;
+use \core\url;
 
 defined('MOODLE_INTERNAL') || die();
 
