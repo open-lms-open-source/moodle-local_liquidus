@@ -46,7 +46,7 @@ class local_liquidus_injector_testcase extends advanced_testcase {
      * @param string $type tracker type
      * @param int $configtype config type: self::CONFIG_TYPE_SETTING || self::CONFIG_TYPE_SHADOW
      * @param int $requirecallcount Amount of expected JS require calls
-     * @throws coding_exception
+     * @throws \core\exception\coding_exception
      */
     private function run_injection_type($type, $configtype = self::CONFIG_TYPE_SETTING, $requirecallcount = 1) {
         global $PAGE;
@@ -170,7 +170,7 @@ class local_liquidus_injector_testcase extends advanced_testcase {
      * @dataProvider get_analytics_types
      *
      * @param string $analyticstype
-     * @throws coding_exception
+     * @throws \core\exception\coding_exception
      */
     public function test_injector_with_settings($analyticstype) {
         set_config($analyticstype.'_tracknonadmin', '1', 'local_liquidus');
@@ -183,7 +183,7 @@ class local_liquidus_injector_testcase extends advanced_testcase {
      * @dataProvider get_analytics_types
      *
      * @param string $analyticstype
-     * @throws coding_exception
+     * @throws \core\exception\coding_exception
      */
     public function test_injector_shadow($analyticstype) {
         global $CFG;
@@ -198,7 +198,7 @@ class local_liquidus_injector_testcase extends advanced_testcase {
      * @dataProvider get_analytics_types
      *
      * @param string $analyticstype
-     * @throws coding_exception
+     * @throws \core\exception\coding_exception
      */
     public function test_injector_no_track($analyticstype) {
         global $CFG;

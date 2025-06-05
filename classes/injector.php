@@ -169,11 +169,11 @@ class injector {
 
     /**
      * @param $testpage
-     * @throws \coding_exception
+     * @throws \core\exception\coding_exception
      */
     public function set_test_page($testpage) {
         if (!defined('PHPUNIT_TEST') && !PHPUNIT_TEST) {
-            throw new \coding_exception('Test page can only be set when running tests.');
+            throw new \core\exception\coding_exception('Test page can only be set when running tests.');
         }
         $this->testpage = $testpage;
     }

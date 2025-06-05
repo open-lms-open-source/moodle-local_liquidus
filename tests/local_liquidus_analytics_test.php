@@ -41,7 +41,7 @@ class local_liquidus_analytics_test extends advanced_testcase {
      * @dataProvider get_analytics_types
      *
      * @param string $analyticstype
-     * @throws coding_exception
+     * @throws \core\exception\coding_exception
      */
     public function test_get_static_shares_default($analyticstype) {
         global $PAGE;
@@ -86,7 +86,7 @@ class local_liquidus_analytics_test extends advanced_testcase {
      * @dataProvider get_analytics_types
      *
      * @param string $analyticstype
-     * @throws coding_exception
+     * @throws \core\exception\coding_exception
      */
     public function test_get_identifiable_static_shares($analyticstype) {
         global $CFG, $PAGE;
@@ -157,7 +157,7 @@ class local_liquidus_analytics_test extends advanced_testcase {
      * @dataProvider get_analytics_types
      *
      * @param string $analyticstype
-     * @throws coding_exception
+     * @throws \core\exception\coding_exception
      */
     public function test_get_static_shares_with_specified_providers($analyticstype) {
         global $CFG, $PAGE;
@@ -225,7 +225,7 @@ class local_liquidus_analytics_test extends advanced_testcase {
      * Test admins and non-admins are tracked as expected
      * @dataProvider get_analytics_types
      *
-     * @throws coding_exception
+     * @throws \core\exception\coding_exception
      */
     public function test_tracking_admin_non_admin() {
         global $PAGE;
@@ -298,7 +298,7 @@ class local_liquidus_analytics_test extends advanced_testcase {
      * @dataProvider get_analytics_types
      *
      * @param string $analyticstype
-     * @throws coding_exception
+     * @throws \core\exception\coding_exception
      */
     public function test_no_tracking_if_no_context($analyticstype) {
         global $PAGE, $CFG;
@@ -351,7 +351,7 @@ class local_liquidus_analytics_test extends advanced_testcase {
      * @dataProvider get_analytics_types
      *
      * @param string $analyticstype
-     * @throws coding_exception
+     * @throws \core\exception\coding_exception
      */
     public function test_current_theme($analyticstype) {
         global $PAGE, $CFG;
@@ -420,7 +420,7 @@ class local_liquidus_analytics_test extends advanced_testcase {
      * @dataProvider get_analytics_types
      *
      * @param string $analyticstype
-     * @throws coding_exception
+     * @throws \core\exception\coding_exception
      */
     public function test_is_support_user($analyticstype) {
         global $PAGE, $CFG;
@@ -508,7 +508,7 @@ class local_liquidus_analytics_test extends advanced_testcase {
      * @dataProvider get_analytics_types
      *
      * @param string $analyticstype
-     * @throws coding_exception
+     * @throws \core\exception\coding_exception
      */
     public function test_tracking_based_on_role() {
         global $PAGE;
