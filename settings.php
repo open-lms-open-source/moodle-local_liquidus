@@ -47,14 +47,14 @@ if ($ADMIN->fulltree) {
     // We need to import the library to use a setting update callback in here.
     require_once($CFG->dirroot.'/local/liquidus/lib.php');
 
-    $name = new lang_string('general', $pluginname);
-    $description = new lang_string('general_help', $pluginname);
+    $name = new \core\lang_string('general', $pluginname);
+    $description = new \core\lang_string('general_help', $pluginname);
     $settings->add(new admin_setting_heading('general', $name, $description));
 
     $name = "{$pluginname}/enabled";
-    $title = new lang_string('enabled', $pluginname);
-    $description = empty($CFG->local_liquidus_disable_tracker_config) ? new lang_string('enabled_desc', $pluginname) :
-        new lang_string('enabled_olms_desc', $pluginname);
+    $title = new \core\lang_string('enabled', $pluginname);
+    $description = empty($CFG->local_liquidus_disable_tracker_config) ? new \core\lang_string('enabled_desc', $pluginname) :
+        new \core\lang_string('enabled_olms_desc', $pluginname);
     $default = '0';
     $setting = new admin_setting_configcheckbox($name, $title, $description, $default);
     $setting->set_updatedcallback('local_liquidus_create_consent_log');
@@ -64,32 +64,32 @@ if ($ADMIN->fulltree) {
 
         $types = injector::get_instance()->get_analytics_types();
         foreach ($types as $type) {
-            $name = new lang_string($type, $pluginname);
-            $description = new lang_string("{$type}_desc", $pluginname);
+            $name = new \core\lang_string($type, $pluginname);
+            $description = new \core\lang_string("{$type}_desc", $pluginname);
             // Setting names must be unique due to bugs in admin_apply_default_settings.
             $settings->add(new admin_setting_heading('heading' . $type, $name, $description));
 
             $prefix = "{$pluginname}/{$type}";
 
             $name = $prefix;
-            $title = new lang_string($type, $pluginname);
-            $description = new lang_string("{$type}_desc", $pluginname);
+            $title = new \core\lang_string($type, $pluginname);
+            $description = new \core\lang_string("{$type}_desc", $pluginname);
             $default = '0';
             $setting = new admin_setting_configcheckbox($name, $title, $description, $default);
             $settings->add($setting);
 
             if (!empty($CFG->local_liquidus_enable_eventdef)) {
                 $name = "{$prefix}_eventdef";
-                $title = new lang_string('eventdef', $pluginname);
-                $description = new lang_string('eventdef_desc', $pluginname);
+                $title = new \core\lang_string('eventdef', $pluginname);
+                $description = new \core\lang_string('eventdef_desc', $pluginname);
                 $default = '';
                 $setting = new admin_setting_configtextarea($name, $title, $description, $default);
                 $settings->add($setting);
             }
 
             $name = "{$prefix}_unidentifiable_staticshares";
-            $title = new lang_string('unidentifiable_staticshares', $pluginname);
-            $description = new lang_string('unidentifiable_staticshares_desc', $pluginname);
+            $title = new \core\lang_string('unidentifiable_staticshares', $pluginname);
+            $description = new \core\lang_string('unidentifiable_staticshares_desc', $pluginname);
             $staticshares = $default = [];
             foreach (\local_liquidus\api\analytics::UNIDENTIFIABLE_STATIC_SHARES as $share) {
                 $staticshares[$share] = get_string('staticshares_' . $share, 'local_liquidus');
@@ -99,44 +99,44 @@ if ($ADMIN->fulltree) {
             $settings->add($setting);
 
             $name = "{$prefix}_masquerade_handling";
-            $title = new lang_string('masquerade_handling', $pluginname);
-            $description = new lang_string('masquerade_handling_desc', $pluginname);
+            $title = new \core\lang_string('masquerade_handling', $pluginname);
+            $description = new \core\lang_string('masquerade_handling_desc', $pluginname);
             $default = '0';
             $setting = new admin_setting_configcheckbox($name, $title, $description, $default);
             $settings->add($setting);
 
             $name = "{$prefix}_trackadmin";
-            $title = new lang_string('trackadmin', $pluginname);
-            $description = new lang_string('trackadmin_desc', $pluginname);
+            $title = new \core\lang_string('trackadmin', $pluginname);
+            $description = new \core\lang_string('trackadmin_desc', $pluginname);
             $default = '0';
             $setting = new admin_setting_configcheckbox($name, $title, $description, $default);
             $settings->add($setting);
 
             $name = "{$prefix}_tracknonadmin";
-            $title = new lang_string('tracknonadmin', $pluginname);
-            $description = new lang_string('tracknonadmin_desc', $pluginname);
+            $title = new \core\lang_string('tracknonadmin', $pluginname);
+            $description = new \core\lang_string('tracknonadmin_desc', $pluginname);
             $default = '1';
             $setting = new admin_setting_configcheckbox($name, $title, $description, $default);
             $settings->add($setting);
 
             $name = "{$prefix}_cleanurl";
-            $title = new lang_string('cleanurl', $pluginname);
-            $description = new lang_string('cleanurl_desc', $pluginname);
+            $title = new \core\lang_string('cleanurl', $pluginname);
+            $description = new \core\lang_string('cleanurl_desc', $pluginname);
             $default = '1';
             $setting = new admin_setting_configcheckbox($name, $title, $description, $default);
             $settings->add($setting);
 
             // TODO: Enable and show this setting only if user has accepted the privacy agreement.
             $name = "{$prefix}_share_identifiable";
-            $title = new lang_string('shareidentifiable', $pluginname);
-            $description = new lang_string('shareidentifiable_desc', $pluginname);
+            $title = new \core\lang_string('shareidentifiable', $pluginname);
+            $description = new \core\lang_string('shareidentifiable_desc', $pluginname);
             $default = '0';
             $setting = new admin_setting_configcheckbox($name, $title, $description, $default);
             $settings->add($setting);
 
             $name = "{$prefix}_trackroles";
-            $title = new lang_string('trackroles', $pluginname);
-            $description = new lang_string('trackroles_desc', $pluginname);
+            $title = new \core\lang_string('trackroles', $pluginname);
+            $description = new \core\lang_string('trackroles_desc', $pluginname);
             $roles = $default = [];
             $allrolesshortname = local_liquidus\api\analytics::get_allrolesshortname();
             foreach ($allrolesshortname as $role) {
@@ -148,8 +148,8 @@ if ($ADMIN->fulltree) {
 
             if (!empty($CFG->local_liquidus_identifiable_share_providers) && in_array($type, $CFG->local_liquidus_identifiable_share_providers)) {
                 $name = "{$prefix}_identifiable_staticshares";
-                $title = new lang_string('identifiable_staticshares', $pluginname);
-                $description = new lang_string('identifiable_staticshares_desc', $pluginname);
+                $title = new \core\lang_string('identifiable_staticshares', $pluginname);
+                $description = new \core\lang_string('identifiable_staticshares_desc', $pluginname);
                 $staticshares = $default = [];
                 foreach (\local_liquidus\api\analytics::IDENTIFIABLE_STATIC_SHARES as $share) {
                     $staticshares[$share] = get_string('staticshares_' . $share, 'local_liquidus');
@@ -163,8 +163,8 @@ if ($ADMIN->fulltree) {
             foreach (injector::SETTING_PROVIDER_MAPPING as $setting => $providers) {
                 if (isset($providers[$type])) {
                     $name = "{$prefix}_{$setting}";
-                    $title = new lang_string($setting, $pluginname);
-                    $description = new lang_string("{$setting}_desc", $pluginname);
+                    $title = new \core\lang_string($setting, $pluginname);
+                    $description = new \core\lang_string("{$setting}_desc", $pluginname);
                     $default = '0';
                     $setting = new admin_setting_configcheckbox($name, $title, $description, $default);
                     $settings->add($setting);
@@ -181,8 +181,8 @@ if ($ADMIN->fulltree) {
             $configsettings = $engine::get_config_settings();
             foreach ($configsettings as $configsetting) {
                 $name = "{$pluginname}/{$configsetting}";
-                $title = new lang_string($configsetting, $pluginname);
-                $description = new lang_string("{$configsetting}_desc", $pluginname);
+                $title = new \core\lang_string($configsetting, $pluginname);
+                $description = new \core\lang_string("{$configsetting}_desc", $pluginname);
                 $default = '';
                 $setting = new admin_setting_configtext($name, $title, $description, $default);
                 $settings->add($setting);
