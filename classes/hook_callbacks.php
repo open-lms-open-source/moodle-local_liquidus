@@ -29,6 +29,29 @@ class hook_callbacks {
      * @param \core\hook\output\before_footer_html_generation $hook
      */
     public static function before_footer_html_generation(\core\hook\output\before_footer_html_generation $hook): void {
-        injector::get_instance()->inject();
+        global $CFG;
+
+        if (during_initial_install() || isset($CFG->upgraderunning)) {
+            // Do nothing during installation or upgrade.
+            return;
+        }
+        if (get_config('local_liquidus', 'enabled')) {
+            injector::get_instance()->inject();
+        }
+    }
+
+    /**
+     * Used to inject dependencies.
+     */
+    public static function before_standard_head_html_generation (\core\hook\output\before_standard_head_html_generation $hook): void {
+        global $PAGE;
+
+        if (during_initial_install() || isset($CFG->upgraderunning)) {
+            // Do nothing during installation or upgrade.
+            return;
+        }
+        if (get_config('local_liquidus', 'enabled')) {
+            $PAGE->requires->jquery();
+        }
     }
 }
