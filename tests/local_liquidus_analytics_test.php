@@ -592,7 +592,7 @@ class local_liquidus_analytics_test extends advanced_testcase {
     /**
      * @return array|false|string[]
      */
-    public function get_analytics_types() {
+    public static function get_analytics_types() {
         $types = [];
         foreach (injector::get_instance()->get_analytics_types() as $type) {
             $types[$type] = [$type];

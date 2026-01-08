@@ -21,16 +21,16 @@
  * @copyright  Copyright (c) 2020 Open LMS
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+namespace local_liquidus;
 
 use local_liquidus\api\analytics;
 use local_liquidus\injector;
-
-defined('MOODLE_INTERNAL') || die();
+use stdClass;
 
 /**
  * @group local_liquidus
  */
-class local_liquidus_injector_testcase extends advanced_testcase {
+class injector_test extends \advanced_testcase {
 
     const CONFIG_TYPE_SETTING = 0;
     const CONFIG_TYPE_SHADOW = 1;
@@ -214,7 +214,7 @@ class local_liquidus_injector_testcase extends advanced_testcase {
     /**
      * @return array|false|string[]
      */
-    public function get_analytics_types() {
+    public static function get_analytics_types(): array {
         $types = [];
         foreach (injector::get_instance()->get_analytics_types() as $type) {
             $types[$type] = [$type];
