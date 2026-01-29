@@ -237,7 +237,13 @@ class injector {
             }
 
             // Get extra configurations unique to the tracker.
-            $trackerinfo = [...$trackerinfo, ...$engine::get_extra_configs($config)];
+            if (version_compare(phpversion(), '8.1', '>=')) {
+                // PHP 8.1+: Allows unpacking arrays with string keys.
+                $trackerinfo = [...$trackerinfo, ...$engine::get_extra_configs($config)];
+            } else {
+                // PHP < 8.1: better use array_merge.
+                $trackerinfo = array_merge($trackerinfo, $engine::get_extra_configs($config));
+            }
 
             // Last but not least, inject static shares to HTML.
             $engine::build_static_shares($config);
