@@ -29,10 +29,19 @@ class hook_callbacks {
      * @param \core\hook\output\before_footer_html_generation $hook
      */
     public static function before_footer_html_generation(\core\hook\output\before_footer_html_generation $hook): void {
-        global $CFG;
+        global $CFG, $SESSION;
 
         if (during_initial_install() || isset($CFG->upgraderunning)) {
             // Do nothing during installation or upgrade.
+            return;
+        }
+        // Skip injection while MFA is pending for the session: the analytics JS
+        // fires an AJAX request to local_liquidus_event_definition, which tool_mfa
+        // rejects with 'redirecterrordetected' until the user has passed MFA.
+        if (isloggedin() && !isguestuser()
+                && empty($SESSION->tool_mfa_authenticated)
+                && class_exists(\tool_mfa\manager::class)
+                && \tool_mfa\manager::is_ready()) {
             return;
         }
         if (get_config('local_liquidus', 'enabled')) {
@@ -44,10 +53,17 @@ class hook_callbacks {
      * Used to inject dependencies.
      */
     public static function before_standard_head_html_generation (\core\hook\output\before_standard_head_html_generation $hook): void {
-        global $PAGE;
+        global $CFG, $PAGE, $SESSION;
 
         if (during_initial_install() || isset($CFG->upgraderunning)) {
             // Do nothing during installation or upgrade.
+            return;
+        }
+        // Stay aligned with the footer hook: skip while MFA is pending.
+        if (isloggedin() && !isguestuser()
+                && empty($SESSION->tool_mfa_authenticated)
+                && class_exists(\tool_mfa\manager::class)
+                && \tool_mfa\manager::is_ready()) {
             return;
         }
         if (get_config('local_liquidus', 'enabled')) {
