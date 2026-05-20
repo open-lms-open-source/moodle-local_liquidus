@@ -385,7 +385,7 @@ abstract class analytics {
             $value = '';
             switch ($staticshare) {
                 case self::STATIC_USER_HASH:
-                    $value = sha1($SITE->shortname . '-' . $user->id . '-' . $user->username);
+                    $value = sha1(($CFG->MR_SHORT_NAME ?? $SITE->shortname) . '-' . $user->id . '-' . $user->username);
                     break;
                 case self::STATIC_USER_ROLE_CONTEXT:
                     self::add_user_roles_in_context_to_html($PAGE->context, $user->id, $issiteadmin);
