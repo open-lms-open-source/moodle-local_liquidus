@@ -44,7 +44,7 @@ class hook_callbacks {
                 && \tool_mfa\manager::is_ready()) {
             return;
         }
-        if (get_config('local_liquidus', 'enabled')) {
+        if (get_config('local_liquidus', 'enabled') || !empty($CFG->local_liquidus_disable_tracker_config)) {
             injector::get_instance()->inject();
         }
     }
@@ -66,7 +66,7 @@ class hook_callbacks {
                 && \tool_mfa\manager::is_ready()) {
             return;
         }
-        if (get_config('local_liquidus', 'enabled')) {
+        if (get_config('local_liquidus', 'enabled') || !empty($CFG->local_liquidus_disable_tracker_config)) {
             $PAGE->requires->jquery();
         }
     }
